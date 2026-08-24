@@ -1,0 +1,11 @@
+/node_modules
+/.next
+/.tools
+/out
+/coverage
+*.log
+factoryos-*.png
+/.browser-*
+.DS_Store
+.env*
+!.env.example
