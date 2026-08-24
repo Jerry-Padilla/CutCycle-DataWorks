@@ -10,6 +10,13 @@ import { InspectionStation } from "@/components/factory/InspectionStation";
 import { Part } from "@/components/factory/Part";
 import { RobotArm } from "@/components/factory/RobotArm";
 import { SawStation } from "@/components/factory/SawStation";
+import {
+  CMM_STATIONS,
+  CNC_LINES,
+  FRONT_INFEED_CONVEYORS,
+  REAR_OUTFEED_CONVEYORS,
+  SAW_STATIONS,
+} from "@/lib/factory/layout";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
 function Cell() {
@@ -28,26 +35,22 @@ function Cell() {
       <pointLight position={[14,7,0]} intensity={18} distance={11} color="#bfe8ff" />
       <group onPointerMissed={() => select(null)}>
         <FactoryFloor />
-        <CNC id="CNC-01" position={[-9,0,-2.5]} />
-        <CNC id="CNC-02" position={[-5.4,0,-2.5]} />
-        <AuxiliaryCNC label="CNC-03" position={[-1.8,0,-2.5]} />
-        <AuxiliaryCNC label="CNC-04" position={[1.8,0,-2.5]} />
-        <AuxiliaryCNC label="CNC-05" position={[5.4,0,-2.5]} />
-        <AuxiliaryCNC label="CNC-06" position={[9,0,-2.5]} />
-        <AuxiliaryCNC label="CNC-07" position={[-9,0,2.5]} rotationY={Math.PI} />
-        <AuxiliaryCNC label="CNC-08" position={[-5.4,0,2.5]} rotationY={Math.PI} />
-        <AuxiliaryCNC label="CNC-09" position={[-1.8,0,2.5]} rotationY={Math.PI} />
-        <AuxiliaryCNC label="CNC-10" position={[1.8,0,2.5]} rotationY={Math.PI} />
-        <AuxiliaryCNC label="CNC-11" position={[5.4,0,2.5]} rotationY={Math.PI} />
-        <AuxiliaryCNC label="CNC-12" position={[9,0,2.5]} rotationY={Math.PI} />
-        <Conveyor position={[0,.78,-4.4]} length={24} productionLane />
-        <Conveyor position={[0,.78,4.4]} length={24} />
-        <SawStation label="SAW-01" position={[-13.4,0,-4.4]} />
-        <SawStation label="SAW-02" position={[-13.4,0,4.4]} />
+        {CNC_LINES.flatMap((line) => line.machines).map((machine) => machine.instrumentedId ? (
+          <CNC key={machine.label} id={machine.instrumentedId} position={machine.position} rotationY={machine.rotationY} />
+        ) : (
+          <AuxiliaryCNC key={machine.label} label={machine.label} position={machine.position} rotationY={machine.rotationY} />
+        ))}
+        {REAR_OUTFEED_CONVEYORS.map((conveyor, index) => (
+          <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} productionLane={index === 0} />
+        ))}
+        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} />)}
+        {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
         <RobotArm />
-        <InspectionStation />
-        <InspectionStation position={[14,0,0]} auxiliaryLabel="CMM-02" />
-        <InspectionStation position={[14,0,4.4]} auxiliaryLabel="CMM-03" />
+        {CMM_STATIONS.map((cmm) => cmm.instrumented ? (
+          <InspectionStation key={cmm.label} position={cmm.position} />
+        ) : (
+          <InspectionStation key={cmm.label} position={cmm.position} auxiliaryLabel={cmm.label} />
+        ))}
         {parts.map((part,index) => <Part key={part.id} part={part} stackIndex={index} />)}
       </group>
       <ContactShadows position={[0,.03,0]} opacity={.32} scale={34} blur={2.8} far={8} frames={1} />
