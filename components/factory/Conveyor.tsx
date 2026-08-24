@@ -1,21 +1,46 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
+import { conveyorRollerAngleDelta } from "@/lib/simulation/kinematics";
+import { useFactoryStore } from "@/store/useFactoryStore";
 
-export function Conveyor() {
+interface ConveyorProps {
+  position: [number, number, number];
+  length?: number;
+  rotationY?: number;
+  productionLane?: boolean;
+}
+
+export function Conveyor({ position, length = 8, rotationY = 0, productionLane = false }: ConveyorProps) {
   const rollers = useRef<Group>(null);
-  useFrame((_, delta) => { if (rollers.current) rollers.current.children.forEach((roller) => { roller.rotation.z -= delta * 2.4; }); });
-  const angle = -Math.atan2(1.9, 3.6);
+  const paused = useFactoryStore((state) => state.paused);
+  const speed = useFactoryStore((state) => state.speed);
+  const hasPartInTransfer = useFactoryStore((state) => state.parts.some((part) => part.currentStation === "CONVEYOR"));
+  const rollerPositions = useMemo(() => {
+    const count = Math.max(2, Math.floor((length - .5) / .58) + 1);
+    const spacing = (length - .7) / (count - 1);
+    return Array.from({ length: count }, (_, index) => -length / 2 + .35 + spacing * index);
+  }, [length]);
+  useFrame((_, delta) => {
+    if (!rollers.current || paused || (productionLane && !hasPartInTransfer)) return;
+    const angleDelta = conveyorRollerAngleDelta(delta, speed);
+    rollers.current.children.forEach((roller) => { roller.rotation.z += angleDelta; });
+  });
   return (
-    <group position={[2.7,.78,-1.3]} rotation={[0,angle,0]}>
-      <mesh castShadow receiveShadow><boxGeometry args={[4.25,.28,1.15]} /><meshStandardMaterial color="#27343b" metalness={.62} roughness={.42} /></mesh>
-      <mesh position={[0,.18,0]}><boxGeometry args={[4.05,.12,.92]} /><meshStandardMaterial color="#151c20" roughness={.76} /></mesh>
+    <group position={position} rotation={[0,rotationY,0]}>
+      <mesh castShadow receiveShadow><boxGeometry args={[length,.28,1.15]} /><meshStandardMaterial color="#27343b" metalness={.62} roughness={.42} /></mesh>
+      <mesh position={[0,.18,0]}><boxGeometry args={[length - .2,.12,.92]} /><meshStandardMaterial color="#151c20" roughness={.76} /></mesh>
       <group ref={rollers} position={[0,.27,0]}>
-        {[-1.7,-1.1,-.5,.1,.7,1.3,1.8].map((x) => <mesh key={x} position={[x,0,0]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.08,.08,.92,10]} /><meshStandardMaterial color="#718087" metalness={.82} roughness={.24} /></mesh>)}
+        {rollerPositions.map((x) => (
+          <group key={x} position={[x,0,0]} userData={{ rotationAxis: "Z", assembly: "conveyor-roller" }}>
+            <mesh rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.08,.08,.92,14]} /><meshStandardMaterial color="#718087" metalness={.82} roughness={.24} /></mesh>
+            <mesh position={[0,.078,0]}><boxGeometry args={[.026,.018,.82]} /><meshStandardMaterial color="#b7c5ca" metalness={.72} roughness={.2} /></mesh>
+          </group>
+        ))}
       </group>
-      {[-1.8,1.8].map((x) => [-.46,.46].map((z) => <mesh key={`${x}-${z}`} position={[x,-.65,z]}><boxGeometry args={[.12,1.25,.12]} /><meshStandardMaterial color="#606d73" metalness={.7} /></mesh>))}
+      {[-length / 2 + .3,length / 2 - .3].map((x) => [-.46,.46].map((z) => <mesh key={`${x}-${z}`} position={[x,-.65,z]}><boxGeometry args={[.12,1.25,.12]} /><meshStandardMaterial color="#606d73" metalness={.7} /></mesh>))}
     </group>
   );
 }

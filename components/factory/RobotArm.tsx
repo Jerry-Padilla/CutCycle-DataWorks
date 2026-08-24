@@ -23,7 +23,7 @@ export function RobotArm() {
   });
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select("ROBOT-01"); };
   return (
-    <group position={[5.4,0,0]} onClick={click} userData={{ machineId:"ROBOT-01" }}>
+    <group position={[7.4,0,0]} onClick={click} userData={{ machineId:"ROBOT-01" }}>
       <mesh position={[0,.25,0]} castShadow><cylinderGeometry args={[.72,.88,.5,20]} /><meshStandardMaterial color="#313d44" metalness={.65} roughness={.34} /></mesh>
       <group ref={base} position={[0,.48,0]}>
         <mesh position={[0,.55,0]} castShadow><cylinderGeometry args={[.42,.52,1.1,16]} /><meshStandardMaterial color="#d2a934" metalness={.45} roughness={.36} /></mesh>

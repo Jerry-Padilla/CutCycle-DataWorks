@@ -28,7 +28,7 @@ export function ExploreController() {
   const raycaster = useRef(new Raycaster());
 
   useEffect(() => {
-    camera.position.set(0,1.7,7.5);
+    camera.position.set(1,1.7,8.5);
     camera.lookAt(0,1.5,0);
     const euler = new Euler().setFromQuaternion(camera.quaternion, "YXZ");
     angles.current = { yaw:euler.y,pitch:euler.x };
@@ -67,7 +67,7 @@ export function ExploreController() {
     const side = Number(keys.current.has("d"))-Number(keys.current.has("a"))+mobileMove.current.x;
     const direction = new Vector3(side,0,-forward).applyAxisAngle(new Vector3(0,1,0),angles.current.yaw).multiplyScalar(delta*4.2);
     camera.position.add(direction);
-    camera.position.x=Math.max(-10.5,Math.min(10.5,camera.position.x)); camera.position.z=Math.max(-7.2,Math.min(7.2,camera.position.z)); camera.position.y=1.7;
+    camera.position.x=Math.max(-15.5,Math.min(15.5,camera.position.x)); camera.position.z=Math.max(-9.5,Math.min(9.5,camera.position.z)); camera.position.y=1.7;
   });
   return null;
 }
