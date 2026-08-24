@@ -6,8 +6,11 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-5eb7e8.svg)](LICENSE)
 [![CI](https://github.com/Jerry-Padilla/FactoryOS/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerry-Padilla/FactoryOS/actions/workflows/ci.yml)
+[![Live on Vercel](https://img.shields.io/badge/Live_on_Vercel-FactoryOS-ffffff?logo=vercel&labelColor=000000)](https://factoryos-three.vercel.app)
 
-> Screenshot placeholder: add a production screenshot here after deploying the project.
+[Launch the live FactoryOS simulator](https://factoryos-three.vercel.app)
+
+![FactoryOS live 3D manufacturing cell](public/screenshots/factory-overview.png)
 
 ## Features
 
@@ -113,6 +116,8 @@ Audio is off by default and starts only after the operator enables it.
 ## Vercel Deployment
 
 No database, backend, environment variables, paid APIs, or external model assets are required.
+
+The production deployment is available at [factoryos-three.vercel.app](https://factoryos-three.vercel.app).
 
 1. Push the project to a Git repository.
 2. Import the repository in Vercel.
