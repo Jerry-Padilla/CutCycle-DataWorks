@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cncToolpathOffset,
+  CNC_SPINDLE_AXIS,
   CONVEYOR_PATH_AXIS,
   CONVEYOR_ROLLER_AXIS,
   conveyorRollerAngleDelta,
@@ -8,6 +9,10 @@ import {
 } from "@/lib/simulation/kinematics";
 
 describe("factory kinematics", () => {
+  it("orients the CNC spindle vertically toward the workpiece", () => {
+    expect(CNC_SPINDLE_AXIS).toEqual([0, -1, 0]);
+  });
+
   it("keeps the conveyor roller shaft on local Z, perpendicular to local X travel", () => {
     const dot = CONVEYOR_PATH_AXIS[0] * CONVEYOR_ROLLER_AXIS[0]
       + CONVEYOR_PATH_AXIS[1] * CONVEYOR_ROLLER_AXIS[1]
@@ -30,7 +35,7 @@ describe("factory kinematics", () => {
     expect(cncToolpathOffset("rectangle", 75)).toEqual([-.32, .25]);
   });
 
-  it("traverses the cardinal points of the elliptical CNC toolpath", () => {
+  it("traverses the cardinal points of the horizontal elliptical CNC toolpath", () => {
     const points = [0,25,50,75].map((progress) => cncToolpathOffset("circle", progress));
     expect(points[0]).toEqual([.32, 0]);
     expect(points[1][0]).toBeCloseTo(0, 10);

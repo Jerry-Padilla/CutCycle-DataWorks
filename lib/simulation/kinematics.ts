@@ -2,6 +2,7 @@ export type CncToolpath = "rectangle" | "circle";
 
 export const CONVEYOR_PATH_AXIS = [1, 0, 0] as const;
 export const CONVEYOR_ROLLER_AXIS = [0, 0, 1] as const;
+export const CNC_SPINDLE_AXIS = [0, -1, 0] as const;
 
 export function conveyorRollerAngleDelta(deltaSeconds: number, simulationSpeed: number): number {
   return -deltaSeconds * 2.4 * simulationSpeed;

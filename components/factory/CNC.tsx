@@ -10,13 +10,12 @@ import { useFactoryStore } from "@/store/useFactoryStore";
 import type { MachineId, MachineStatus } from "@/types/factory";
 
 const statusColor: Record<MachineStatus, string> = { RUNNING: "#42dc8b", IDLE: "#f0c555", FAULT: "#ff514b", MAINTENANCE: "#4baee7" };
-const chuckJawAngles = [0, (Math.PI * 2) / 3, (Math.PI * 4) / 3];
 const rectanglePath: [number, number, number][] = [
-  [-.77,1.13,1.575],[-.13,1.13,1.575],[-.13,1.63,1.575],[-.77,1.63,1.575],[-.77,1.13,1.575],
+  [-.77,.91,1.3],[-.13,.91,1.3],[-.13,.91,1.66],[-.77,.91,1.66],[-.77,.91,1.3],
 ];
 const circlePath: [number, number, number][] = Array.from({ length: 33 }, (_, index) => {
   const angle = (index / 32) * Math.PI * 2;
-  return [-.45 + Math.cos(angle) * .32, 1.38 + Math.sin(angle) * .25, 1.575];
+  return [-.45 + Math.cos(angle) * .32, .91, 1.48 + Math.sin(angle) * .18];
 });
 
 interface CncShellProps {
@@ -40,19 +39,19 @@ function CncShell({ label, status, position, rotationY = 0, selected = false, sp
       <mesh position={[-.44,1.25,1.39]} castShadow><boxGeometry args={[1.72,1.72,.12]} /><meshStandardMaterial color="#182329" metalness={.5} roughness={.26} /></mesh>
       <mesh position={[-.44,1.25,1.47]}><planeGeometry args={[1.42,1.42]} /><meshPhysicalMaterial color="#264655" transparent opacity={.42} roughness={.15} metalness={.2} /></mesh>
       {toolpath && <Line points={toolpath === "circle" ? circlePath : rectanglePath} color="#70d0f3" lineWidth={.8} transparent opacity={.34} />}
+      <mesh position={[-.45,.82,1.48]} castShadow><boxGeometry args={[1.08,.12,.7]} /><meshStandardMaterial color="#56656c" metalness={.78} roughness={.24} /></mesh>
+      <mesh position={[-.45,.9,1.48]}><boxGeometry args={[.72,.05,.48]} /><meshStandardMaterial color="#aab7bc" metalness={.82} roughness={.2} /></mesh>
       <mesh position={[.92,1.55,1.43]} castShadow><boxGeometry args={[.63,1.16,.18]} /><meshStandardMaterial color="#161f24" /></mesh>
       <mesh position={[.92,1.78,1.54]}><planeGeometry args={[.42,.34]} /><meshBasicMaterial color={status === "FAULT" ? "#a82e2b" : "#1b6a83"} /></mesh>
-      <group position={[-.45,1.38,1.58]}>
+      <group position={[-.45,1.68,1.48]}>
         <group ref={spindleCarriage}>
-          <group ref={spindle} userData={{ rotationAxis: "Z", assembly: "cnc-spindle" }}>
-            <mesh rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.24,.24,.35,24]} /><meshStandardMaterial color="#a7b3b8" metalness={.86} roughness={.18} /></mesh>
-            <mesh position={[0,0,.2]} rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.2,.2,.12,24]} /><meshStandardMaterial color="#64737a" metalness={.9} roughness={.15} /></mesh>
-            <mesh position={[0,0,.27]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.075,.075,.025,18]} /><meshStandardMaterial color="#151c20" metalness={.35} roughness={.42} /></mesh>
-            {chuckJawAngles.map((angle) => (
-              <group key={angle} position={[0,0,.27]} rotation={[0,0,angle]}>
-                <mesh position={[0,.13,0]} castShadow><boxGeometry args={[.085,.16,.085]} /><meshStandardMaterial color="#d5dde0" metalness={.92} roughness={.14} /></mesh>
-              </group>
-            ))}
+          <mesh position={[0,.25,0]} castShadow><boxGeometry args={[.56,.54,.52]} /><meshStandardMaterial color="#46555c" metalness={.68} roughness={.26} /></mesh>
+          <group ref={spindle} userData={{ rotationAxis: "Y", assembly: "vertical-cnc-spindle" }}>
+            <mesh castShadow><cylinderGeometry args={[.19,.19,.5,24]} /><meshStandardMaterial color="#a7b3b8" metalness={.9} roughness={.14} /></mesh>
+            <mesh position={[0,-.31,0]} castShadow><cylinderGeometry args={[.17,.1,.18,20]} /><meshStandardMaterial color="#69777d" metalness={.92} roughness={.12} /></mesh>
+            <mesh position={[0,-.55,0]} castShadow><cylinderGeometry args={[.055,.055,.34,12]} /><meshStandardMaterial color="#d4dde0" metalness={.94} roughness={.1} /></mesh>
+            <mesh position={[.06,-.72,0]} castShadow><boxGeometry args={[.055,.12,.04]} /><meshStandardMaterial color="#edf3f5" metalness={.9} roughness={.12} /></mesh>
+            <mesh position={[-.06,-.72,0]} castShadow><boxGeometry args={[.055,.12,.04]} /><meshStandardMaterial color="#edf3f5" metalness={.9} roughness={.12} /></mesh>
           </group>
         </group>
       </group>
@@ -77,12 +76,12 @@ export function CNC({ id, position, rotationY = 0 }: { id: Extract<MachineId, "C
 
   useFrame((_, delta) => {
     if (spindleCarriage.current) {
-      const [x,y] = cncToolpathOffset(toolpath, machine.progress);
-      spindleCarriage.current.position.set(x,y,0);
+      const [x,z] = cncToolpathOffset(toolpath, machine.progress);
+      spindleCarriage.current.position.set(x,0,z);
     }
     if (!spindle.current || paused || machine.status !== "RUNNING" || machine.telemetry.kind !== "CNC") return;
     const displayAngularVelocity = spindleDisplayAngularVelocity(machine.telemetry.spindleRpm);
-    spindle.current.rotation.z -= delta * displayAngularVelocity * speed;
+    spindle.current.rotation.y -= delta * displayAngularVelocity * speed;
   });
 
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(id); };

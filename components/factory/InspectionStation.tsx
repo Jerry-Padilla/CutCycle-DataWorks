@@ -14,7 +14,7 @@ interface InspectionStationProps {
   auxiliaryLabel?: string;
 }
 
-export function InspectionStation({ position = [10.2,0,-3], auxiliaryLabel }: InspectionStationProps) {
+export function InspectionStation({ position = [14,0,-4.4], auxiliaryLabel }: InspectionStationProps) {
   const machine = useFactoryStore((state) => state.machines["CMM-01"]);
   const selected = useFactoryStore((state) => !auxiliaryLabel && state.selectedMachineId === "CMM-01");
   const select = useFactoryStore((state) => state.selectMachine);

@@ -3,14 +3,14 @@ import type { Part, StationId } from "@/types/factory";
 export type FactoryPosition = [number, number, number];
 
 const POSITIONS: Record<StationId, FactoryPosition> = {
-  RAW: [-12.4, 1.2, -4.2],
-  "CNC-01": [-8.9, 1.2, -4.2],
-  "CNC-02": [-5.3, 1.2, -4.2],
-  CONVEYOR: [2.7, 1.15, -1.1],
-  "ROBOT-01": [7.4, 1.2, 0],
-  "CMM-01": [10.2, 1.1, -3],
-  FINISHED: [13.4, 1.3, 4.6],
-  REJECT: [7.4, 0.75, 5],
+  RAW: [-14.8, 1.2, -7.8],
+  "CNC-01": [-9, 1.2, -2.5],
+  "CNC-02": [-5.4, 1.2, -2.5],
+  CONVEYOR: [0, 1.15, -4.4],
+  "ROBOT-01": [12, 1.2, -1.7],
+  "CMM-01": [14, 1.1, -4.4],
+  FINISHED: [15.2, 1.3, -7.8],
+  REJECT: [12, 0.75, -7.2],
 };
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -26,14 +26,14 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
     case "RAW":
       return [POSITIONS.RAW[0], POSITIONS.RAW[1] + stackIndex * 0.18, POSITIONS.RAW[2] + (stackIndex % 3) * 0.45];
     case "CNC-01":
-      return mix(POSITIONS["CNC-01"], [-7.7, 1.2, -4.2], t);
+      return mix(POSITIONS["CNC-01"], [-7.8, 1.2, -2.5], t);
     case "CNC-02":
-      return mix(POSITIONS["CNC-02"], [-4.1, 1.2, -4.2], t);
+      return mix(POSITIONS["CNC-02"], [-4.2, 1.2, -2.5], t);
     case "CONVEYOR":
-      return mix([-1.25, 1.15, -1.1], [6.65, 1.15, -1.1], t);
+      return mix([-3.7, 1.15, -4.4], [11.6, 1.15, -4.4], t);
     case "ROBOT-01": {
       const lift = Math.sin(t * Math.PI) * 1.8;
-      const p = mix([6.65, 1.15, -1.1], [9.5, 1.25, -2.6], t);
+      const p = mix([11.6, 1.15, -4.4], [13.4, 1.25, -4.4], t);
       return [p[0], p[1] + lift, p[2]];
     }
     case "CMM-01":
