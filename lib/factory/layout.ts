@@ -13,7 +13,6 @@ export interface CncLineLayout {
   id: "south" | "north";
   machineZ: number;
   frontZ: number;
-  rearZ: number;
   rotationY: number;
   machines: CncLayout[];
 }
@@ -63,7 +62,6 @@ export const CNC_LINES: CncLineLayout[] = [
     id: "south",
     machineZ: -4.2,
     frontZ: -0.9,
-    rearZ: -6.1,
     rotationY: 0,
     machines: createMachines(
       ["CNC-01", "CNC-02", "CNC-03", "CNC-04", "CNC-05", "CNC-06"],
@@ -76,7 +74,6 @@ export const CNC_LINES: CncLineLayout[] = [
     id: "north",
     machineZ: 4.2,
     frontZ: 0.9,
-    rearZ: 6.1,
     rotationY: Math.PI,
     machines: createMachines(
       ["CNC-07", "CNC-08", "CNC-09", "CNC-10", "CNC-11", "CNC-12"],
@@ -85,13 +82,6 @@ export const CNC_LINES: CncLineLayout[] = [
     ),
   },
 ];
-
-export const REAR_OUTFEED_CONVEYORS: ConveyorLayout[] = CNC_LINES.map((line) => ({
-  id: `${line.id}-rear-outfeed`,
-  lineId: line.id,
-  position: [0, 0.78, line.rearZ],
-  length: 24,
-}));
 
 export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = [{
   id: "central-front-infeed",
@@ -123,14 +113,14 @@ export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lin
 );
 
 export const CMM_STATIONS: { label: string; position: FactoryVector; instrumented: boolean }[] = [
-  { label: "CMM-01", position: [14, 0, -6.1], instrumented: true },
+  { label: "CMM-01", position: [14.2, 0, -4.7], instrumented: true },
   { label: "CMM-02", position: [14, 0, 0], instrumented: false },
-  { label: "CMM-03", position: [14, 0, 6.1], instrumented: false },
+  { label: "CMM-03", position: [14.2, 0, 4.7], instrumented: false },
 ];
 
 export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {
   "CNC-01": { position: [-8.1, 0, -2.38], rotationY: Math.PI },
   "CNC-02": { position: [-4.5, 0, -2.38], rotationY: Math.PI },
   "ROBOT-01": { position: [13.05, 0, -2.25], rotationY: -2.3 },
-  "CMM-01": { position: [13.05, 0, -4.62], rotationY: Math.PI },
+  "CMM-01": { position: [13.1, 0, -5.95], rotationY: 0 },
 };

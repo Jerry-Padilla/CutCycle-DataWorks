@@ -62,7 +62,10 @@ export function frontUnloadPartPosition(path: OperatorPath, machineIndex: number
   const workpieceX = machineX - 0.45 * Math.cos(path.rotationY);
   const workholding: FactoryVector = [workpieceX, 0.98, path.machineZ + facingZ * 1.48];
   const hands: FactoryVector = [workpieceX, 1.32, operatorZ + directionToMachine * 0.2];
-  return mix(workholding, hands, smoothstep(progress));
+  const staging: FactoryVector = [workpieceX, 1.08, path.infeedZ];
+  const t = clamp01(progress);
+  if (t < 0.65) return mix(workholding, hands, smoothstep(t / 0.65));
+  return mix(hands, staging, smoothstep((t - 0.65) / 0.35));
 }
 
 export function cncServicedPartPosition(path: OperatorPath, machineIndex: number, cycleProgress: number): FactoryVector {
@@ -120,7 +123,7 @@ export function operatorUnloadPoseAtProgress(
     operatorRotationY: directionToMachine > 0 ? 0 : Math.PI,
     partPosition: frontUnloadPartPosition(path, index, t),
     partVisible: true,
-    reach: 1 - smoothstep(t) * 0.24,
+    reach: 1 - smoothstep(t),
     legSwing: 0,
   };
 }

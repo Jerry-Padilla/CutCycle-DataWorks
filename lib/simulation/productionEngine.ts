@@ -35,9 +35,9 @@ const STATION_MACHINE: Partial<Record<StationId, MachineId>> = {
 
 const NEXT_STATION: Partial<Record<StationId, StationId>> = {
   "CNC-01": "CNC-02",
-  "CNC-02": "ROBOT-01",
-  "ROBOT-01": "CONVEYOR",
-  CONVEYOR: "CMM-01",
+  "CNC-02": "CONVEYOR",
+  CONVEYOR: "ROBOT-01",
+  "ROBOT-01": "CMM-01",
 };
 
 const STATION_STATUS: Partial<Record<StationId, PartStatus>> = {
@@ -183,12 +183,12 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     const nextMachine = STATION_MACHINE[next];
     const transition = next.startsWith("CNC")
       ? ` · operator-loaded into ${next} from front`
-      : next === "ROBOT-01"
-        ? " · operator-unloaded from CNC front to ROBOT-01"
-        : next === "CONVEYOR"
-          ? " · ROBOT-01 placed part on rear outfeed"
+      : next === "CONVEYOR"
+        ? " · operator returned part to shared front conveyor"
+        : next === "ROBOT-01"
+          ? " · shared front conveyor delivered part to ROBOT-01"
           : next === "CMM-01"
-            ? " · rear conveyor delivered part to CMM-01"
+            ? " · ROBOT-01 placed part directly on CMM-01"
             : ` · entered ${next}`;
     events.push(
       event(

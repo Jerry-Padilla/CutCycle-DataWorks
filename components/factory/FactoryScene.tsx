@@ -17,7 +17,6 @@ import {
   CNC_LINES,
   FRONT_INFEED_CONVEYORS,
   OPERATOR_CELLS,
-  REAR_OUTFEED_CONVEYORS,
   SAW_STATIONS,
 } from "@/lib/factory/layout";
 import { useFactoryStore } from "@/store/useFactoryStore";
@@ -42,9 +41,6 @@ function Cell() {
           <CNC key={machine.label} id={machine.instrumentedId} position={machine.position} rotationY={machine.rotationY} />
         ) : (
           <AuxiliaryCNC key={machine.label} label={machine.label} position={machine.position} rotationY={machine.rotationY} />
-        ))}
-        {REAR_OUTFEED_CONVEYORS.map((conveyor, index) => (
-          <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} productionLane={index === 0} />
         ))}
         {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} width={conveyor.width} infeedLane infeedLanes={conveyor.infeedLanes} />)}
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}

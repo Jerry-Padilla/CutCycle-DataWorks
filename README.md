@@ -14,7 +14,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 
 ## Features
 
-- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central infeed conveyor, two rear outfeed conveyors, a transfer robot, three CMM stations, material racks, and reject handling
+- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, a transfer robot, three CMM stations, material racks, and reject handling
 - Six animated operators stage saw blanks, carry them across protected aisles, and load each CNC through its front door; one operator services each adjacent two-machine pair
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
@@ -67,16 +67,16 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. Six operators pick from that shared conveyor and each load and unload a pair of adjacent CNCs from the front; two six-machine rear outfeed lines then run to the CMM area. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
+The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. Six operators pick from that shared conveyor and each load and unload a pair of adjacent CNCs from the front. Completed work returns to the same front conveyor, travels right to ROBOT-01, and is placed directly onto CMM-01 for the final inspection. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
 
 ```text
-Raw stock → 2 band saws → Combined central infeed → Operator load → CNC-01 → CNC-02
-                                                                    ↓ front unload
-                                                               ROBOT-01
-                                                                    ↓
-                                                        Rear conveyor → CMM-01
-                                                                         ├─ Pass → Finished goods
-                                                                         └─ Fail → Reject bin
+Raw stock → 2 band saws → Shared central conveyor → Operator load → CNC-01 → CNC-02
+                                                                         ↓ front unload
+                                                        Shared central conveyor → ROBOT-01
+                                                                                     ↓ direct place
+                                                                                  CMM-01
+                                                                                     ├─ Pass → Complete
+                                                                                     └─ Fail → Reject bin
 ```
 
 Nominal cycles are 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk.

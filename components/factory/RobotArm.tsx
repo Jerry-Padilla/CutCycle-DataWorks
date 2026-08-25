@@ -14,12 +14,14 @@ export function RobotArm() {
   const selected = useFactoryStore((state) => state.selectedMachineId === "ROBOT-01");
   const select = useFactoryStore((state) => state.selectMachine);
   const base = useRef<Group>(null); const shoulder = useRef<Group>(null); const elbow = useRef<Group>(null);
-  useFrame(() => {
-    const t = Math.max(0, (machine.progress / 100 - .58) / .42);
-    const swing = t < .5 ? t * 2 : (1-t) * 2;
-    if (base.current) base.current.rotation.y = -1.05 + swing * 2.05;
-    if (shoulder.current) shoulder.current.rotation.z = -.3 - Math.sin(t*Math.PI)*.7;
-    if (elbow.current) elbow.current.rotation.z = .65 + Math.sin(t*Math.PI)*.45;
+  useFrame((_, delta) => {
+    const t = machine.progress / 100;
+    const transfer = t * t * (3 - 2 * t);
+    const lift = Math.sin(t * Math.PI);
+    const damping = Math.min(1, delta * 7);
+    if (base.current) base.current.rotation.y += (-2.12 + transfer * 2.72 - base.current.rotation.y) * damping;
+    if (shoulder.current) shoulder.current.rotation.z += (-.48 + lift * .42 - shoulder.current.rotation.z) * damping;
+    if (elbow.current) elbow.current.rotation.z += (.8 - lift * .28 - elbow.current.rotation.z) * damping;
   });
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select("ROBOT-01"); };
   return (

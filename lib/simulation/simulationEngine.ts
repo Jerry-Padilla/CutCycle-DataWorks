@@ -7,10 +7,10 @@ const POSITIONS: Record<StationId, FactoryPosition> = {
   RAW: [-14.8, 1.2, -8.8],
   "CNC-01": [-9, 1.2, -4.2],
   "CNC-02": [-5.4, 1.2, -4.2],
-  CONVEYOR: [0, 1.15, -6.1],
+  CONVEYOR: [0, 1.15, -0.9],
   "ROBOT-01": [12, 1.2, -3.2],
-  "CMM-01": [14, 1.1, -6.1],
-  FINISHED: [15.2, 1.3, -8.8],
+  "CMM-01": [14.2, 1.1, -4.7],
+  FINISHED: [14.2, 1.1, -4.7],
   REJECT: [12, 0.75, -8.2],
 };
 
@@ -37,15 +37,13 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
       return cncServicedPartPosition(PRIMARY_CNC_LOADING_PATH, 0, t);
     case "CNC-02":
       return cncServicedPartPosition(PRIMARY_CNC_LOADING_PATH, 1, t);
+    case "CONVEYOR":
+      return mix([-5.85, 1.18, -0.9], [10.6, 1.18, -0.9], t);
     case "ROBOT-01": {
-      if (t < 0.62) return mix([-5.85, 1.18, -0.9], [10.6, 1.18, -0.9], t / 0.62);
-      const transfer = (t - 0.62) / 0.38;
-      const lift = Math.sin(transfer * Math.PI) * 1.8;
-      const p = mix([10.6, 1.18, -0.9], [11.6, 1.15, -6.1], transfer);
+      const lift = Math.sin(t * Math.PI) * 1.8;
+      const p = mix([10.6, 1.18, -0.9], POSITIONS["CMM-01"], t);
       return [p[0], p[1] + lift, p[2]];
     }
-    case "CONVEYOR":
-      return mix([11.6, 1.15, -6.1], [13.4, 1.15, -6.1], t);
     case "CMM-01":
       return POSITIONS["CMM-01"];
     case "FINISHED":

@@ -39,13 +39,17 @@ describe("operator front-loading kinematics", () => {
     expect(pose.reach).toBeGreaterThan(0.9);
   });
 
-  it("returns the completed part through the same front door to the operator", () => {
+  it("returns the completed part through the front door to the same conveyor lane", () => {
     const machined = frontUnloadPartPosition(southPath, 1, 0);
-    const held = frontUnloadPartPosition(southPath, 1, 1);
+    const held = frontUnloadPartPosition(southPath, 1, 0.65);
+    const returned = frontUnloadPartPosition(southPath, 1, 1);
 
     expect(held[2]).toBeGreaterThan(machined[2]);
     expect(held[1]).toBeGreaterThan(machined[1]);
-    expect(cncServicedPartPosition(southPath, 1, 1)).toEqual(held);
+    expect(returned[0]).toBeCloseTo(-5.85);
+    expect(returned[1]).toBeCloseTo(1.08);
+    expect(returned[2]).toBeCloseTo(southPath.infeedZ);
+    expect(cncServicedPartPosition(southPath, 1, 1)).toEqual(returned);
   });
 
   it("rotates one operator through both assigned CNCs", () => {
