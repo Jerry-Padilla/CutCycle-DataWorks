@@ -17,7 +17,7 @@ const POSITIONS: Record<StationId, FactoryPosition> = {
 const PRIMARY_CNC_LOADING_PATH: OperatorPath = {
   machineXs: [-9, -5.4],
   machineZ: -4.2,
-  infeedZ: -1.5,
+  infeedZ: -0.9,
   rotationY: 0,
 };
 
@@ -38,10 +38,10 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
     case "CNC-02":
       return cncServicedPartPosition(PRIMARY_CNC_LOADING_PATH, 1, t);
     case "ROBOT-01": {
-      if (t < 0.62) return mix([-5.85, 1.18, -1.5], [10.6, 1.18, -1.5], t / 0.62);
+      if (t < 0.62) return mix([-5.85, 1.18, -0.9], [10.6, 1.18, -0.9], t / 0.62);
       const transfer = (t - 0.62) / 0.38;
       const lift = Math.sin(transfer * Math.PI) * 1.8;
-      const p = mix([10.6, 1.18, -1.5], [11.6, 1.15, -6.1], transfer);
+      const p = mix([10.6, 1.18, -0.9], [11.6, 1.15, -6.1], transfer);
       return [p[0], p[1] + lift, p[2]];
     }
     case "CONVEYOR":

@@ -20,6 +20,7 @@ export interface OperatorLoadingPose {
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+const OPERATOR_STANDOFF_FROM_INFEED = 1.2;
 const lerp = (from: number, to: number, progress: number) => from + (to - from) * progress;
 const smoothstep = (value: number) => {
   const t = clamp01(value);
@@ -41,7 +42,7 @@ export function frontLoadPartPosition(path: OperatorPath, machineIndex: number, 
   const machineX = path.machineXs[index];
   const facingZ = Math.cos(path.rotationY);
   const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
-  const operatorZ = path.infeedZ + directionToMachine * 0.62;
+  const operatorZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const workpieceX = machineX - 0.45 * Math.cos(path.rotationY);
   const staging: FactoryVector = [workpieceX, 1.08, path.infeedZ];
   const hands: FactoryVector = [workpieceX, 1.28, operatorZ + directionToMachine * 0.2];
@@ -57,7 +58,7 @@ export function frontUnloadPartPosition(path: OperatorPath, machineIndex: number
   const machineX = path.machineXs[index];
   const facingZ = Math.cos(path.rotationY);
   const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
-  const operatorZ = path.infeedZ + directionToMachine * 0.62;
+  const operatorZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const workpieceX = machineX - 0.45 * Math.cos(path.rotationY);
   const workholding: FactoryVector = [workpieceX, 0.98, path.machineZ + facingZ * 1.48];
   const hands: FactoryVector = [workpieceX, 1.32, operatorZ + directionToMachine * 0.2];
@@ -84,7 +85,7 @@ export function operatorPoseAtPhase(
   const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
   const walkProgress = smoothstep(t / 0.16);
   const operatorX = lerp(path.machineXs[previousIndex], path.machineXs[index], walkProgress);
-  const operatorRestZ = path.infeedZ + directionToMachine * 0.62;
+  const operatorRestZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const loadProgress = clamp01((t - 0.16) / 0.68);
   const lean = Math.sin(loadProgress * Math.PI) * 0.16;
   const walking = t < 0.16 && previousIndex !== index;
@@ -110,7 +111,7 @@ export function operatorUnloadPoseAtProgress(
   const index = normalizedIndex(machineIndex, path.machineXs.length);
   const t = clamp01(progress);
   const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
-  const operatorRestZ = path.infeedZ + directionToMachine * 0.62;
+  const operatorRestZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const lean = (1 - smoothstep(t)) * 0.16;
 
   return {

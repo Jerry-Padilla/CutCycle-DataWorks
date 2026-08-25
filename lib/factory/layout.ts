@@ -20,9 +20,11 @@ export interface CncLineLayout {
 
 export interface ConveyorLayout {
   id: string;
-  lineId: CncLineLayout["id"];
+  lineId: CncLineLayout["id"] | "central";
   position: FactoryVector;
   length: number;
+  width?: number;
+  infeedLanes?: number;
 }
 
 export interface OperatorCellLayout {
@@ -60,7 +62,7 @@ export const CNC_LINES: CncLineLayout[] = [
   {
     id: "south",
     machineZ: -4.2,
-    frontZ: -1.5,
+    frontZ: -0.9,
     rearZ: -6.1,
     rotationY: 0,
     machines: createMachines(
@@ -73,7 +75,7 @@ export const CNC_LINES: CncLineLayout[] = [
   {
     id: "north",
     machineZ: 4.2,
-    frontZ: 1.5,
+    frontZ: 0.9,
     rearZ: 6.1,
     rotationY: Math.PI,
     machines: createMachines(
@@ -91,32 +93,32 @@ export const REAR_OUTFEED_CONVEYORS: ConveyorLayout[] = CNC_LINES.map((line) => 
   length: 24,
 }));
 
-export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = CNC_LINES.flatMap((line) =>
-  [-5.4, 5.4].map((x, index) => ({
-    id: `${line.id}-front-infeed-${index + 1}`,
-    lineId: line.id,
-    position: [x, 0.78, line.frontZ] as FactoryVector,
-    length: 10.4,
-  })),
-);
+export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = [{
+  id: "central-front-infeed",
+  lineId: "central",
+  position: [0, 0.78, 0],
+  length: 24,
+  width: 3,
+  infeedLanes: 2,
+}];
 
-export const SAW_STATIONS: { label: string; lineId: CncLineLayout["id"]; position: FactoryVector }[] = CNC_LINES.flatMap(
-  (line, lineIndex) => [-12, -1.2].map((x, branchIndex) => ({
-    label: `SAW-${String(lineIndex * 2 + branchIndex + 1).padStart(2, "0")}`,
+export const SAW_STATIONS: { label: string; lineId: CncLineLayout["id"]; position: FactoryVector }[] = CNC_LINES.map(
+  (line, index) => ({
+    label: `SAW-${String(index + 1).padStart(2, "0")}`,
     lineId: line.id,
-    position: [x, 0, line.frontZ] as FactoryVector,
-  })),
+    position: [-13.5, 0, line.id === "south" ? -1 : 1],
+  }),
 );
 
 export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lineIndex) =>
-  [0, 1].map((branchIndex) => ({
-    id: `OP-${String(lineIndex * 2 + branchIndex + 1).padStart(2, "0")}`,
+  [0, 1, 2].map((branchIndex) => ({
+    id: `OP-${String(lineIndex * 3 + branchIndex + 1).padStart(2, "0")}`,
     lineId: line.id,
-    phaseOffset: (lineIndex * 2 + branchIndex) * 0.19,
+    phaseOffset: (lineIndex * 3 + branchIndex) * 0.13,
     machineZ: line.machineZ,
     infeedZ: line.frontZ,
     rotationY: line.rotationY,
-    machines: line.machines.slice(branchIndex * 3, branchIndex * 3 + 3),
+    machines: line.machines.slice(branchIndex * 2, branchIndex * 2 + 2),
   })),
 );
 

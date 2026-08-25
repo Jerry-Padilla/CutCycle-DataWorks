@@ -22,19 +22,17 @@ describe("factory line layout", () => {
     }
   });
 
-  it("keeps two saw-fed front branches on each CNC line", () => {
-    expect(FRONT_INFEED_CONVEYORS).toHaveLength(4);
-    expect(SAW_STATIONS).toHaveLength(4);
-
-    for (const line of CNC_LINES) {
-      expect(FRONT_INFEED_CONVEYORS.filter((conveyor) => conveyor.lineId === line.id)).toHaveLength(2);
-      expect(SAW_STATIONS.filter((saw) => saw.lineId === line.id)).toHaveLength(2);
-    }
+  it("uses two saws at the end of one combined central infeed conveyor", () => {
+    expect(FRONT_INFEED_CONVEYORS).toHaveLength(1);
+    expect(FRONT_INFEED_CONVEYORS[0]).toMatchObject({ lineId: "central", length: 24, width: 3, infeedLanes: 2 });
+    expect(SAW_STATIONS).toHaveLength(2);
+    expect(SAW_STATIONS.every((saw) => saw.position[0] < -12)).toBe(true);
+    expect(new Set(SAW_STATIONS.map((saw) => saw.lineId))).toEqual(new Set(["south", "north"]));
   });
 
-  it("assigns one front-loading operator to every three CNCs", () => {
-    expect(OPERATOR_CELLS).toHaveLength(4);
-    expect(OPERATOR_CELLS.every((cell) => cell.machines.length === 3)).toBe(true);
+  it("assigns one front-loading operator to every two CNCs", () => {
+    expect(OPERATOR_CELLS).toHaveLength(6);
+    expect(OPERATOR_CELLS.every((cell) => cell.machines.length === 2)).toBe(true);
     expect(new Set(OPERATOR_CELLS.flatMap((cell) => cell.machines.map((machine) => machine.label))).size).toBe(12);
   });
 
@@ -46,7 +44,8 @@ describe("factory line layout", () => {
       expect(CMM_STATIONS.some((cmm) => cmm.position[2] === line.rearZ)).toBe(true);
 
       const machineFrontZ = line.machineZ + frontDirection * 1.325;
-      const conveyorEdgeFacingMachine = line.frontZ - frontDirection * 0.575;
+      const centralInfeed = FRONT_INFEED_CONVEYORS[0];
+      const conveyorEdgeFacingMachine = centralInfeed.position[2] - frontDirection * (centralInfeed.width ?? 1.15) / 2;
       expect(Math.abs(machineFrontZ - conveyorEdgeFacingMachine)).toBeGreaterThan(0.7);
     }
   });

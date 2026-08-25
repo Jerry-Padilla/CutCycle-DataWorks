@@ -60,7 +60,7 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
 
   const vest = vestColors[colorIndex % vestColors.length];
   const shirt = shirtColors[colorIndex % shirtColors.length];
-  const loadingZoneZ = cell.infeedZ + Math.sign(cell.machineZ - cell.infeedZ) * 0.62;
+  const loadingZoneZ = cell.infeedZ + Math.sign(cell.machineZ - cell.infeedZ) * 1.2;
 
   return (
     <group userData={{ operatorId: cell.id, task: "front-load-cnc" }}>

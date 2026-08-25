@@ -8,8 +8,8 @@ import {
   type OperatorPath,
 } from "@/lib/simulation/operatorKinematics";
 
-const southPath: OperatorPath = { machineXs: [-9, -5.4, -1.8], machineZ: -4.2, infeedZ: -1.5, rotationY: 0 };
-const northPath: OperatorPath = { machineXs: [-9, -5.4, -1.8], machineZ: 4.2, infeedZ: 1.5, rotationY: Math.PI };
+const southPath: OperatorPath = { machineXs: [-9, -5.4], machineZ: -4.2, infeedZ: -0.9, rotationY: 0 };
+const northPath: OperatorPath = { machineXs: [-9, -5.4], machineZ: 4.2, infeedZ: 0.9, rotationY: Math.PI };
 
 describe("operator front-loading kinematics", () => {
   it("moves a staged part from the front conveyor into the south CNC workholding", () => {
@@ -48,8 +48,8 @@ describe("operator front-loading kinematics", () => {
     expect(cncServicedPartPosition(southPath, 1, 1)).toEqual(held);
   });
 
-  it("rotates one operator through all three assigned CNCs", () => {
-    const visited = [0, 9, 18].map((seconds) => operatorCyclePose(southPath, seconds).machineIndex);
-    expect(visited).toEqual([0, 1, 2]);
+  it("rotates one operator through both assigned CNCs", () => {
+    const visited = [0, 9].map((seconds) => operatorCyclePose(southPath, seconds).machineIndex);
+    expect(visited).toEqual([0, 1]);
   });
 });

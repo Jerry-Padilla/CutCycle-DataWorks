@@ -46,7 +46,7 @@ function Cell() {
         {REAR_OUTFEED_CONVEYORS.map((conveyor, index) => (
           <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} productionLane={index === 0} />
         ))}
-        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} infeedLane />)}
+        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} width={conveyor.width} infeedLane infeedLanes={conveyor.infeedLanes} />)}
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
         {OPERATOR_CELLS.map((cell, index) => <OperatorLoader key={cell.id} cell={cell} colorIndex={index} />)}
         <MaintenanceTechnicians />
