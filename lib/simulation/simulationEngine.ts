@@ -1,16 +1,24 @@
 import type { Part, StationId } from "@/types/factory";
+import { frontLoadPartPosition, type OperatorPath } from "@/lib/simulation/operatorKinematics";
 
 export type FactoryPosition = [number, number, number];
 
 const POSITIONS: Record<StationId, FactoryPosition> = {
-  RAW: [-14.8, 1.2, -7.8],
-  "CNC-01": [-9, 1.2, -3.2],
-  "CNC-02": [-5.4, 1.2, -3.2],
-  CONVEYOR: [0, 1.15, -5.1],
-  "ROBOT-01": [12, 1.2, -2.4],
-  "CMM-01": [14, 1.1, -5.1],
-  FINISHED: [15.2, 1.3, -7.8],
-  REJECT: [12, 0.75, -7.2],
+  RAW: [-14.8, 1.2, -8.8],
+  "CNC-01": [-9, 1.2, -4.2],
+  "CNC-02": [-5.4, 1.2, -4.2],
+  CONVEYOR: [0, 1.15, -6.1],
+  "ROBOT-01": [12, 1.2, -3.2],
+  "CMM-01": [14, 1.1, -6.1],
+  FINISHED: [15.2, 1.3, -8.8],
+  REJECT: [12, 0.75, -8.2],
+};
+
+const PRIMARY_CNC_LOADING_PATH: OperatorPath = {
+  machineXs: [-9, -5.4],
+  machineZ: -4.2,
+  infeedZ: -1.5,
+  rotationY: 0,
 };
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -26,14 +34,14 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
     case "RAW":
       return [POSITIONS.RAW[0], POSITIONS.RAW[1] + stackIndex * 0.18, POSITIONS.RAW[2] + (stackIndex % 3) * 0.45];
     case "CNC-01":
-      return mix(POSITIONS["CNC-01"], [-7.8, 1.2, -3.2], t);
+      return frontLoadPartPosition(PRIMARY_CNC_LOADING_PATH, 0, Math.min(1, t / 0.3));
     case "CNC-02":
-      return mix(POSITIONS["CNC-02"], [-4.2, 1.2, -3.2], t);
+      return frontLoadPartPosition(PRIMARY_CNC_LOADING_PATH, 1, Math.min(1, t / 0.3));
     case "CONVEYOR":
-      return mix([-3.7, 1.15, -5.1], [11.6, 1.15, -5.1], t);
+      return mix([-3.7, 1.15, -6.1], [11.6, 1.15, -6.1], t);
     case "ROBOT-01": {
       const lift = Math.sin(t * Math.PI) * 1.8;
-      const p = mix([11.6, 1.15, -5.1], [13.4, 1.25, -5.1], t);
+      const p = mix([11.6, 1.15, -6.1], [13.4, 1.25, -6.1], t);
       return [p[0], p[1] + lift, p[2]];
     }
     case "CMM-01":

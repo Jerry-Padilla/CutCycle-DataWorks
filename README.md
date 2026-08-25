@@ -15,6 +15,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 ## Features
 
 - Procedural low-poly factory with two six-machine CNC lines, four saw-fed front infeed conveyors, two rear outfeed conveyors to the CMM area, a robot, three CMM stations, material racks, and reject handling
+- Four animated operators stage saw blanks, carry them across a protected aisle, and load each CNC through its front door; one operator services each three-machine branch
 - Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Traceable workpieces moving through a capacity-constrained production process
@@ -65,7 +66,7 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell is arranged as four saw/infeed branches feeding 12 CNCs, followed by two six-machine rear outfeed lines that run to the CMM area. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
+The full visual cell is arranged as four saw/infeed branches staging blanks for 12 CNCs. Four operators pick from those front conveyors and load the machine doors from the aisle; two six-machine rear outfeed lines then run to the CMM area. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
 
 ```text
 Raw material → CNC-01 → CNC-02 → Conveyor → ROBOT-01 → CMM-01

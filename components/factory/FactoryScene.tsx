@@ -7,6 +7,7 @@ import { Conveyor } from "@/components/factory/Conveyor";
 import { ExploreController } from "@/components/factory/ExploreController";
 import { FactoryFloor } from "@/components/factory/FactoryFloor";
 import { InspectionStation } from "@/components/factory/InspectionStation";
+import { OperatorLoader } from "@/components/factory/OperatorLoader";
 import { Part } from "@/components/factory/Part";
 import { RobotArm } from "@/components/factory/RobotArm";
 import { SawStation } from "@/components/factory/SawStation";
@@ -14,6 +15,7 @@ import {
   CMM_STATIONS,
   CNC_LINES,
   FRONT_INFEED_CONVEYORS,
+  OPERATOR_CELLS,
   REAR_OUTFEED_CONVEYORS,
   SAW_STATIONS,
 } from "@/lib/factory/layout";
@@ -45,6 +47,7 @@ function Cell() {
         ))}
         {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} />)}
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
+        {OPERATOR_CELLS.map((cell, index) => <OperatorLoader key={cell.id} cell={cell} colorIndex={index} />)}
         <RobotArm />
         {CMM_STATIONS.map((cmm) => cmm.instrumented ? (
           <InspectionStation key={cmm.label} position={cmm.position} />

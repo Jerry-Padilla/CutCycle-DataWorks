@@ -25,6 +25,16 @@ export interface ConveyorLayout {
   length: number;
 }
 
+export interface OperatorCellLayout {
+  id: string;
+  lineId: CncLineLayout["id"];
+  phaseOffset: number;
+  machineZ: number;
+  infeedZ: number;
+  rotationY: number;
+  machines: CncLayout[];
+}
+
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
 
 function createMachines(
@@ -44,26 +54,26 @@ function createMachines(
 export const CNC_LINES: CncLineLayout[] = [
   {
     id: "south",
-    machineZ: -3.2,
+    machineZ: -4.2,
     frontZ: -1.5,
-    rearZ: -5.1,
+    rearZ: -6.1,
     rotationY: 0,
     machines: createMachines(
       ["CNC-01", "CNC-02", "CNC-03", "CNC-04", "CNC-05", "CNC-06"],
-      -3.2,
+      -4.2,
       0,
       { "CNC-01": "CNC-01", "CNC-02": "CNC-02" },
     ),
   },
   {
     id: "north",
-    machineZ: 3.2,
+    machineZ: 4.2,
     frontZ: 1.5,
-    rearZ: 5.1,
+    rearZ: 6.1,
     rotationY: Math.PI,
     machines: createMachines(
       ["CNC-07", "CNC-08", "CNC-09", "CNC-10", "CNC-11", "CNC-12"],
-      3.2,
+      4.2,
       Math.PI,
     ),
   },
@@ -93,8 +103,20 @@ export const SAW_STATIONS: { label: string; lineId: CncLineLayout["id"]; positio
   })),
 );
 
+export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lineIndex) =>
+  [0, 1].map((branchIndex) => ({
+    id: `OP-${String(lineIndex * 2 + branchIndex + 1).padStart(2, "0")}`,
+    lineId: line.id,
+    phaseOffset: (lineIndex * 2 + branchIndex) * 0.19,
+    machineZ: line.machineZ,
+    infeedZ: line.frontZ,
+    rotationY: line.rotationY,
+    machines: line.machines.slice(branchIndex * 3, branchIndex * 3 + 3),
+  })),
+);
+
 export const CMM_STATIONS: { label: string; position: FactoryVector; instrumented: boolean }[] = [
-  { label: "CMM-01", position: [14, 0, -5.1], instrumented: true },
+  { label: "CMM-01", position: [14, 0, -6.1], instrumented: true },
   { label: "CMM-02", position: [14, 0, 0], instrumented: false },
-  { label: "CMM-03", position: [14, 0, 5.1], instrumented: false },
+  { label: "CMM-03", position: [14, 0, 6.1], instrumented: false },
 ];

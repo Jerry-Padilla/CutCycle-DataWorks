@@ -3,6 +3,7 @@ import {
   CMM_STATIONS,
   CNC_LINES,
   FRONT_INFEED_CONVEYORS,
+  OPERATOR_CELLS,
   REAR_OUTFEED_CONVEYORS,
   SAW_STATIONS,
 } from "@/lib/factory/layout";
@@ -30,12 +31,22 @@ describe("factory line layout", () => {
     }
   });
 
+  it("assigns one front-loading operator to every three CNCs", () => {
+    expect(OPERATOR_CELLS).toHaveLength(4);
+    expect(OPERATOR_CELLS.every((cell) => cell.machines.length === 3)).toBe(true);
+    expect(new Set(OPERATOR_CELLS.flatMap((cell) => cell.machines.map((machine) => machine.label))).size).toBe(12);
+  });
+
   it("keeps the infeed in front and the CMM outfeed behind each machine row", () => {
     for (const line of CNC_LINES) {
       const frontDirection = Math.sign(Math.cos(line.rotationY));
       expect(Math.sign(line.frontZ - line.machineZ)).toBe(frontDirection);
       expect(Math.sign(line.rearZ - line.machineZ)).toBe(-frontDirection);
       expect(CMM_STATIONS.some((cmm) => cmm.position[2] === line.rearZ)).toBe(true);
+
+      const machineFrontZ = line.machineZ + frontDirection * 1.325;
+      const conveyorEdgeFacingMachine = line.frontZ - frontDirection * 0.575;
+      expect(Math.abs(machineFrontZ - conveyorEdgeFacingMachine)).toBeGreaterThan(0.7);
     }
   });
 });

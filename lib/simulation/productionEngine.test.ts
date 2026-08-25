@@ -19,6 +19,7 @@ describe("production engine", () => {
     expect(result.parts[0].status).toBe("MACHINING");
     expect(result.machines["CNC-01"].partsProduced).toBe(323);
     expect(result.events.some((item) => item.message.includes("completed CNC-01"))).toBe(true);
+    expect(result.events.some((item) => item.message.includes("operator-loaded into CNC-02 from front"))).toBe(true);
   });
 
   it("holds finished work when the downstream station is unavailable", () => {

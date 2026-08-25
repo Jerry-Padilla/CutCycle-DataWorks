@@ -122,7 +122,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     rawPart.status = "MACHINING";
     rawPart.stationElapsed = 0;
     rawPart.progress = 0;
-    events.push(event(input.now, `Part ${rawPart.serialNumber} entered CNC-01`, "INFO", events.length, "CNC-01", rawPart.id));
+    events.push(event(input.now, `Part ${rawPart.serialNumber} operator-loaded into CNC-01 from front`, "INFO", events.length, "CNC-01", rawPart.id));
   }
 
   const activeParts = parts
@@ -184,7 +184,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     events.push(
       event(
         input.now,
-        `Part ${part.serialNumber} completed ${station}${next === "CONVEYOR" ? " · transfer started" : ` · entered ${next}`}`,
+        `Part ${part.serialNumber} completed ${station}${next === "CONVEYOR" ? " · rear transfer started" : next.startsWith("CNC") ? ` · operator-loaded into ${next} from front` : ` · entered ${next}`}`,
         "SUCCESS",
         events.length,
         machineId ?? nextMachine,
