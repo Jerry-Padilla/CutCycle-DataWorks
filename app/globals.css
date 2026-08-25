@@ -39,6 +39,8 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .factory-view { position: relative; width: 100%; height: 100%; overflow: hidden; background: #0c141b; }
 .scene-wrap { position: absolute; inset: 0; }
 .scene-wrap canvas { touch-action: none; }
+.factory-view.scene-labels-hidden .machine-label,
+.factory-view.scene-labels-hidden .factory-sign-copy { display:none; }
 
 .top-nav {
   position: fixed; inset: 0 0 auto 0; z-index: 100; height: var(--header-h); display: flex; align-items: center;

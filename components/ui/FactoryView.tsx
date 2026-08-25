@@ -37,9 +37,10 @@ function WebGLFallback() {
 export function FactoryView() {
   const [webgl] = useState(supportsWebGL);
   const explore = useFactoryStore((state) => state.exploreMode);
+  const diagnosisOpen = useFactoryStore((state) => state.diagnosingMachineId !== null);
   const setExplore = useFactoryStore((state) => state.setExploreMode);
   return (
-    <section className="factory-view" aria-label="3D manufacturing cell">
+    <section className={`factory-view${diagnosisOpen ? " scene-labels-hidden" : ""}`} aria-label="3D manufacturing cell">
       <div className="scene-wrap">
         {webgl ? <SceneErrorBoundary fallback={<WebGLFallback />}><FactoryScene /></SceneErrorBoundary> : <WebGLFallback />}
       </div>

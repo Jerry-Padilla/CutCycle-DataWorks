@@ -43,7 +43,7 @@ function FactorySign({ sign }: { sign: FactorySignLayout }) {
     <group position={sign.position} rotation={[0, sign.rotationY ?? 0, 0]} userData={{ factorySign: sign.id }}>
       <mesh castShadow><boxGeometry args={[sign.width, height, 0.14]} /><meshStandardMaterial color="#26343c" metalness={0.72} roughness={0.28} /></mesh>
       <mesh position={[0, 0, 0.076]}><planeGeometry args={[sign.width - 0.14, height - 0.14]} /><meshBasicMaterial map={texture} toneMapped={false} /></mesh>
-      <Html position={[0, 0, 0.1]} center distanceFactor={sign.primary ? 17 : 14} style={{ pointerEvents: "none" }}>
+      <Html position={[0, 0, 0.1]} center distanceFactor={sign.primary ? 17 : 14} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
         <div className={`factory-sign-copy${sign.primary ? " primary" : ""}`} style={{ borderTopColor: sign.accent }}>
           <strong>{sign.label}</strong>
           {sign.primary && <span>AUTOMATION · MACHINING · INSPECTION</span>}
