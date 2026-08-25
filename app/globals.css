@@ -149,6 +149,11 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .demo-line { display:flex; align-items:center; gap:12px; }
 .demo-step { flex:none; width:29px; height:29px; display:grid; place-items:center; border-radius:50%; border:1px solid rgba(94,183,232,.55); color:#bdeaff; font:700 10px/1 ui-monospace,monospace; }
 .demo-message { flex:1; font-size:12px; color:#dbe6ea; }
+.game-guide { position:absolute; z-index:42; left:50%; top:50%; width:min(540px,calc(100% - 36px)); max-height:calc(100% - 36px); overflow:auto; transform:translate(-50%,-50%); padding:20px; }
+.guide-steps { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:16px; }
+.guide-steps > div { display:flex; align-items:flex-start; gap:10px; min-height:96px; padding:12px; border:1px solid var(--line); border-radius:8px; background:rgba(0,0,0,.17); }
+.guide-steps svg { flex:none; margin-top:2px; color:var(--blue); }
+.guide-steps p { margin:0; }.guide-steps strong { display:block; font-size:13px; }.guide-steps span { display:block; margin-top:5px; color:#9fb0b9; font-size:12px; line-height:1.5; }
 
 .explore-ui { position:absolute; inset:0; z-index:29; pointer-events:none; }
 .crosshair { position:absolute; left:50%; top:50%; width:16px; height:16px; transform:translate(-50%,-50%); }
@@ -251,6 +256,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   .machine-panel{position:absolute;top:auto;right:8px;left:8px;bottom:8px;width:auto;max-height:48%;border-radius:13px;padding:14px}.telemetry-grid{grid-template-columns:repeat(3,1fr)}.telemetry-card{min-height:60px;padding:8px}.telemetry-card .metric-value{font-size:13px}
   .scene-footer{left:10px;bottom:10px}.control-help{display:none}
   .demo-callout{bottom:10px}
+  .game-guide{padding:16px}.guide-steps{grid-template-columns:1fr}.guide-steps>div{min-height:0}.game-guide .button-row{flex-wrap:wrap}.game-guide .button{flex:1 1 42%}
   .diagnosis-backdrop{align-items:end;padding:0}.diagnosis-panel{width:100%;max-height:82%;border-radius:15px 15px 0 0;padding:18px}.choice-grid{grid-template-columns:1fr}.diagnostic-grid{grid-template-columns:1fr 1fr}
   .content-view{padding:24px 13px 50px}.content-header{align-items:flex-start;flex-direction:column}.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-card{min-height:92px}.kpi-card .metric-value{font-size:21px}
   .analytics-grid,.about-grid{grid-template-columns:1fr}.chart-card{min-height:270px;padding:13px}.oee-breakdown{grid-template-columns:repeat(2,1fr)}

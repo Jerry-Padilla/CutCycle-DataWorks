@@ -1,9 +1,10 @@
 "use client";
 
 import { create } from "zustand";
-import { MAX_ACTIVE_WIP, MAX_CHART_HISTORY, MAX_EVENT_HISTORY, MACHINE_IDS, SAW_RELOAD_DELAY } from "@/lib/constants";
+import { MAX_CHART_HISTORY, MAX_EVENT_HISTORY, MACHINE_IDS, SAW_RELOAD_DELAY } from "@/lib/constants";
 import { FAULT_DEFINITIONS, faultsForKind, getNextFaultDelay } from "@/lib/simulation/faultEngine";
 import { calculateKpis } from "@/lib/simulation/kpiEngine";
+import { selectNextDispatch } from "@/lib/simulation/dispatchEngine";
 import { createInitialMachines } from "@/lib/simulation/machineTypes";
 import { productLabel, selectNextProductType } from "@/lib/simulation/productMix";
 import { createProductionRoute } from "@/lib/simulation/productionRouting";
@@ -54,6 +55,7 @@ interface FactoryState {
   soundEnabled: boolean;
   exploreMode: boolean;
   introComplete: boolean;
+  helpOpen: boolean;
   simulationNow: number;
   serialCounter: number;
   spawnAccumulator: number;
@@ -77,6 +79,7 @@ interface FactoryState {
   toggleSound: () => void;
   setExploreMode: (enabled: boolean) => void;
   completeIntro: () => void;
+  setHelpOpen: (open: boolean) => void;
   startDemo: () => void;
   cancelDemo: () => void;
 }
@@ -141,6 +144,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   soundEnabled: false,
   exploreMode: false,
   introComplete: false,
+  helpOpen: true,
   simulationNow: initialNow,
   serialCounter: 1301,
   spawnAccumulator: 0,
@@ -160,19 +164,17 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       let spawnAccumulator = state.spawnAccumulator;
       const freshEvents: ProductionEvent[] = [];
 
-      const activeCount = parts.filter((part) => part.status !== "COMPLETE" && part.status !== "REJECTED").length;
-      const nextRoute = createProductionRoute(serialCounter + 1);
-      const targetSawHasBillet = parts.some((part) => part.currentStation === "RAW" && part.lineId === nextRoute.lineId);
-      const sawCanReload = !targetSawHasBillet && activeCount < MAX_ACTIVE_WIP && !state.demo.active;
+      const dispatch = selectNextDispatch(serialCounter, parts, state.machines);
+      const sawCanReload = Boolean(dispatch) && !state.demo.active;
       spawnAccumulator = sawCanReload ? spawnAccumulator + deltaSeconds : 0;
-      if (spawnAccumulator >= SAW_RELOAD_DELAY && sawCanReload) {
-        serialCounter += 1;
+      if (spawnAccumulator >= SAW_RELOAD_DELAY && sawCanReload && dispatch) {
+        serialCounter = dispatch.serial;
         const scheduledCounts = { ...counters.productCounts };
         for (const queuedPart of parts) {
           if (queuedPart.status !== "COMPLETE" && queuedPart.status !== "REJECTED") scheduledCounts[queuedPart.productType] += 1;
         }
         const productType = selectNextProductType(scheduledCounts);
-        const part = createPart(serialCounter, now, false, productType, nextRoute);
+        const part = createPart(serialCounter, now, false, productType, dispatch.route);
         parts = [...parts, part];
         counters = { ...counters, totalStarted: counters.totalStarted + 1 };
         spawnAccumulator = 0;
@@ -377,6 +379,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
   setExploreMode: (exploreMode) => set({ exploreMode }),
   completeIntro: () => set({ introComplete: true }),
+  setHelpOpen: (helpOpen) => set({ helpOpen }),
   startDemo: () =>
     set((state) => {
       const serialCounter = state.serialCounter + 1;

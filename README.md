@@ -38,6 +38,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 - Skippable system startup and cancellable guided demo
 - Opt-in synthesized Web Audio machine ambience and alarm cues
 - Responsive operator UI with mobile bottom sheets
+- In-app How to Play guide with production flow, controls, dashboard guidance, and a practice malfunction trigger
 - Graceful dashboard fallback when WebGL is unavailable
 
 ## Technology
@@ -69,7 +70,7 @@ React operator panels + Recharts dashboard
 
 All manufacturing behavior runs client-side. The presentation layer does not create independent telemetry or KPI values; both the factory view and dashboard consume the same simulation state.
 
-The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences. A deficit-based scheduler compares accepted counts with the target product mix before releasing each billet, so the visible output converges on the configured order profile rather than being selected randomly.
+The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences. The dispatcher skips stopped or occupied CNCs and reserves half the WIP capacity for each line, so one unavailable mill cannot halt unrelated equipment or starve the parallel line. A deficit-based scheduler compares accepted counts with the target product mix before releasing each billet, so the visible output converges on the configured order profile rather than being selected randomly.
 
 ## Production Flow
 
