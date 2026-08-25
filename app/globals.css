@@ -179,6 +179,21 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .event-dot { width:6px; height:6px; margin-top:3px; border-radius:50%; background:var(--blue); }
 .event-dot.SUCCESS { background:var(--green); }.event-dot.WARNING { background:var(--yellow); }.event-dot.FAULT { background:var(--red); }
 .event-message { color:#abb9c0; font-size:10px; line-height:1.45; }
+.equipment-status-card { padding:17px; min-height:230px; }
+.equipment-summary { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+.equipment-summary span { display:inline-flex; align-items:center; gap:6px; padding:6px 8px; border:1px solid var(--line); border-radius:99px; color:var(--yellow); font:700 8px/1 ui-monospace,monospace; text-transform:uppercase; }
+.equipment-summary .has-fault { border-color:rgba(255,107,102,.4); color:var(--red); background:rgba(255,107,102,.07); }
+.equipment-table { max-height:300px; overflow:auto; margin-top:4px; border:1px solid var(--line); border-radius:7px; }
+.equipment-row { min-width:700px; display:grid; grid-template-columns:115px 100px minmax(260px,1fr) 105px 38px; align-items:center; gap:10px; min-height:46px; padding:7px 10px; border-bottom:1px solid rgba(153,177,194,.09); color:#aebcc3; font-size:10px; }
+.equipment-row:last-child { border-bottom:0; }
+.equipment-row strong { color:#e1edf1; font:700 10px/1.2 ui-monospace,monospace; }
+.equipment-row strong small { display:block; margin-top:3px; color:#6f828e; font-size:7px; font-weight:600; text-transform:uppercase; }
+.equipment-row > span { display:flex; align-items:center; gap:6px; }
+.equipment-head { position:sticky; z-index:1; top:0; min-height:30px; background:#111a22; color:#70848f; font:700 7px/1 ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase; }
+.condition-dot { width:6px; height:6px; flex:none; border-radius:50%; background:#748892; }
+.condition-FAULT { background:var(--red); box-shadow:0 0 7px rgba(255,107,102,.7); }.condition-BLOCKED { background:var(--yellow); }.condition-STOPPED { background:#f08d5d; }.condition-PAUSED { background:var(--blue); }
+.equipment-reason { color:#aebcc3; }.equipment-part { color:#8197a3; font-family:ui-monospace,monospace; }
+.equipment-inspect { width:28px; height:28px; }.equipment-inspect:disabled { visibility:hidden; }
 
 .architecture { grid-template-columns:repeat(6,1fr); gap:10px; align-items:stretch; }
 .architecture-node { position:relative; min-height:150px; padding:16px; cursor:pointer; transition:.2s ease; }

@@ -136,7 +136,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   activeFaults: {},
   diagnosingMachineId: null,
   speed: 1,
-  faultMode: "NORMAL",
+  faultMode: "OFF",
   paused: false,
   soundEnabled: false,
   exploreMode: false,
@@ -146,7 +146,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   spawnAccumulator: 0,
   telemetryAccumulator: 0,
   chartAccumulator: 0,
-  faultCountdown: getNextFaultDelay("NORMAL"),
+  faultCountdown: getNextFaultDelay("OFF"),
   demo: { active: false, step: 0, elapsed: 0, message: "", previousSpeed: null, previousFaultMode: null, partId: null },
 
   tick: (realDeltaSeconds) =>

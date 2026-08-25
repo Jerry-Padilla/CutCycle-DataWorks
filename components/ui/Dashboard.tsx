@@ -3,6 +3,7 @@
 import { Activity, Box, Clock3, Gauge, Network, ShieldCheck } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EventLog } from "@/components/ui/EventLog";
+import { EquipmentStatusPanel } from "@/components/ui/EquipmentStatusPanel";
 import { PRODUCT_DEFINITIONS } from "@/lib/simulation/productMix";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
@@ -33,6 +34,7 @@ export function Dashboard() {
       <div className="content-grid kpi-grid">
         {cards.map(({ label, value, note, icon: Icon }) => <article className="kpi-card glass-panel" key={label}><div className="panel-head"><span className="metric-label">{label}</span><Icon size={15} color="var(--blue)" /></div><div className="metric-value">{value}</div><div className="delta">{note}</div></article>)}
       </div>
+      <div className="content-grid" style={{ marginTop: 14 }}><EquipmentStatusPanel /></div>
       <div className="content-grid analytics-grid" style={{ marginTop: 14 }}>
         <article className="chart-card glass-panel"><p className="eyebrow">Output trend</p><h2 className="chart-title">Throughput · parts per hour</h2><ResponsiveContainer width="100%" height={225}><LineChart data={data}><CartesianGrid stroke="rgba(153,177,194,.08)" vertical={false} /><XAxis dataKey="label" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} width={35} /><Tooltip contentStyle={tooltipStyle} /><Line type="monotone" dataKey="throughput" stroke="#5eb7e8" strokeWidth={2} dot={false} isAnimationActive={false} /></LineChart></ResponsiveContainer></article>
         <article className="chart-card glass-panel"><p className="eyebrow">Effectiveness model</p><h2 className="chart-title">OEE composition</h2><div className="oee-breakdown">{[["Availability",kpis.availability],["Performance",kpis.performance],["Quality",kpis.quality],["OEE",kpis.oee]].map(([label,value]) => <div className="oee-factor" key={String(label)}><div className="metric-label">{label}</div><div className="metric-value">{Number(value).toFixed(1)}<small>%</small></div></div>)}</div><ResponsiveContainer width="100%" height={145}><LineChart data={data}><CartesianGrid stroke="rgba(153,177,194,.08)" vertical={false} /><XAxis dataKey="label" hide /><YAxis domain={[0,100]} tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} width={30} /><Tooltip contentStyle={tooltipStyle} /><Line type="monotone" dataKey="oee" stroke="#55d995" strokeWidth={2} dot={false} isAnimationActive={false} /></LineChart></ResponsiveContainer></article>
