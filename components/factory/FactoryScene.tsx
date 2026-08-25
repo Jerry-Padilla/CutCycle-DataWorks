@@ -43,7 +43,7 @@ function Cell() {
         ) : (
           <AuxiliaryCNC key={machine.label} label={machine.label} position={machine.position} rotationY={machine.rotationY} />
         ))}
-        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} width={conveyor.width} />)}
+        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} width={conveyor.width} lineId={conveyor.lineId} productionLane />)}
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
         {OPERATOR_CELLS.map((cell, index) => <OperatorLoader key={cell.id} cell={cell} colorIndex={index} />)}
         <MaintenanceTechnicians />

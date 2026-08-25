@@ -10,14 +10,15 @@ import {
 } from "@/lib/factory/layout";
 
 describe("factory line layout", () => {
-  it("places six CNCs on each side of the shared front conveyor", () => {
+  it("places six CNCs on each side of the parallel front conveyors", () => {
     expect(CNC_LINES).toHaveLength(2);
     expect(CNC_LINES.map((line) => line.machines.length)).toEqual([6, 6]);
   });
 
-  it("uses two saws at the end of one combined central infeed conveyor", () => {
-    expect(FRONT_INFEED_CONVEYORS).toHaveLength(1);
-    expect(FRONT_INFEED_CONVEYORS[0]).toMatchObject({ lineId: "central", length: 24, width: 3, infeedLanes: 2 });
+  it("uses two saws and two distinct parallel infeed conveyors", () => {
+    expect(FRONT_INFEED_CONVEYORS).toHaveLength(2);
+    expect(FRONT_INFEED_CONVEYORS.map((conveyor) => conveyor.lineId)).toEqual(["south", "north"]);
+    expect(FRONT_INFEED_CONVEYORS.every((conveyor) => conveyor.length === 24 && conveyor.width === 1.15)).toBe(true);
     expect(SAW_STATIONS).toHaveLength(2);
     expect(SAW_STATIONS.every((saw) => saw.position[0] < -12)).toBe(true);
     expect(new Set(SAW_STATIONS.map((saw) => saw.lineId))).toEqual(new Set(["south", "north"]));
@@ -30,34 +31,32 @@ describe("factory line layout", () => {
   });
 
   it("keeps both conveyor lanes in front and the production CMM to the right", () => {
-    const centralInfeed = FRONT_INFEED_CONVEYORS[0];
     for (const line of CNC_LINES) {
+      const lineConveyor = FRONT_INFEED_CONVEYORS.find((conveyor) => conveyor.lineId === line.id);
+      expect(lineConveyor).toBeDefined();
       const frontDirection = Math.sign(Math.cos(line.rotationY));
       expect(Math.sign(line.frontZ - line.machineZ)).toBe(frontDirection);
 
       const machineFrontZ = line.machineZ + frontDirection * 1.325;
-      const conveyorEdgeFacingMachine = centralInfeed.position[2] - frontDirection * (centralInfeed.width ?? 1.15) / 2;
+      const conveyorEdgeFacingMachine = lineConveyor!.position[2] - frontDirection * (lineConveyor!.width ?? 1.15) / 2;
       expect(Math.abs(machineFrontZ - conveyorEdgeFacingMachine)).toBeGreaterThan(0.7);
     }
     expect(CMM_STATIONS.find((cmm) => cmm.instrumented)?.position[0]).toBeGreaterThan(12);
   });
 
-  it("gives each of two robots one front and two 45-degree CMM stations", () => {
+  it("places a straight, evenly spaced bank of three CMMs behind each robot", () => {
     expect(ROBOT_STATIONS).toHaveLength(2);
     expect(CMM_STATIONS).toHaveLength(6);
 
     for (const robot of ROBOT_STATIONS) {
-      const cmmFan = CMM_STATIONS.filter((cmm) => cmm.robotLabel === robot.label);
-      expect(cmmFan).toHaveLength(3);
-      expect(cmmFan.map((cmm) => cmm.serviceAngle).sort((a, b) => a - b)).toEqual([
-        -Math.PI / 4,
-        0,
-        Math.PI / 4,
+      const bank = CMM_STATIONS.filter((cmm) => cmm.robotLabel === robot.label);
+      expect(bank).toHaveLength(3);
+      expect(new Set(bank.map((cmm) => cmm.position[0])).size).toBe(1);
+      expect(bank.map((cmm) => cmm.position[2]).sort((a, b) => a - b)).toEqual([
+        robot.position[2] - 2.9,
+        robot.position[2],
+        robot.position[2] + 2.9,
       ]);
-      for (const cmm of cmmFan) {
-        const reach = Math.hypot(cmm.position[0] - robot.position[0], cmm.position[2] - robot.position[2]);
-        expect(reach).toBeCloseTo(3.3);
-      }
     }
   });
 

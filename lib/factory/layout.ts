@@ -54,7 +54,7 @@ export interface CmmLayout {
   rotationY: number;
   instrumented: boolean;
   robotLabel: RobotLayout["label"];
-  serviceAngle: number;
+  bankIndex: 0 | 1 | 2;
 }
 
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
@@ -99,14 +99,10 @@ export const CNC_LINES: CncLineLayout[] = [
   },
 ];
 
-export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = [{
-  id: "central-front-infeed",
-  lineId: "central",
-  position: [0, 0.78, 0],
-  length: 24,
-  width: 3,
-  infeedLanes: 2,
-}];
+export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = [
+  { id: "south-front-infeed", lineId: "south", position: [0, 0.78, -0.8], length: 24, width: 1.15, infeedLanes: 1 },
+  { id: "north-front-infeed", lineId: "north", position: [0, 0.78, 0.8], length: 24, width: 1.15, infeedLanes: 1 },
+];
 
 export const SAW_STATIONS: { label: string; lineId: CncLineLayout["id"]; position: FactoryVector }[] = CNC_LINES.map(
   (line, index) => ({
@@ -129,31 +125,27 @@ export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lin
 );
 
 export const ROBOT_STATIONS: RobotLayout[] = [
-  { label: "ROBOT-01", position: [12, 0, -3.45], instrumented: true, phaseOffsetSeconds: 0 },
-  { label: "ROBOT-02", position: [12, 0, 3.45], instrumented: false, phaseOffsetSeconds: 6 },
+  { label: "ROBOT-01", position: [12, 0, -4.5], instrumented: true, phaseOffsetSeconds: 0 },
+  { label: "ROBOT-02", position: [12, 0, 4.5], instrumented: false, phaseOffsetSeconds: 6 },
 ];
 
-const CMM_REACH = 3.3;
-const CMM_SERVICE_ANGLES = [0, -Math.PI / 4, Math.PI / 4];
+const CMM_BANK_X = 15.3;
+const CMM_BANK_OFFSETS = [0, -2.9, 2.9] as const;
 
-function createCmmFan(robot: RobotLayout, firstNumber: number): CmmLayout[] {
-  return CMM_SERVICE_ANGLES.map((serviceAngle, index) => ({
+function createCmmBank(robot: RobotLayout, firstNumber: number): CmmLayout[] {
+  return CMM_BANK_OFFSETS.map((offset, index) => ({
     label: `CMM-${String(firstNumber + index).padStart(2, "0")}`,
-    position: [
-      robot.position[0] + Math.cos(serviceAngle) * CMM_REACH,
-      0,
-      robot.position[2] + Math.sin(serviceAngle) * CMM_REACH,
-    ],
-    rotationY: -serviceAngle,
+    position: [CMM_BANK_X, 0, robot.position[2] + offset],
+    rotationY: 0,
     instrumented: robot.instrumented && index === 0,
     robotLabel: robot.label,
-    serviceAngle,
+    bankIndex: index as 0 | 1 | 2,
   }));
 }
 
 export const CMM_STATIONS: CmmLayout[] = [
-  ...createCmmFan(ROBOT_STATIONS[0], 1),
-  ...createCmmFan(ROBOT_STATIONS[1], 4),
+  ...createCmmBank(ROBOT_STATIONS[0], 1),
+  ...createCmmBank(ROBOT_STATIONS[1], 4),
 ];
 
 export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {

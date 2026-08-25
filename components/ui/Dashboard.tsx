@@ -16,6 +16,7 @@ export function Dashboard() {
   const productCounts = useFactoryStore((state) => state.counters.productCounts);
   const data = chartData.length ? chartData : [{ label: "Now", throughput: kpis.throughput, oee: Number(kpis.oee.toFixed(1)) }];
   const utilization = Object.entries(kpis.utilization).map(([machine, value]) => ({ machine, value: Number(value.toFixed(1)) }));
+  const cellEquipmentOnline = 18 + kpis.machinesOnline;
   const productMix = PRODUCT_DEFINITIONS.map((product) => ({
     product: product.shortLabel,
     completed: productCounts[product.id],
@@ -26,7 +27,7 @@ export function Dashboard() {
     { label: "Throughput", value: `${Math.round(kpis.throughput)}/hr`, note: "Rolling 60 seconds", icon: Activity },
     { label: "Scrap rate", value: `${kpis.scrapRate.toFixed(1)}%`, note: `${kpis.quality.toFixed(1)}% first-pass yield`, icon: ShieldCheck },
     { label: "Parts produced", value: kpis.partsProduced.toLocaleString(), note: "Accepted assemblies", icon: Box },
-    { label: "Machines online", value: `${kpis.machinesOnline} / 4`, note: "Production assets", icon: Network },
+    { label: "Cell equipment", value: `${cellEquipmentOnline} / 22`, note: "4 telemetry-instrumented", icon: Network },
     { label: "Average cycle", value: `${kpis.averageCycleTime.toFixed(1)}s`, note: "End-to-end processing", icon: Clock3 },
   ];
   return (

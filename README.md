@@ -14,12 +14,12 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 
 ## Features
 
-- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, two articulated transfer robots, six CMM stations, material racks, and reject handling
+- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, two parallel directional conveyors, two articulated transfer robots, six CMM stations in straight three-machine banks, material racks, and reject handling
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Twelve production-routed CNCs with modeled vertical spindle cartridges, downward cutters, and alternating rectangular/circular X–Z machining paths; four instrumented assets feed the detailed telemetry and KPI model
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
-- Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a three-CMM fan at front and ±45-degree positions
+- Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a straight, evenly spaced bank of three CMMs
 - A capacity-controlled 20-part WIP pipeline with uniquely serialized billets, no looping conveyor stock, and no operator-owned duplicate geometry
 - Order-driven product mix: every rectangular billet is visibly machined into a mounting plate, six-vane impeller, or rocket-engine nozzle; accepted output is scheduled toward a 50/30/20 mix
 - Live spindle, robot, and inspection telemetry with smooth signal changes
@@ -69,7 +69,7 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws at the upstream end of one combined, dual-lane central conveyor. SAW-01 feeds the six-machine south row and SAW-02 feeds the six-machine north row. The dispatcher alternates lines and rotates assignments across CNC-01 through CNC-12. Each cut billet appears only when released from its saw, travels only as far as its assigned machine&apos;s front pickup, and waits there if that machine is occupied. Up to 20 serialized workpieces can occupy the capacity-controlled pipeline, allowing the farther machines and both rows to work concurrently without overlapping parts or invented stock. During machining, each billet becomes its scheduled plate, impeller, or rocket nozzle; that same physical workpiece returns to its conveyor lane, reaches the matching robot, and is placed on one of the three CMMs assigned to that robot.
+The full visual cell begins with two horizontal band saws at the upstream end of two parallel central conveyors. SAW-01 feeds the six-machine south row and SAW-02 feeds the six-machine north row. The dispatcher alternates lines and rotates assignments across CNC-01 through CNC-12. Each cut billet appears only when released from its saw, travels only as far as its assigned machine&apos;s front pickup, and waits there if that machine is occupied. Up to 20 serialized workpieces can occupy the capacity-controlled pipeline, allowing the farther machines and both rows to work concurrently without overlapping parts or invented stock. During machining, each billet becomes its scheduled plate, impeller, or rocket nozzle; that same physical workpiece returns to its conveyor lane, reaches the matching robot, and is placed on one of three square CMMs arranged in a straight bank behind that robot.
 
 ```text
 South stock → SAW-01 → assigned CNC-01…06 → south lane → ROBOT-01 → CMM-01…03
