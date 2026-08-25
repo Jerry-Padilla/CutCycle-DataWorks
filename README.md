@@ -30,6 +30,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 - Guided diagnostic questions and repair workflows
 - Automatic fault modes plus a manual random-fault control
 - Availability, performance, quality, OEE, throughput, scrap, utilization, and cycle-time calculations
+- Live uptime analytics by telemetry-instrumented machine and weighted machine type (CNC, robot, and CMM), derived from accumulated running and scheduled time
 - Live Recharts analytics and a bounded manufacturing event stream
 - Desktop and touch orbit controls
 - Desktop WASD/pointer-lock and mobile joystick Explore Modes

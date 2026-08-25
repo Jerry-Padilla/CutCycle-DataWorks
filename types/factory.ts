@@ -128,6 +128,8 @@ export interface KpiSnapshot {
   machinesOnline: number;
   averageCycleTime: number;
   utilization: Record<MachineId, number>;
+  uptimeByMachine: Record<MachineId, number>;
+  uptimeByType: Record<MachineKind, number>;
 }
 
 export interface ChartSample {

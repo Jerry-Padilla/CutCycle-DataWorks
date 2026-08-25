@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateKpis } from "@/lib/simulation/kpiEngine";
+import { calculateKpis, calculateUptime } from "@/lib/simulation/kpiEngine";
 import { createInitialMachines } from "@/lib/simulation/machineTypes";
 import type { ProductionCounters } from "@/types/factory";
 
@@ -24,5 +24,24 @@ describe("KPI engine", () => {
     expect(Number.isFinite(result.oee)).toBe(true);
     expect(result.averageCycleTime).toBe(0);
     expect(result.throughput).toBe(0);
+    expect(result.uptimeByType).toEqual({ CNC: 0, ROBOT: 0, CMM: 0 });
+  });
+
+  it("reports uptime by individual machine and weighted machine type", () => {
+    const machines = createInitialMachines();
+    machines["CNC-01"].scheduledMs = 1_000;
+    machines["CNC-01"].runningMs = 900;
+    machines["CNC-02"].scheduledMs = 3_000;
+    machines["CNC-02"].runningMs = 1_500;
+    machines["ROBOT-01"].scheduledMs = 1_000;
+    machines["ROBOT-01"].runningMs = 970;
+    machines["CMM-01"].scheduledMs = 1_000;
+    machines["CMM-01"].runningMs = 960;
+    const uptime = calculateUptime(machines);
+    expect(uptime.uptimeByMachine["CNC-01"]).toBe(90);
+    expect(uptime.uptimeByMachine["CNC-02"]).toBe(50);
+    expect(uptime.uptimeByType.CNC).toBe(60);
+    expect(uptime.uptimeByType.ROBOT).toBe(97);
+    expect(uptime.uptimeByType.CMM).toBe(96);
   });
 });

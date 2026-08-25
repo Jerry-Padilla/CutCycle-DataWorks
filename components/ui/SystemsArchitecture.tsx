@@ -7,7 +7,7 @@ const nodes = [
   { title: "Simulation engine", tech: "Discrete time model", detail: "One frame-driven clock advances production with bounded deltas, accelerated time, downstream capacity checks, deterministic station durations, and pause-safe behavior." },
   { title: "State layer", tech: "Zustand", detail: "Machines, work in process, counters, faults, selection, controls, and bounded histories live in one typed client-side source of truth." },
   { title: "Telemetry", tech: "Signal generator", detail: "Equipment readings approach realistic moving targets instead of jumping randomly. Faults coherently override RPM, load, temperature, and sensor values." },
-  { title: "KPI engine", tech: "OEE calculations", detail: "Availability, performance, quality, OEE, throughput, scrap, utilization, and cycle time are derived from actual runtime and inspection counters." },
+  { title: "KPI engine", tech: "OEE calculations", detail: "Availability, performance, quality, OEE, throughput, scrap, utilization, cycle time, and uptime by machine and machine type are derived from actual runtime and inspection counters." },
   { title: "Operations UI", tech: "React + Recharts", detail: "The factory HUD, troubleshooting workflows, production log, and responsive dashboard subscribe to focused slices of the same operational state." },
 ];
 
