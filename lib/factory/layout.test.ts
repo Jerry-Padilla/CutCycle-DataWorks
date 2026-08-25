@@ -73,8 +73,8 @@ describe("factory line layout", () => {
     expect(FACTORY_SIGNAGE.map((sign) => sign.label)).toEqual([
       "JERRY'S AUTOMATED MACHINE SHOP",
       "SAW DEPARTMENT",
-      "CNC DEPARTMENT",
-      "MILLING DEPARTMENT",
+      "CNC MILLING · SOUTH LINE",
+      "CNC MILLING · NORTH LINE",
       "SHIPPING DEPOT",
     ]);
     expect(SHIPPING_DEPOT_POSITION[0]).toBeGreaterThan(CMM_STATIONS[0].position[0]);

@@ -1,6 +1,5 @@
 "use client";
 
-import { Html } from "@react-three/drei";
 import { useEffect, useMemo } from "react";
 import { CanvasTexture, LinearFilter, SRGBColorSpace } from "three";
 import { FACTORY_SIGNAGE, type FactorySignLayout } from "@/lib/factory/layout";
@@ -43,12 +42,6 @@ function FactorySign({ sign }: { sign: FactorySignLayout }) {
     <group position={sign.position} rotation={[0, sign.rotationY ?? 0, 0]} userData={{ factorySign: sign.id }}>
       <mesh castShadow><boxGeometry args={[sign.width, height, 0.14]} /><meshStandardMaterial color="#26343c" metalness={0.72} roughness={0.28} /></mesh>
       <mesh position={[0, 0, 0.076]}><planeGeometry args={[sign.width - 0.14, height - 0.14]} /><meshBasicMaterial map={texture} toneMapped={false} /></mesh>
-      <Html position={[0, 0, 0.1]} center distanceFactor={sign.primary ? 17 : 14} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-        <div className={`factory-sign-copy${sign.primary ? " primary" : ""}`} style={{ borderTopColor: sign.accent }}>
-          <strong>{sign.label}</strong>
-          {sign.primary && <span>AUTOMATION · MACHINING · INSPECTION</span>}
-        </div>
-      </Html>
       {sign.primary && [-sign.width * 0.39, sign.width * 0.39].map((x) => <mesh key={x} position={[x, -3.1, 0]} castShadow><boxGeometry args={[0.18, 5.2, 0.18]} /><meshStandardMaterial color="#53636b" metalness={0.78} roughness={0.3} /></mesh>)}
     </group>
   );

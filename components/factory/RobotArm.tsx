@@ -4,8 +4,8 @@ import { useRef } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { Group, Mesh } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
-import type { RobotLayout } from "@/lib/factory/layout";
-import { liveTransferRobotPose, restRobotPose, serviceRobotPose } from "@/lib/simulation/robotKinematics";
+import { CMM_STATIONS, type RobotLayout } from "@/lib/factory/layout";
+import { liveTransferRobotPose, restRobotPose, robotBaseRotationToward, serviceRobotPose } from "@/lib/simulation/robotKinematics";
 import { useFactoryStore } from "@/store/useFactoryStore";
 import type { MachineStatus } from "@/types/factory";
 
@@ -24,18 +24,24 @@ export function RobotArm({ label, position, instrumented, phaseOffsetSeconds }: 
     const activePart = state.parts.find((part) => part.currentStation === label);
     const activeTransfer = activePart !== undefined;
     const shouldService = instrumented ? machine.status === "RUNNING" : !state.paused;
+    const destination = activePart ? CMM_STATIONS.find((cmm) => cmm.label === activePart.assignedCmm)?.position : undefined;
+    const pickup: [number, number, number] = [10.6, 1.3, activePart?.lineId === "north" ? 0.9 : -0.9];
     const pose = activeTransfer
-      ? liveTransferRobotPose(activePart.progress / 100)
+      ? liveTransferRobotPose(
+          activePart.progress / 100,
+          robotBaseRotationToward(position, pickup),
+          robotBaseRotationToward(position, destination ?? [15.3, 1.1, position[2]]),
+        )
       : shouldService
         ? serviceRobotPose(state.simulationNow / 1000, phaseOffsetSeconds)
         : restRobotPose();
     const damping = Math.min(1, delta * 7);
-    if (base.current) base.current.rotation.y += (pose.baseRotation - base.current.rotation.y) * damping;
-    if (shoulder.current) shoulder.current.rotation.z += (pose.shoulderRotation - shoulder.current.rotation.z) * damping;
-    if (elbow.current) elbow.current.rotation.z += (pose.elbowRotation - elbow.current.rotation.z) * damping;
+    if (base.current) base.current.rotation.y = activeTransfer ? pose.baseRotation : base.current.rotation.y + (pose.baseRotation - base.current.rotation.y) * damping;
+    if (shoulder.current) shoulder.current.rotation.z = activeTransfer ? pose.shoulderRotation : shoulder.current.rotation.z + (pose.shoulderRotation - shoulder.current.rotation.z) * damping;
+    if (elbow.current) elbow.current.rotation.z = activeTransfer ? pose.elbowRotation : elbow.current.rotation.z + (pose.elbowRotation - elbow.current.rotation.z) * damping;
     const fingerOffset = pose.gripperClosed ? 0.1 : 0.2;
-    if (leftFinger.current) leftFinger.current.position.x += (-fingerOffset - leftFinger.current.position.x) * damping;
-    if (rightFinger.current) rightFinger.current.position.x += (fingerOffset - rightFinger.current.position.x) * damping;
+    if (leftFinger.current) leftFinger.current.position.x = activeTransfer ? -fingerOffset : leftFinger.current.position.x + (-fingerOffset - leftFinger.current.position.x) * damping;
+    if (rightFinger.current) rightFinger.current.position.x = activeTransfer ? fingerOffset : rightFinger.current.position.x + (fingerOffset - rightFinger.current.position.x) * damping;
   });
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(label); };
   return (

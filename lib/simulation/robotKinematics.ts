@@ -26,16 +26,34 @@ export function restRobotPose(): RobotPose {
   };
 }
 
-export function liveTransferRobotPose(progress: number): RobotPose {
+export function robotBaseRotationToward(robot: [number, number, number], target: [number, number, number]): number {
+  return Math.atan2(-(target[2] - robot[2]), target[0] - robot[0]);
+}
+
+export function liveTransferRobotPose(progress: number, pickupRotation = -2.08, destinationRotation = 0): RobotPose {
   const t = clamp01(progress);
   const transfer = smoothstep(t);
   const lift = Math.sin(t * Math.PI);
   return {
-    baseRotation: lerp(-2.08, 0, transfer),
+    baseRotation: lerp(pickupRotation, destinationRotation, transfer),
     shoulderRotation: LOW_SHOULDER + lift * 0.38,
     elbowRotation: LOW_ELBOW - lift * 0.22,
     gripperClosed: t >= 0.05 && t < 0.96,
   };
+}
+
+export function robotEndEffectorPosition(robot: [number, number, number], pose: RobotPose): [number, number, number] {
+  const shoulderReach = 2.02;
+  const forearmReach = 1.98;
+  const planarReach = -Math.sin(pose.shoulderRotation) * shoulderReach
+    - Math.sin(pose.shoulderRotation + pose.elbowRotation) * forearmReach;
+  const height = 1.56 + Math.cos(pose.shoulderRotation) * shoulderReach
+    + Math.cos(pose.shoulderRotation + pose.elbowRotation) * forearmReach;
+  return [
+    robot[0] + planarReach * Math.cos(pose.baseRotation),
+    height,
+    robot[2] - planarReach * Math.sin(pose.baseRotation),
+  ];
 }
 
 export function serviceRobotPose(elapsedSeconds: number, phaseOffsetSeconds = 0): RobotPose {

@@ -1,6 +1,7 @@
 import { CMM_STATIONS, CNC_LINES, OPERATOR_CELLS, ROBOT_STATIONS } from "@/lib/factory/layout";
 import { cncServicedPartPosition, type OperatorPath } from "@/lib/simulation/operatorKinematics";
 import { rawStockPosition } from "@/lib/simulation/stockFlow";
+import { liveTransferRobotPose, robotBaseRotationToward, robotEndEffectorPosition } from "@/lib/simulation/robotKinematics";
 import type { CncStationId, Part } from "@/types/factory";
 
 export type FactoryPosition = [number, number, number];
@@ -46,10 +47,11 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
     return mix(conveyorStart, [10.6, 1.3, cnc.laneZ], t);
   }
   if (part.currentStation.startsWith("ROBOT-")) {
-    const lift = Math.sin(t * Math.PI) * 1.8;
+    const robot = ROBOT_STATIONS.find((station) => station.label === part.assignedRobot) ?? ROBOT_STATIONS[0];
     const target = cmmPosition(part);
-    const p = mix([10.6, 1.3, cnc.laneZ], target, t);
-    return [p[0], p[1] + lift, p[2]];
+    const pickup: FactoryPosition = [10.6, 1.3, cnc.laneZ];
+    const pose = liveTransferRobotPose(t, robotBaseRotationToward(robot.position, pickup), robotBaseRotationToward(robot.position, target));
+    return robotEndEffectorPosition(robot.position, pose);
   }
   if (part.currentStation.startsWith("CMM-")) return cmmPosition(part);
   if (part.currentStation === "FINISHED") {

@@ -58,7 +58,8 @@ export function Part({ part, stackIndex }: { part: PartType; stackIndex: number 
   const target = useMemo(() => new Vector3(...getPartPosition(part, stackIndex)), [part, stackIndex]);
   useFrame((_, delta) => {
     if (!group.current) return;
-    group.current.position.lerp(target, Math.min(1, delta * 7));
+    if (part.currentStation.startsWith("ROBOT-")) group.current.position.copy(target);
+    else group.current.position.lerp(target, Math.min(1, delta * 7));
   });
   const isCutBlank = !hasFinishedMachining(part);
   const releasedFromSaw = part.currentStation !== "RAW" || part.progress >= 28;
