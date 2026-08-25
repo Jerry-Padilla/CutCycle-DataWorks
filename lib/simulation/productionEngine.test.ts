@@ -10,6 +10,7 @@ const counters = (): ProductionCounters => ({
   totalInspected: 0,
   totalCycleTime: 0,
   completionTimes: [],
+  productCounts: { MOUNTING_PLATE: 0, IMPELLER: 0, ROCKET_NOZZLE: 0 },
 });
 
 describe("production engine", () => {
@@ -68,12 +69,15 @@ describe("production engine", () => {
     expect(result.parts[0].currentStation).toBe("REJECT");
     expect(result.counters.totalRejected).toBe(1);
     expect(result.counters.totalCompleted).toBe(0);
+    expect(result.counters.productCounts).toEqual({ MOUNTING_PLATE: 0, IMPELLER: 0, ROCKET_NOZZLE: 0 });
   });
 
   it("guarantees the guided demo part passes inspection", () => {
-    const part = { ...createPart(4, 0, true), currentStation: "CMM-01" as const, status: "INSPECTION" as const, stationElapsed: 5 };
+    const part = { ...createPart(4, 0, true, "ROCKET_NOZZLE"), currentStation: "CMM-01" as const, status: "INSPECTION" as const, stationElapsed: 5 };
     const result = advanceProduction({ parts: [part], machines: createInitialMachines(), counters: counters(), deltaSeconds: 0.1, now: 100 });
     expect(result.parts[0].status).toBe("COMPLETE");
     expect(result.parts[0].qualityScore).toBe(97);
+    expect(result.counters.productCounts.ROCKET_NOZZLE).toBe(1);
+    expect(result.events[0].message).toContain("Rocket engine nozzle");
   });
 });

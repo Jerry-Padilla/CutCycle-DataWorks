@@ -5,6 +5,7 @@ import {
   Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { EventLog } from "@/components/ui/EventLog";
+import { PRODUCT_DEFINITIONS } from "@/lib/simulation/productMix";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
 const tooltipStyle = { background: "#121c24", border: "1px solid rgba(153,177,194,.25)", borderRadius: 7, fontSize: 10 };
@@ -12,8 +13,14 @@ const tooltipStyle = { background: "#121c24", border: "1px solid rgba(153,177,19
 export function Dashboard() {
   const kpis = useFactoryStore((state) => state.kpis);
   const chartData = useFactoryStore((state) => state.chartData);
+  const productCounts = useFactoryStore((state) => state.counters.productCounts);
   const data = chartData.length ? chartData : [{ label: "Now", throughput: kpis.throughput, oee: Number(kpis.oee.toFixed(1)) }];
   const utilization = Object.entries(kpis.utilization).map(([machine, value]) => ({ machine, value: Number(value.toFixed(1)) }));
+  const productMix = PRODUCT_DEFINITIONS.map((product) => ({
+    product: product.shortLabel,
+    completed: productCounts[product.id],
+    target: Math.round(product.targetShare * kpis.partsProduced),
+  }));
   const cards = [
     { label: "OEE", value: `${kpis.oee.toFixed(1)}%`, note: "Composite effectiveness", icon: Gauge },
     { label: "Throughput", value: `${Math.round(kpis.throughput)}/hr`, note: "Rolling 60 seconds", icon: Activity },
@@ -34,8 +41,9 @@ export function Dashboard() {
       </div>
       <div className="content-grid analytics-grid" style={{ marginTop: 14 }}>
         <article className="chart-card glass-panel"><p className="eyebrow">Asset health</p><h2 className="chart-title">Machine utilization</h2><ResponsiveContainer width="100%" height={230}><BarChart data={utilization} layout="vertical" margin={{ left: 4 }}><CartesianGrid stroke="rgba(153,177,194,.08)" horizontal={false} /><XAxis type="number" domain={[0,100]} tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="machine" width={73} tick={{ fill: "#9cabb3", fontSize: 9 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="value" fill="#5eb7e8" radius={[0,4,4,0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></article>
-        <article className="event-card glass-panel"><p className="eyebrow">MES event stream</p><h2 className="chart-title">Production event log</h2><EventLog /></article>
+        <article className="chart-card glass-panel"><p className="eyebrow">Order-driven scheduler</p><h2 className="chart-title">Accepted product mix · 50 / 30 / 20 target</h2><ResponsiveContainer width="100%" height={230}><BarChart data={productMix} layout="vertical" margin={{ left: 4 }}><CartesianGrid stroke="rgba(153,177,194,.08)" horizontal={false} /><XAxis type="number" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="product" width={58} tick={{ fill: "#9cabb3", fontSize: 9 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="target" fill="#344854" radius={[0,4,4,0]} isAnimationActive={false} /><Bar dataKey="completed" fill="#55d995" radius={[0,4,4,0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></article>
       </div>
+      <div className="content-grid" style={{ marginTop: 14 }}><article className="event-card glass-panel"><p className="eyebrow">MES event stream</p><h2 className="chart-title">Production event log</h2><EventLog /></article></div>
     </section>
   );
 }

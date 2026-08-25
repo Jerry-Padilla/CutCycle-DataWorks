@@ -5,6 +5,7 @@ import { MAX_CHART_HISTORY, MAX_EVENT_HISTORY, MACHINE_IDS } from "@/lib/constan
 import { FAULT_DEFINITIONS, faultsForKind, getNextFaultDelay } from "@/lib/simulation/faultEngine";
 import { calculateKpis } from "@/lib/simulation/kpiEngine";
 import { createInitialMachines } from "@/lib/simulation/machineTypes";
+import { productLabel, selectNextProductType } from "@/lib/simulation/productMix";
 import { advanceProduction, createPart } from "@/lib/simulation/productionEngine";
 import { updateTelemetry } from "@/lib/simulation/telemetryEngine";
 import type {
@@ -31,6 +32,7 @@ const initialCounters: ProductionCounters = {
   totalInspected: 318,
   totalCycleTime: 312 * 24.7,
   completionTimes: [initialNow - 5_000, initialNow - 20_000, initialNow - 35_000, initialNow - 50_000],
+  productCounts: { MOUNTING_PLATE: 156, IMPELLER: 94, ROCKET_NOZZLE: 62 },
 };
 
 interface FactoryState {
@@ -117,7 +119,8 @@ function applyFault(
   };
 }
 
-const initialParts = [createPart(1301, initialNow)];
+const initialProduct = selectNextProductType(initialCounters.productCounts);
+const initialParts = [createPart(1301, initialNow, false, initialProduct)];
 
 export const useFactoryStore = create<FactoryState>((set) => ({
   view: "FACTORY",
@@ -158,10 +161,11 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       spawnAccumulator = activeCount === 0 && !state.demo.active ? spawnAccumulator + deltaSeconds : 0;
       if (spawnAccumulator >= 2 && activeCount === 0 && !state.demo.active) {
         serialCounter += 1;
-        const part = createPart(serialCounter, now);
+        const productType = selectNextProductType(state.counters.productCounts);
+        const part = createPart(serialCounter, now, false, productType);
         parts = [part];
         spawnAccumulator = 0;
-        freshEvents.push(createEvent(`SAW-01 stock loaded · ${part.serialNumber}`, "INFO", now));
+        freshEvents.push(createEvent(`SAW-01 stock loaded · ${part.serialNumber} · ${productLabel(productType)} order`, "INFO", now));
       }
 
       const production = advanceProduction({
@@ -371,7 +375,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
         parts = [demoPart];
       } else {
         serialCounter += 1;
-        demoPart = createPart(serialCounter, state.simulationNow, true);
+        demoPart = createPart(serialCounter, state.simulationNow, true, "ROCKET_NOZZLE");
         parts = [demoPart];
       }
       const demoPartId = demoPart?.id;

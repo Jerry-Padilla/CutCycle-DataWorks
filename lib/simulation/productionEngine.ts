@@ -1,4 +1,5 @@
 import { MAX_EVENT_HISTORY, STATION_CAPACITY, STATION_DURATIONS } from "@/lib/constants";
+import { productLabel } from "@/lib/simulation/productMix";
 import type {
   EventSeverity,
   MachineId,
@@ -6,6 +7,7 @@ import type {
   Part,
   PartStatus,
   ProductionCounters,
+  ProductType,
   ProductionEvent,
   StationId,
 } from "@/types/factory";
@@ -81,7 +83,7 @@ function qualityScore(machines: Record<MachineId, MachineRuntime>, random: () =>
   return Math.max(70, 90 + random() * 10 - heatPenalty - faultPenalty * 0.35);
 }
 
-export function createPart(serial: number, now: number, demo = false): Part {
+export function createPart(serial: number, now: number, demo = false, productType: ProductType = "MOUNTING_PLATE"): Part {
   return {
     id: `part-${serial}`,
     serialNumber: `SN-${String(10000 + serial).padStart(5, "0")}`,
@@ -92,6 +94,7 @@ export function createPart(serial: number, now: number, demo = false): Part {
     cycleTime: 0,
     stationElapsed: 0,
     progress: 0,
+    productType,
     demo,
   };
 }
@@ -104,6 +107,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
   ) as Record<MachineId, MachineRuntime>;
   const counters: ProductionCounters = {
     ...input.counters,
+    productCounts: { ...input.counters.productCounts },
     completionTimes: input.counters.completionTimes.filter((timestamp) => input.now - timestamp < 60_000),
   };
   const events: ProductionEvent[] = [];
@@ -142,6 +146,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
         counters.totalCompleted += 1;
         counters.totalCycleTime += part.cycleTime;
         counters.completionTimes.push(input.now);
+        counters.productCounts[part.productType] += 1;
       } else {
         counters.totalRejected += 1;
       }
@@ -154,7 +159,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
       events.push(
         event(
           input.now,
-          `CMM inspection ${passed ? "PASSED" : "FAILED"} · ${part.serialNumber} · Q${part.qualityScore}`,
+          `CMM inspection ${passed ? "PASSED" : "FAILED"} · ${productLabel(part.productType)} · ${part.serialNumber} · Q${part.qualityScore}`,
           passed ? "SUCCESS" : "WARNING",
           events.length,
           "CMM-01",

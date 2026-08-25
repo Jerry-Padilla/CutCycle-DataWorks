@@ -21,6 +21,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a three-CMM fan at front and ±45-degree positions
 - One traceable physical workpiece at a time, with no looping conveyor stock or operator-owned duplicate geometry
+- Order-driven product mix: every rectangular billet is visibly machined into a mounting plate, six-vane impeller, or rocket-engine nozzle; accepted output is scheduled toward a 50/30/20 mix
 - Live spindle, robot, and inspection telemetry with smooth signal changes
 - Machine selection, start/stop controls, status lights, and floating labels
 - Five evidence-based CNC and robot fault scenarios
@@ -64,11 +65,11 @@ React operator panels + Recharts dashboard
 
 All manufacturing behavior runs client-side. The presentation layer does not create independent telemetry or KPI values; both the factory view and dashboard consume the same simulation state.
 
-The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences.
+The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences. A deficit-based scheduler compares accepted counts with the target product mix before releasing each billet, so the visible output converges on the configured order profile rather than being selected randomly.
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. That same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. ROBOT-01 and ROBOT-02 each serve three reachable CMMs arranged directly ahead and at 45 degrees to either side; the auxiliary robot and five auxiliary CMMs demonstrate cell scale without inflating operational KPIs.
+The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live rectangular billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. During machining, that billet becomes the scheduled plate, impeller, or rocket nozzle; the same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. ROBOT-01 and ROBOT-02 each serve three reachable CMMs arranged directly ahead and at 45 degrees to either side; the auxiliary robot and five auxiliary CMMs demonstrate cell scale without inflating operational KPIs.
 
 ```text
 Raw stock → SAW-01 cut/release → Conveyor stop at CNC-01 → Operator load → CNC-01 → CNC-02
@@ -80,7 +81,7 @@ Raw stock → SAW-01 cut/release → Conveyor stop at CNC-01 → Operator load �
                                                                                               └─ Fail → Reject bin
 ```
 
-Nominal cycles are 4 seconds for saw cutting and delivery to the CNC pickup, 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for finished-part conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk.
+Nominal cycles are 4 seconds for saw cutting and delivery to the CNC pickup, 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for finished-part conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk. Only inspection-passed parts increment product-mix counts, and the dashboard compares accepted output with its target.
 
 ## Local Development
 

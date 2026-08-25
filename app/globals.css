@@ -78,7 +78,10 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 
 .hud { position:absolute; z-index:20; top:18px; left:18px; width:194px; padding:14px; }
 .hud-status { display:flex; align-items:center; gap:7px; margin-top:8px; color:var(--green); font:700 11px/1 ui-monospace, monospace; letter-spacing:.1em; }
-.hud-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 8px; margin-top:18px; }
+.active-order { display:grid; gap:3px; margin-top:13px; padding:9px; border:1px solid rgba(94,183,232,.22); border-radius:6px; background:rgba(94,183,232,.055); }
+.active-order span,.active-order small { color:#708792; font:650 7px/1.35 ui-monospace,monospace; letter-spacing:.1em; }
+.active-order strong { color:#d7e7ed; font-size:10px; font-weight:650; }
+.hud-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 8px; margin-top:14px; }
 .metric-label { color:#81939f; font:600 8px/1.2 ui-monospace, monospace; letter-spacing:.1em; text-transform:uppercase; }
 .metric-value { margin-top:4px; color:#f0f6f8; font:650 17px/1.1 ui-monospace, monospace; letter-spacing:-.04em; }
 .metric-value small { color:var(--muted); font-size:9px; letter-spacing:0; }

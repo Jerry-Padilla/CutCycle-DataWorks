@@ -11,6 +11,7 @@ export type StationId =
   | "FINISHED"
   | "REJECT";
 export type PartStatus = "WAITING" | "MACHINING" | "MOVING" | "INSPECTION" | "COMPLETE" | "REJECTED";
+export type ProductType = "MOUNTING_PLATE" | "IMPELLER" | "ROCKET_NOZZLE";
 export type FaultMode = "OFF" | "LOW" | "NORMAL" | "HIGH";
 export type SimulationSpeed = 0.5 | 1 | 2 | 4;
 export type AppView = "FACTORY" | "DASHBOARD" | "SYSTEMS" | "ABOUT";
@@ -69,6 +70,7 @@ export interface Part {
   cycleTime: number;
   stationElapsed: number;
   progress: number;
+  productType: ProductType;
   demo?: boolean;
 }
 
@@ -142,6 +144,7 @@ export interface ProductionCounters {
   totalInspected: number;
   totalCycleTime: number;
   completionTimes: number[];
+  productCounts: Record<ProductType, number>;
 }
 
 export interface DemoState {

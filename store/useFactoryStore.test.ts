@@ -5,7 +5,7 @@ import { createPart } from "@/lib/simulation/productionEngine";
 import { useFactoryStore } from "@/store/useFactoryStore";
 import type { ProductionCounters, SimulationSpeed } from "@/types/factory";
 
-const emptyCounters = (): ProductionCounters => ({ totalStarted: 1, totalCompleted: 0, totalRejected: 0, totalInspected: 0, totalCycleTime: 0, completionTimes: [] });
+const emptyCounters = (): ProductionCounters => ({ totalStarted: 1, totalCompleted: 0, totalRejected: 0, totalInspected: 0, totalCycleTime: 0, completionTimes: [], productCounts: { MOUNTING_PLATE: 0, IMPELLER: 0, ROCKET_NOZZLE: 0 } });
 
 describe("factory store clock and controls", () => {
   beforeEach(() => {
