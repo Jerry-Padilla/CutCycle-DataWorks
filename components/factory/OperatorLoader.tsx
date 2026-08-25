@@ -31,11 +31,11 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
   useFrame(() => {
     const state = useFactoryStore.getState();
     const liveHandling = state.parts.find((part) => {
-      const machineIndex = cell.machines.findIndex((machine) => machine.instrumentedId === part.currentStation);
+      const machineIndex = cell.machines.findIndex((machine) => machine.label === part.currentStation);
       return machineIndex >= 0 && (part.progress <= 30 || part.progress >= 78);
     });
     const liveMachineIndex = liveHandling
-      ? cell.machines.findIndex((machine) => machine.instrumentedId === liveHandling.currentStation)
+      ? cell.machines.findIndex((machine) => machine.label === liveHandling.currentStation)
       : -1;
     const pose = liveHandling && liveMachineIndex >= 0
       ? liveHandling.progress <= 30

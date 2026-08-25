@@ -18,11 +18,12 @@ export function SawStation({ label, position }: { label: string; position: [numb
   const bow = useRef<Group>(null);
   const blade = useRef<Mesh>(null);
   const stock = useRef<Mesh>(null);
-  const rawSerialNumber = useFactoryStore((state) => state.parts.find((part) => part.currentStation === "RAW")?.serialNumber ?? null);
-  const active = label === "SAW-01" && rawSerialNumber !== null;
+  const lineId = label === "SAW-01" ? "south" : "north";
+  const rawSerialNumber = useFactoryStore((state) => state.parts.find((part) => part.currentStation === "RAW" && part.lineId === lineId)?.serialNumber ?? null);
+  const active = rawSerialNumber !== null;
 
   useFrame(() => {
-    const rawPart = useFactoryStore.getState().parts.find((part) => part.currentStation === "RAW");
+    const rawPart = useFactoryStore.getState().parts.find((part) => part.currentStation === "RAW" && part.lineId === lineId);
     const phase = active && rawPart ? rawPart.progress / 100 : 0;
     const feed = smoothstep(phase / 0.16);
     const descent = smoothstep((phase - 0.1) / 0.09);

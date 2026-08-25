@@ -17,10 +17,10 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 - Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, two articulated transfer robots, six CMM stations, material racks, and reject handling
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
-- Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
+- Twelve production-routed CNCs with modeled vertical spindle cartridges, downward cutters, and alternating rectangular/circular X–Z machining paths; four instrumented assets feed the detailed telemetry and KPI model
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a three-CMM fan at front and ±45-degree positions
-- One traceable physical workpiece at a time, with no looping conveyor stock or operator-owned duplicate geometry
+- A capacity-controlled 20-part WIP pipeline with uniquely serialized billets, no looping conveyor stock, and no operator-owned duplicate geometry
 - Order-driven product mix: every rectangular billet is visibly machined into a mounting plate, six-vane impeller, or rocket-engine nozzle; accepted output is scheduled toward a 50/30/20 mix
 - Live spindle, robot, and inspection telemetry with smooth signal changes
 - Machine selection, start/stop controls, status lights, and floating labels
@@ -69,19 +69,16 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live rectangular billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. During machining, that billet becomes the scheduled plate, impeller, or rocket nozzle; the same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. ROBOT-01 and ROBOT-02 each serve three reachable CMMs arranged directly ahead and at 45 degrees to either side; the auxiliary robot and five auxiliary CMMs demonstrate cell scale without inflating operational KPIs.
+The full visual cell begins with two horizontal band saws at the upstream end of one combined, dual-lane central conveyor. SAW-01 feeds the six-machine south row and SAW-02 feeds the six-machine north row. The dispatcher alternates lines and rotates assignments across CNC-01 through CNC-12. Each cut billet appears only when released from its saw, travels only as far as its assigned machine&apos;s front pickup, and waits there if that machine is occupied. Up to 20 serialized workpieces can occupy the capacity-controlled pipeline, allowing the farther machines and both rows to work concurrently without overlapping parts or invented stock. During machining, each billet becomes its scheduled plate, impeller, or rocket nozzle; that same physical workpiece returns to its conveyor lane, reaches the matching robot, and is placed on one of the three CMMs assigned to that robot.
 
 ```text
-Raw stock → SAW-01 cut/release → Conveyor stop at CNC-01 → Operator load → CNC-01 → CNC-02
-                                                                                         ↓ front unload
-                                                                        Shared conveyor → ROBOT-01
-                                                                                              ↓ direct place
-                                                                                           CMM-01
-                                                                                              ├─ Pass → Complete
-                                                                                              └─ Fail → Reject bin
+South stock → SAW-01 → assigned CNC-01…06 → south lane → ROBOT-01 → CMM-01…03
+North stock → SAW-02 → assigned CNC-07…12 → north lane → ROBOT-02 → CMM-04…06
+                                                                  ├─ Pass → Complete
+                                                                  └─ Fail → Reject bin
 ```
 
-Nominal cycles are 4 seconds for saw cutting and delivery to the CNC pickup, 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for finished-part conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk. Only inspection-passed parts increment product-mix counts, and the dashboard compares accepted output with its target.
+Nominal cycles are 4 seconds for saw cutting and delivery to the assigned pickup, 8 seconds for CNC-01, 7 seconds for CNC-02, 24 seconds for the ten visual production CNCs, 3 seconds for finished-part conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. The longer background cycles balance six CNCs per line against one saw. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk. Only inspection-passed parts increment product-mix counts, and the dashboard compares accepted output with its target.
 
 ## Local Development
 

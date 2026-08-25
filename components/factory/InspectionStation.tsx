@@ -20,8 +20,9 @@ export function InspectionStation({ position = [15.3,0,-3.45], rotationY = 0, au
   const selected = useFactoryStore((state) => !auxiliaryLabel && state.selectedMachineId === "CMM-01");
   const select = useFactoryStore((state) => state.selectMachine);
   const probe = useRef<Mesh>(null);
-  const status: MachineStatus = auxiliaryLabel ? "IDLE" : machine.status;
-  useFrame(() => { if (probe.current && !auxiliaryLabel) probe.current.position.y = 2.25 - Math.sin(machine.progress/100*Math.PI)*.65; });
+  const auxiliaryProgress = useFactoryStore((state) => auxiliaryLabel ? state.parts.find((part) => part.currentStation === auxiliaryLabel)?.progress ?? 0 : 0);
+  const status: MachineStatus = auxiliaryLabel ? auxiliaryProgress > 0 ? "RUNNING" : "IDLE" : machine.status;
+  useFrame(() => { if (probe.current) probe.current.position.y = 2.25 - Math.sin((auxiliaryLabel ? auxiliaryProgress : machine.progress)/100*Math.PI)*.65; });
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select("CMM-01"); };
   return (
     <group position={position} rotation={[0,rotationY,0]} onClick={auxiliaryLabel ? undefined : click} userData={auxiliaryLabel ? { auxiliaryEquipment:true } : { machineId:"CMM-01" }}>

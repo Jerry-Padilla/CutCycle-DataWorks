@@ -91,5 +91,17 @@ export function CNC({ id, position, rotationY = 0 }: { id: Extract<MachineId, "C
 export function AuxiliaryCNC({ label, position, rotationY = 0 }: { label: string; position: [number, number, number]; rotationY?: number }) {
   const spindle = useRef<Group>(null);
   const spindleCarriage = useRef<Group>(null);
-  return <CncShell label={`${label} · AUX`} status="IDLE" position={position} rotationY={rotationY} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={null} />;
+  const active = useFactoryStore((state) => state.parts.some((part) => part.currentStation === label));
+  const paused = useFactoryStore((state) => state.paused);
+  const speed = useFactoryStore((state) => state.speed);
+  const toolpath: CncToolpath = Number(label.slice(-2)) % 2 === 0 ? "circle" : "rectangle";
+  useFrame((_, delta) => {
+    const part = useFactoryStore.getState().parts.find((candidate) => candidate.currentStation === label);
+    if (spindleCarriage.current && part) {
+      const [x, z] = cncToolpathOffset(toolpath, part.progress);
+      spindleCarriage.current.position.set(x, 0, z);
+    }
+    if (spindle.current && active && !paused) spindle.current.rotation.y -= delta * 18 * speed;
+  });
+  return <CncShell label={label} status={active && !paused ? "RUNNING" : "IDLE"} position={position} rotationY={rotationY} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={toolpath} />;
 }

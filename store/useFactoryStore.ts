@@ -1,11 +1,12 @@
 "use client";
 
 import { create } from "zustand";
-import { MAX_CHART_HISTORY, MAX_EVENT_HISTORY, MACHINE_IDS } from "@/lib/constants";
+import { MAX_ACTIVE_WIP, MAX_CHART_HISTORY, MAX_EVENT_HISTORY, MACHINE_IDS, SAW_RELOAD_DELAY } from "@/lib/constants";
 import { FAULT_DEFINITIONS, faultsForKind, getNextFaultDelay } from "@/lib/simulation/faultEngine";
 import { calculateKpis } from "@/lib/simulation/kpiEngine";
 import { createInitialMachines } from "@/lib/simulation/machineTypes";
 import { productLabel, selectNextProductType } from "@/lib/simulation/productMix";
+import { createProductionRoute } from "@/lib/simulation/productionRouting";
 import { advanceProduction, createPart } from "@/lib/simulation/productionEngine";
 import { updateTelemetry } from "@/lib/simulation/telemetryEngine";
 import type {
@@ -120,7 +121,7 @@ function applyFault(
 }
 
 const initialProduct = selectNextProductType(initialCounters.productCounts);
-const initialParts = [createPart(1301, initialNow, false, initialProduct)];
+const initialParts = [createPart(1301, initialNow, false, initialProduct, createProductionRoute(1301))];
 
 export const useFactoryStore = create<FactoryState>((set) => ({
   view: "FACTORY",
@@ -153,25 +154,35 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       const deltaSeconds = Math.min(Math.max(realDeltaSeconds, 0), 0.25) * state.speed;
       const now = state.simulationNow + deltaSeconds * 1000;
       let parts = state.parts;
+      let counters = state.counters;
       let serialCounter = state.serialCounter;
       let spawnAccumulator = state.spawnAccumulator;
       const freshEvents: ProductionEvent[] = [];
 
       const activeCount = parts.filter((part) => part.status !== "COMPLETE" && part.status !== "REJECTED").length;
-      spawnAccumulator = activeCount === 0 && !state.demo.active ? spawnAccumulator + deltaSeconds : 0;
-      if (spawnAccumulator >= 2 && activeCount === 0 && !state.demo.active) {
+      const nextRoute = createProductionRoute(serialCounter + 1);
+      const targetSawHasBillet = parts.some((part) => part.currentStation === "RAW" && part.lineId === nextRoute.lineId);
+      const sawCanReload = !targetSawHasBillet && activeCount < MAX_ACTIVE_WIP && !state.demo.active;
+      spawnAccumulator = sawCanReload ? spawnAccumulator + deltaSeconds : 0;
+      if (spawnAccumulator >= SAW_RELOAD_DELAY && sawCanReload) {
         serialCounter += 1;
-        const productType = selectNextProductType(state.counters.productCounts);
-        const part = createPart(serialCounter, now, false, productType);
-        parts = [part];
+        const scheduledCounts = { ...counters.productCounts };
+        for (const queuedPart of parts) {
+          if (queuedPart.status !== "COMPLETE" && queuedPart.status !== "REJECTED") scheduledCounts[queuedPart.productType] += 1;
+        }
+        const productType = selectNextProductType(scheduledCounts);
+        const part = createPart(serialCounter, now, false, productType, nextRoute);
+        parts = [...parts, part];
+        counters = { ...counters, totalStarted: counters.totalStarted + 1 };
         spawnAccumulator = 0;
-        freshEvents.push(createEvent(`SAW-01 stock loaded · ${part.serialNumber} · ${productLabel(productType)} order`, "INFO", now));
+        const sawLabel = part.lineId === "south" ? "SAW-01" : "SAW-02";
+        freshEvents.push(createEvent(`${sawLabel} stock loaded · ${part.serialNumber} · ${part.assignedCnc} · ${productLabel(productType)} order`, "INFO", now));
       }
 
       const production = advanceProduction({
         parts,
         machines: state.machines,
-        counters: state.counters,
+        counters,
         deltaSeconds,
         now,
       });
@@ -367,17 +378,9 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   completeIntro: () => set({ introComplete: true }),
   startDemo: () =>
     set((state) => {
-      let parts = state.parts;
-      let serialCounter = state.serialCounter;
-      let demoPart = parts.find((part) => !part.demo && part.status !== "COMPLETE" && part.status !== "REJECTED");
-      if (demoPart) {
-        demoPart = { ...demoPart, demo: true };
-        parts = [demoPart];
-      } else {
-        serialCounter += 1;
-        demoPart = createPart(serialCounter, state.simulationNow, true, "ROCKET_NOZZLE");
-        parts = [demoPart];
-      }
+      const serialCounter = state.serialCounter + 1;
+      const demoPart = createPart(serialCounter, state.simulationNow, true, "ROCKET_NOZZLE");
+      const parts = [demoPart];
       const demoPartId = demoPart?.id;
       if (!demoPartId) return state;
       return {

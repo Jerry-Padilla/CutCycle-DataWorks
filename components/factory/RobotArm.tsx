@@ -21,10 +21,11 @@ export function RobotArm({ label, position, instrumented, phaseOffsetSeconds }: 
   const status: MachineStatus = instrumented ? machine.status : paused ? "IDLE" : "RUNNING";
   useFrame((_, delta) => {
     const state = useFactoryStore.getState();
-    const activeTransfer = instrumented && machine.currentPartId !== null;
+    const activePart = state.parts.find((part) => part.currentStation === label);
+    const activeTransfer = activePart !== undefined;
     const shouldService = instrumented ? machine.status === "RUNNING" : !state.paused;
     const pose = activeTransfer
-      ? liveTransferRobotPose(machine.progress / 100)
+      ? liveTransferRobotPose(activePart.progress / 100)
       : shouldService
         ? serviceRobotPose(state.simulationNow / 1000, phaseOffsetSeconds)
         : restRobotPose();

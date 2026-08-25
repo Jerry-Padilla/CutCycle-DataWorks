@@ -6,6 +6,7 @@ import { productLabel } from "@/lib/simulation/productMix";
 export function HUD() {
   const kpis = useFactoryStore((state) => state.kpis);
   const activePart = useFactoryStore((state) => state.parts.find((part) => part.status !== "COMPLETE" && part.status !== "REJECTED"));
+  const activeWip = useFactoryStore((state) => state.parts.filter((part) => part.status !== "COMPLETE" && part.status !== "REJECTED").length);
   return (
     <aside className="hud glass-panel" aria-label="Factory status">
       <p className="eyebrow">Factory status</p>
@@ -15,7 +16,7 @@ export function HUD() {
         <div><div className="metric-label">OEE</div><div className="metric-value">{kpis.oee.toFixed(1)}<small>%</small></div></div>
         <div><div className="metric-label">Throughput</div><div className="metric-value">{Math.round(kpis.throughput)}<small>/hr</small></div></div>
         <div><div className="metric-label">Scrap</div><div className="metric-value">{kpis.scrapRate.toFixed(1)}<small>%</small></div></div>
-        <div><div className="metric-label">Machines</div><div className="metric-value">{kpis.machinesOnline}<small>/4</small></div></div>
+        <div><div className="metric-label">Active WIP</div><div className="metric-value">{activeWip}<small>/20</small></div></div>
       </div>
     </aside>
   );

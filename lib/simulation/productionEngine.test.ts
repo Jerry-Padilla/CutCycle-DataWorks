@@ -24,23 +24,23 @@ describe("production engine", () => {
     expect(arrived.events[0].message).toContain("saw-cut blank stopped at CNC-01 pickup");
   });
 
-  it("advances a loaded part through CNC-01 after the nominal cycle", () => {
+  it("returns a completed CNC-01 part to its front conveyor", () => {
     const part = { ...createPart(1, 0), currentStation: "CNC-01" as const, status: "MACHINING" as const };
     const result = advanceProduction({ parts: [part], machines: createInitialMachines(), counters: counters(), deltaSeconds: 8, now: 8_000, random: () => 0.5 });
-    expect(result.parts[0].currentStation).toBe("CNC-02");
-    expect(result.parts[0].status).toBe("MACHINING");
+    expect(result.parts[0].currentStation).toBe("CONVEYOR");
+    expect(result.parts[0].status).toBe("MOVING");
     expect(result.machines["CNC-01"].partsProduced).toBe(323);
     expect(result.events.some((item) => item.message.includes("completed CNC-01"))).toBe(true);
-    expect(result.events.some((item) => item.message.includes("operator-loaded into CNC-02 from front"))).toBe(true);
+    expect(result.events.some((item) => item.message.includes("returned part to shared front conveyor"))).toBe(true);
   });
 
-  it("holds finished work when the downstream station is unavailable", () => {
+  it("holds work when its assigned machine is unavailable", () => {
     const machines = createInitialMachines();
-    machines["CNC-02"] = { ...machines["CNC-02"], status: "IDLE" };
+    machines["CNC-01"] = { ...machines["CNC-01"], status: "IDLE" };
     const part = { ...createPart(2, 0), currentStation: "CNC-01" as const, status: "MACHINING" as const, stationElapsed: 7.9, progress: 98 };
     const result = advanceProduction({ parts: [part], machines, counters: counters(), deltaSeconds: 1, now: 1_000 });
     expect(result.parts[0].currentStation).toBe("CNC-01");
-    expect(result.parts[0].progress).toBe(100);
+    expect(result.parts[0].progress).toBe(98);
   });
 
   it("returns front-unloaded work to the shared conveyor before robot-to-CMM placement", () => {

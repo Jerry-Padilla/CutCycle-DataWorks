@@ -1,15 +1,11 @@
 export type MachineId = "CNC-01" | "CNC-02" | "ROBOT-01" | "CMM-01";
+export type CncStationId = "CNC-01" | "CNC-02" | "CNC-03" | "CNC-04" | "CNC-05" | "CNC-06" | "CNC-07" | "CNC-08" | "CNC-09" | "CNC-10" | "CNC-11" | "CNC-12";
+export type RobotStationId = "ROBOT-01" | "ROBOT-02";
+export type CmmStationId = "CMM-01" | "CMM-02" | "CMM-03" | "CMM-04" | "CMM-05" | "CMM-06";
+export type ProductionLineId = "south" | "north";
 export type MachineKind = "CNC" | "ROBOT" | "CMM";
 export type MachineStatus = "RUNNING" | "IDLE" | "FAULT" | "MAINTENANCE";
-export type StationId =
-  | "RAW"
-  | "CNC-01"
-  | "CNC-02"
-  | "CONVEYOR"
-  | "ROBOT-01"
-  | "CMM-01"
-  | "FINISHED"
-  | "REJECT";
+export type StationId = "RAW" | CncStationId | "CONVEYOR" | RobotStationId | CmmStationId | "FINISHED" | "REJECT";
 export type PartStatus = "WAITING" | "MACHINING" | "MOVING" | "INSPECTION" | "COMPLETE" | "REJECTED";
 export type ProductType = "MOUNTING_PLATE" | "IMPELLER" | "ROCKET_NOZZLE";
 export type FaultMode = "OFF" | "LOW" | "NORMAL" | "HIGH";
@@ -71,6 +67,10 @@ export interface Part {
   stationElapsed: number;
   progress: number;
   productType: ProductType;
+  assignedCnc: CncStationId;
+  assignedRobot: RobotStationId;
+  assignedCmm: CmmStationId;
+  lineId: ProductionLineId;
   demo?: boolean;
 }
 

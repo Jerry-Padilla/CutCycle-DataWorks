@@ -23,6 +23,7 @@ describe("factory store clock and controls", () => {
       faultMode: "OFF",
       faultCountdown: Number.POSITIVE_INFINITY,
       simulationNow: 0,
+      serialCounter: 1,
       spawnAccumulator: 0,
       telemetryAccumulator: 0,
       chartAccumulator: 0,
@@ -43,14 +44,31 @@ describe("factory store clock and controls", () => {
     expect(useFactoryStore.getState().simulationNow).toBe(0);
   });
 
-  it("replaces the displayed finished part only when the next single blank starts", () => {
+  it("reloads the saw while another real part is still machining", () => {
     const finished = { ...createPart(1, 0), currentStation: "FINISHED" as const, status: "COMPLETE" as const };
-    useFactoryStore.setState({ parts: [finished], serialCounter: 1, spawnAccumulator: 1.9 });
+    const machining = { ...createPart(2, 0), currentStation: "CNC-01" as const, status: "MACHINING" as const };
+    useFactoryStore.setState({ parts: [finished, machining], serialCounter: 2, spawnAccumulator: 0.4 });
     useFactoryStore.getState().tick(1);
     const parts = useFactoryStore.getState().parts;
-    expect(parts).toHaveLength(1);
-    expect(parts[0].currentStation).toBe("RAW");
-    expect(parts[0].serialNumber).toBe("SN-10002");
+    expect(parts).toHaveLength(3);
+    expect(parts.some((part) => part.currentStation === "RAW" && part.serialNumber === "SN-10003")).toBe(true);
+    expect(useFactoryStore.getState().counters.totalStarted).toBe(2);
+  });
+
+  it("fills both production lines with concurrent CNC work", () => {
+    for (let index = 0; index < 53; index += 1) useFactoryStore.getState().tick(0.25);
+    const activeStations = useFactoryStore.getState().parts
+      .filter((part) => part.status !== "COMPLETE" && part.status !== "REJECTED")
+      .map((part) => part.currentStation);
+    expect(new Set(activeStations.filter((station) => station.startsWith("CNC-"))).size).toBeGreaterThanOrEqual(2);
+    expect(useFactoryStore.getState().parts.some((part) => part.lineId === "south")).toBe(true);
+    expect(useFactoryStore.getState().parts.some((part) => part.lineId === "north")).toBe(true);
+  });
+
+  it("dispatches traceable work across all twelve CNC destinations", () => {
+    for (let index = 0; index < 240; index += 1) useFactoryStore.getState().tick(0.25);
+    const destinations = new Set(useFactoryStore.getState().parts.map((part) => part.assignedCnc));
+    expect(destinations.size).toBe(12);
   });
 
   it("restores speed and fault settings when a guided demo is cancelled", () => {

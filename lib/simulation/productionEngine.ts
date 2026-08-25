@@ -1,5 +1,6 @@
 import { MAX_EVENT_HISTORY, STATION_CAPACITY, STATION_DURATIONS } from "@/lib/constants";
 import { productLabel } from "@/lib/simulation/productMix";
+import type { ProductionRoute } from "@/lib/simulation/productionRouting";
 import type {
   EventSeverity,
   MachineId,
@@ -35,21 +36,23 @@ const STATION_MACHINE: Partial<Record<StationId, MachineId>> = {
   "CMM-01": "CMM-01",
 };
 
-const NEXT_STATION: Partial<Record<StationId, StationId>> = {
-  RAW: "CNC-01",
-  "CNC-01": "CNC-02",
-  "CNC-02": "CONVEYOR",
-  CONVEYOR: "ROBOT-01",
-  "ROBOT-01": "CMM-01",
-};
+function isCncStation(station: StationId) { return station.startsWith("CNC-"); }
+function isRobotStation(station: StationId) { return station.startsWith("ROBOT-"); }
+function isCmmStation(station: StationId) { return station.startsWith("CMM-"); }
 
-const STATION_STATUS: Partial<Record<StationId, PartStatus>> = {
-  "CNC-01": "MACHINING",
-  "CNC-02": "MACHINING",
-  CONVEYOR: "MOVING",
-  "ROBOT-01": "MOVING",
-  "CMM-01": "INSPECTION",
-};
+function nextStation(part: Part): StationId | undefined {
+  if (part.currentStation === "RAW") return part.assignedCnc;
+  if (isCncStation(part.currentStation)) return "CONVEYOR";
+  if (part.currentStation === "CONVEYOR") return part.assignedRobot;
+  if (isRobotStation(part.currentStation)) return part.assignedCmm;
+  return undefined;
+}
+
+function statusForStation(station: StationId): PartStatus {
+  if (isCncStation(station)) return "MACHINING";
+  if (isCmmStation(station)) return "INSPECTION";
+  return "MOVING";
+}
 
 function event(
   now: number,
@@ -83,7 +86,9 @@ function qualityScore(machines: Record<MachineId, MachineRuntime>, random: () =>
   return Math.max(70, 90 + random() * 10 - heatPenalty - faultPenalty * 0.35);
 }
 
-export function createPart(serial: number, now: number, demo = false, productType: ProductType = "MOUNTING_PLATE"): Part {
+const DEFAULT_ROUTE: ProductionRoute = { assignedCnc: "CNC-01", assignedRobot: "ROBOT-01", assignedCmm: "CMM-01", lineId: "south" };
+
+export function createPart(serial: number, now: number, demo = false, productType: ProductType = "MOUNTING_PLATE", route: ProductionRoute = DEFAULT_ROUTE): Part {
   return {
     id: `part-${serial}`,
     serialNumber: `SN-${String(10000 + serial).padStart(5, "0")}`,
@@ -95,6 +100,7 @@ export function createPart(serial: number, now: number, demo = false, productTyp
     stationElapsed: 0,
     progress: 0,
     productType,
+    ...route,
     demo,
   };
 }
@@ -134,7 +140,7 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     part.progress = Math.min(100, (part.stationElapsed / duration) * 100);
     if (part.stationElapsed < duration) continue;
 
-    if (station === "CMM-01") {
+    if (isCmmStation(station)) {
       const score = qualityScore(machines, random, part.demo);
       const passed = score >= 85;
       part.qualityScore = Number(score.toFixed(1));
@@ -150,8 +156,8 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
       } else {
         counters.totalRejected += 1;
       }
-      machines["CMM-01"].partsProduced += 1;
-      if (machines["CMM-01"].telemetry.kind === "CMM") {
+      if (station === "CMM-01") machines["CMM-01"].partsProduced += 1;
+      if (station === "CMM-01" && machines["CMM-01"].telemetry.kind === "CMM") {
         machines["CMM-01"].telemetry.lastResult = passed ? "PASS" : "FAIL";
         machines["CMM-01"].telemetry.totalInspected = counters.totalInspected;
         machines["CMM-01"].telemetry.rejectionCount = counters.totalRejected;
@@ -162,32 +168,30 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
           `CMM inspection ${passed ? "PASSED" : "FAILED"} · ${productLabel(part.productType)} · ${part.serialNumber} · Q${part.qualityScore}`,
           passed ? "SUCCESS" : "WARNING",
           events.length,
-          "CMM-01",
+          station === "CMM-01" ? "CMM-01" : undefined,
           part.id,
         ),
       );
       continue;
     }
 
-    const next = NEXT_STATION[station];
+    const next = nextStation(part);
     if (!next || !stationHasCapacity(parts, next) || !isMachineAvailable(next, machines)) continue;
     const machineId = STATION_MACHINE[station];
     if (machineId) machines[machineId].partsProduced += 1;
     part.currentStation = next;
-    part.status = STATION_STATUS[next] ?? "MOVING";
+    part.status = statusForStation(next);
     part.stationElapsed = 0;
     part.progress = 0;
     const nextMachine = STATION_MACHINE[next];
     const transition = station === "RAW"
-      ? " · saw-cut blank stopped at CNC-01 pickup · operator-loaded from front"
-      : next.startsWith("CNC")
-      ? ` · operator-loaded into ${next} from front`
+      ? ` · saw-cut blank stopped at ${next} pickup · operator-loaded from front`
       : next === "CONVEYOR"
         ? " · operator returned part to shared front conveyor"
-        : next === "ROBOT-01"
-          ? " · shared front conveyor delivered part to ROBOT-01"
-          : next === "CMM-01"
-            ? " · ROBOT-01 placed part directly on CMM-01"
+        : isRobotStation(next)
+          ? ` · shared front conveyor delivered part to ${next}`
+          : isCmmStation(next)
+            ? ` · ${station} placed part directly on ${next}`
             : ` · entered ${next}`;
     events.push(
       event(

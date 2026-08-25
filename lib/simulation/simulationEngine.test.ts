@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createPart } from "@/lib/simulation/productionEngine";
 import { getPartPosition } from "@/lib/simulation/simulationEngine";
+import type { ProductionRoute } from "@/lib/simulation/productionRouting";
 import type { Part, StationId } from "@/types/factory";
 
 function expectPositionClose(actual: [number, number, number], expected: [number, number, number]) {
@@ -8,8 +9,9 @@ function expectPositionClose(actual: [number, number, number], expected: [number
 }
 
 function partAt(station: StationId, progress: number): Part {
+  const route: ProductionRoute = { assignedCnc: "CNC-02", assignedRobot: "ROBOT-01", assignedCmm: "CMM-01", lineId: "south" };
   return {
-    ...createPart(1, 0),
+    ...createPart(1, 0, false, "MOUNTING_PLATE", route),
     currentStation: station,
     status: station === "FINISHED" ? "COMPLETE" : "MOVING",
     progress,
