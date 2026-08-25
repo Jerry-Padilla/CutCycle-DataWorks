@@ -17,6 +17,7 @@ import {
   CNC_LINES,
   FRONT_INFEED_CONVEYORS,
   OPERATOR_CELLS,
+  ROBOT_STATIONS,
   SAW_STATIONS,
 } from "@/lib/factory/layout";
 import { useFactoryStore } from "@/store/useFactoryStore";
@@ -46,11 +47,11 @@ function Cell() {
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
         {OPERATOR_CELLS.map((cell, index) => <OperatorLoader key={cell.id} cell={cell} colorIndex={index} />)}
         <MaintenanceTechnicians />
-        <RobotArm />
+        {ROBOT_STATIONS.map((robot) => <RobotArm key={robot.label} {...robot} />)}
         {CMM_STATIONS.map((cmm) => cmm.instrumented ? (
-          <InspectionStation key={cmm.label} position={cmm.position} />
+          <InspectionStation key={cmm.label} position={cmm.position} rotationY={cmm.rotationY} />
         ) : (
-          <InspectionStation key={cmm.label} position={cmm.position} auxiliaryLabel={cmm.label} />
+          <InspectionStation key={cmm.label} position={cmm.position} rotationY={cmm.rotationY} auxiliaryLabel={cmm.label} />
         ))}
         {parts.map((part,index) => <Part key={part.id} part={part} stackIndex={index} />)}
       </group>

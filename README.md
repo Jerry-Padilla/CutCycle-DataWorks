@@ -14,11 +14,12 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 
 ## Features
 
-- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, a transfer robot, three CMM stations, material racks, and reject handling
+- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, two articulated transfer robots, six CMM stations, material racks, and reject handling
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
+- Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a three-CMM fan at front and ±45-degree positions
 - One traceable physical workpiece at a time, with no looping conveyor stock or operator-owned duplicate geometry
 - Live spindle, robot, and inspection telemetry with smooth signal changes
 - Machine selection, start/stop controls, status lights, and floating labels
@@ -67,7 +68,7 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. That same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. The remaining modeled stations are labeled auxiliary and do not inflate operational KPIs.
+The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. That same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. ROBOT-01 and ROBOT-02 each serve three reachable CMMs arranged directly ahead and at 45 degrees to either side; the auxiliary robot and five auxiliary CMMs demonstrate cell scale without inflating operational KPIs.
 
 ```text
 Raw stock → SAW-01 cut/release → Conveyor stop at CNC-01 → Operator load → CNC-01 → CNC-02

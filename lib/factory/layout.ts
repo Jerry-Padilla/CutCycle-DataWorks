@@ -41,6 +41,22 @@ export interface MaintenancePlacement {
   rotationY: number;
 }
 
+export interface RobotLayout {
+  label: "ROBOT-01" | "ROBOT-02";
+  position: FactoryVector;
+  instrumented: boolean;
+  phaseOffsetSeconds: number;
+}
+
+export interface CmmLayout {
+  label: string;
+  position: FactoryVector;
+  rotationY: number;
+  instrumented: boolean;
+  robotLabel: RobotLayout["label"];
+  serviceAngle: number;
+}
+
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
 
 function createMachines(
@@ -112,15 +128,37 @@ export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lin
   })),
 );
 
-export const CMM_STATIONS: { label: string; position: FactoryVector; instrumented: boolean }[] = [
-  { label: "CMM-01", position: [14.2, 0, -4.7], instrumented: true },
-  { label: "CMM-02", position: [14, 0, 0], instrumented: false },
-  { label: "CMM-03", position: [14.2, 0, 4.7], instrumented: false },
+export const ROBOT_STATIONS: RobotLayout[] = [
+  { label: "ROBOT-01", position: [12, 0, -3.45], instrumented: true, phaseOffsetSeconds: 0 },
+  { label: "ROBOT-02", position: [12, 0, 3.45], instrumented: false, phaseOffsetSeconds: 6 },
+];
+
+const CMM_REACH = 3.3;
+const CMM_SERVICE_ANGLES = [0, -Math.PI / 4, Math.PI / 4];
+
+function createCmmFan(robot: RobotLayout, firstNumber: number): CmmLayout[] {
+  return CMM_SERVICE_ANGLES.map((serviceAngle, index) => ({
+    label: `CMM-${String(firstNumber + index).padStart(2, "0")}`,
+    position: [
+      robot.position[0] + Math.cos(serviceAngle) * CMM_REACH,
+      0,
+      robot.position[2] + Math.sin(serviceAngle) * CMM_REACH,
+    ],
+    rotationY: -serviceAngle,
+    instrumented: robot.instrumented && index === 0,
+    robotLabel: robot.label,
+    serviceAngle,
+  }));
+}
+
+export const CMM_STATIONS: CmmLayout[] = [
+  ...createCmmFan(ROBOT_STATIONS[0], 1),
+  ...createCmmFan(ROBOT_STATIONS[1], 4),
 ];
 
 export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {
   "CNC-01": { position: [-8.1, 0, -2.38], rotationY: Math.PI },
   "CNC-02": { position: [-4.5, 0, -2.38], rotationY: Math.PI },
-  "ROBOT-01": { position: [13.05, 0, -2.25], rotationY: -2.3 },
-  "CMM-01": { position: [13.1, 0, -5.95], rotationY: 0 },
+  "ROBOT-01": { position: [10.95, 0, -4.55], rotationY: -0.8 },
+  "CMM-01": { position: [14.35, 0, -4.7], rotationY: 0 },
 };

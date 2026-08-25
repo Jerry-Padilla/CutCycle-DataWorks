@@ -5,6 +5,7 @@ import {
   FRONT_INFEED_CONVEYORS,
   MAINTENANCE_PLACEMENTS,
   OPERATOR_CELLS,
+  ROBOT_STATIONS,
   SAW_STATIONS,
 } from "@/lib/factory/layout";
 
@@ -39,6 +40,25 @@ describe("factory line layout", () => {
       expect(Math.abs(machineFrontZ - conveyorEdgeFacingMachine)).toBeGreaterThan(0.7);
     }
     expect(CMM_STATIONS.find((cmm) => cmm.instrumented)?.position[0]).toBeGreaterThan(12);
+  });
+
+  it("gives each of two robots one front and two 45-degree CMM stations", () => {
+    expect(ROBOT_STATIONS).toHaveLength(2);
+    expect(CMM_STATIONS).toHaveLength(6);
+
+    for (const robot of ROBOT_STATIONS) {
+      const cmmFan = CMM_STATIONS.filter((cmm) => cmm.robotLabel === robot.label);
+      expect(cmmFan).toHaveLength(3);
+      expect(cmmFan.map((cmm) => cmm.serviceAngle).sort((a, b) => a - b)).toEqual([
+        -Math.PI / 4,
+        0,
+        Math.PI / 4,
+      ]);
+      for (const cmm of cmmFan) {
+        const reach = Math.hypot(cmm.position[0] - robot.position[0], cmm.position[2] - robot.position[2]);
+        expect(reach).toBeCloseTo(3.3);
+      }
+    }
   });
 
   it("provides service positions at every instrumented machine", () => {

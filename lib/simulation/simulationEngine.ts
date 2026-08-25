@@ -9,9 +9,9 @@ const POSITIONS: Record<StationId, FactoryPosition> = {
   "CNC-01": [-9, 1.2, -4.2],
   "CNC-02": [-5.4, 1.2, -4.2],
   CONVEYOR: [0, 1.3, -0.9],
-  "ROBOT-01": [12, 1.2, -3.2],
-  "CMM-01": [14.2, 1.1, -4.7],
-  FINISHED: [14.2, 1.1, -4.7],
+  "ROBOT-01": [12, 1.2, -3.45],
+  "CMM-01": [15.3, 1.1, -3.45],
+  FINISHED: [15.3, 1.1, -3.45],
   REJECT: [12, 0.75, -8.2],
 };
 
