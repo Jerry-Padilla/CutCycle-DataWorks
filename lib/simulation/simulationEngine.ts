@@ -1,5 +1,5 @@
 import type { Part, StationId } from "@/types/factory";
-import { frontLoadPartPosition, type OperatorPath } from "@/lib/simulation/operatorKinematics";
+import { cncServicedPartPosition, type OperatorPath } from "@/lib/simulation/operatorKinematics";
 
 export type FactoryPosition = [number, number, number];
 
@@ -34,16 +34,18 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
     case "RAW":
       return [POSITIONS.RAW[0], POSITIONS.RAW[1] + stackIndex * 0.18, POSITIONS.RAW[2] + (stackIndex % 3) * 0.45];
     case "CNC-01":
-      return frontLoadPartPosition(PRIMARY_CNC_LOADING_PATH, 0, Math.min(1, t / 0.3));
+      return cncServicedPartPosition(PRIMARY_CNC_LOADING_PATH, 0, t);
     case "CNC-02":
-      return frontLoadPartPosition(PRIMARY_CNC_LOADING_PATH, 1, Math.min(1, t / 0.3));
-    case "CONVEYOR":
-      return mix([-3.7, 1.15, -6.1], [11.6, 1.15, -6.1], t);
+      return cncServicedPartPosition(PRIMARY_CNC_LOADING_PATH, 1, t);
     case "ROBOT-01": {
-      const lift = Math.sin(t * Math.PI) * 1.8;
-      const p = mix([11.6, 1.15, -6.1], [13.4, 1.25, -6.1], t);
+      if (t < 0.62) return mix([-5.85, 1.18, -1.5], [10.6, 1.18, -1.5], t / 0.62);
+      const transfer = (t - 0.62) / 0.38;
+      const lift = Math.sin(transfer * Math.PI) * 1.8;
+      const p = mix([10.6, 1.18, -1.5], [11.6, 1.15, -6.1], transfer);
       return [p[0], p[1] + lift, p[2]];
     }
+    case "CONVEYOR":
+      return mix([11.6, 1.15, -6.1], [13.4, 1.15, -6.1], t);
     case "CMM-01":
       return POSITIONS["CMM-01"];
     case "FINISHED":

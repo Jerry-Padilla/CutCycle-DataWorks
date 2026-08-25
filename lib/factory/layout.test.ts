@@ -3,6 +3,7 @@ import {
   CMM_STATIONS,
   CNC_LINES,
   FRONT_INFEED_CONVEYORS,
+  MAINTENANCE_PLACEMENTS,
   OPERATOR_CELLS,
   REAR_OUTFEED_CONVEYORS,
   SAW_STATIONS,
@@ -48,5 +49,11 @@ describe("factory line layout", () => {
       const conveyorEdgeFacingMachine = line.frontZ - frontDirection * 0.575;
       expect(Math.abs(machineFrontZ - conveyorEdgeFacingMachine)).toBeGreaterThan(0.7);
     }
+  });
+
+  it("provides service positions at every instrumented machine", () => {
+    expect(Object.keys(MAINTENANCE_PLACEMENTS).sort()).toEqual(["CMM-01", "CNC-01", "CNC-02", "ROBOT-01"]);
+    expect(MAINTENANCE_PLACEMENTS["CNC-01"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
+    expect(MAINTENANCE_PLACEMENTS["CNC-02"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
   });
 });

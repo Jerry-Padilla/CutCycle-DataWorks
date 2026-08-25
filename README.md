@@ -14,8 +14,9 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 
 ## Features
 
-- Procedural low-poly factory with two six-machine CNC lines, four saw-fed front infeed conveyors, two rear outfeed conveyors to the CMM area, a robot, three CMM stations, material racks, and reject handling
+- Procedural low-poly factory with two six-machine CNC lines, four enclosed horizontal band saws cutting thick rectangular stock, four front infeed conveyors, two rear outfeed conveyors, a transfer robot, three CMM stations, material racks, and reject handling
 - Four animated operators stage saw blanks, carry them across a protected aisle, and load each CNC through its front door; one operator services each three-machine branch
+- Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Traceable workpieces moving through a capacity-constrained production process
@@ -69,9 +70,13 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 The full visual cell is arranged as four saw/infeed branches staging blanks for 12 CNCs. Four operators pick from those front conveyors and load the machine doors from the aisle; two six-machine rear outfeed lines then run to the CMM area. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
 
 ```text
-Raw material → CNC-01 → CNC-02 → Conveyor → ROBOT-01 → CMM-01
-                                                            ├─ Pass → Finished goods
-                                                            └─ Fail → Reject bin
+Raw stock → Band saw → Front infeed → Operator load → CNC-01 → CNC-02
+                                                                    ↓ front unload
+                                                               ROBOT-01
+                                                                    ↓
+                                                        Rear conveyor → CMM-01
+                                                                         ├─ Pass → Finished goods
+                                                                         └─ Fail → Reject bin
 ```
 
 Nominal cycles are 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk.

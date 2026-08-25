@@ -1,41 +1,91 @@
 "use client";
 
-import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import type { Mesh } from "three";
+import { useRef } from "react";
+import type { Group, Mesh } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+const smoothstep = (value: number) => {
+  const t = clamp01(value);
+  return t * t * (3 - 2 * t);
+};
+
 export function SawStation({ label, position }: { label: string; position: [number, number, number] }) {
   const paused = useFactoryStore((state) => state.paused);
-  const speed = useFactoryStore((state) => state.speed);
-  const blank = useRef<Mesh>(null);
+  const bow = useRef<Group>(null);
   const blade = useRef<Mesh>(null);
-  const phase = useRef(0);
+  const stock = useRef<Mesh>(null);
+  const cutSlug = useRef<Mesh>(null);
+  const stationOffset = (Number(label.slice(-2)) - 1) * 0.17;
 
-  useFrame((_, delta) => {
-    if (paused) return;
-    phase.current = (phase.current + delta * .18 * speed) % 1;
-    if (blank.current) {
-      blank.current.position.x = .15 + phase.current * 2.25;
-      blank.current.rotation.x -= delta * 1.8 * speed;
-      blank.current.visible = phase.current < .94;
+  useFrame(() => {
+    const simulationSeconds = useFactoryStore.getState().simulationNow / 1000;
+    const phase = (simulationSeconds / 10 + stationOffset) % 1;
+    const feed = smoothstep(phase / 0.3);
+    const descent = smoothstep((phase - 0.32) / 0.14);
+    const rise = smoothstep((phase - 0.72) / 0.14);
+    const lowered = descent * (1 - rise);
+    const cutting = phase >= 0.46 && phase < 0.72;
+
+    if (bow.current) {
+      bow.current.position.y = 1.83 - lowered * 0.42;
+      bow.current.rotation.x = -0.045 + lowered * 0.035;
     }
-    if (blade.current) blade.current.position.y = 1.12 + Math.sin(phase.current * Math.PI * 12) * .018;
+    if (blade.current) blade.current.position.x = cutting ? Math.sin(phase * Math.PI * 120) * 0.012 : 0;
+    if (stock.current) {
+      stock.current.position.x = -1.18 + feed * 1.22;
+      stock.current.visible = phase < 0.72;
+    }
+    if (cutSlug.current) {
+      cutSlug.current.visible = phase >= 0.62 && phase < 0.97;
+      cutSlug.current.position.x = 0.34 + smoothstep((phase - 0.74) / 0.22) * 1.18;
+    }
   });
 
   return (
-    <group position={position} userData={{ auxiliaryEquipment:true, equipmentKind:"saw-feeder" }}>
-      <mesh position={[0,.34,0]} castShadow receiveShadow><boxGeometry args={[2.5,.68,1.5]} /><meshStandardMaterial color="#35434a" metalness={.58} roughness={.38} /></mesh>
-      <mesh position={[.68,.72,0]} castShadow><boxGeometry args={[1.7,.12,1.12]} /><meshStandardMaterial color="#738087" metalness={.78} roughness={.24} /></mesh>
-      {[-.62,.62].map((z) => <mesh key={z} position={[.68,.82,z]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.055,.055,1.7,10]} /><meshStandardMaterial color="#a2afb4" metalness={.84} roughness={.2} /></mesh>)}
-      <mesh position={[-.62,1.4,0]} castShadow><boxGeometry args={[.26,1.75,1.42]} /><meshStandardMaterial color="#26343a" metalness={.52} roughness={.4} /></mesh>
-      <mesh position={[-.05,2.2,0]} castShadow><boxGeometry args={[1.35,.28,1.42]} /><meshStandardMaterial color="#26343a" metalness={.52} roughness={.4} /></mesh>
-      {[-.42,.42].map((x) => <mesh key={x} position={[x,2.2,.02]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.34,.34,.12,18]} /><meshStandardMaterial color="#56656c" metalness={.68} roughness={.28} /></mesh>)}
-      <mesh ref={blade} position={[.34,1.12,0]} castShadow><boxGeometry args={[.028,1.35,.05]} /><meshStandardMaterial color="#d0d8db" metalness={.94} roughness={.1} /></mesh>
-      <mesh ref={blank} position={[.15,.92,0]} rotation={[0,0,Math.PI/2]} castShadow><cylinderGeometry args={[.18,.18,.46,14]} /><meshStandardMaterial color="#aebbc0" metalness={.82} roughness={.22} /></mesh>
-      <mesh position={[-1.02,2.16,.78]}><sphereGeometry args={[.11,10,8]} /><meshStandardMaterial color={paused ? "#f0c555" : "#42dc8b"} emissive={paused ? "#f0c555" : "#42dc8b"} emissiveIntensity={2.2} /></mesh>
-      <MachineLabel id={`${label} · FEED`} status={paused ? "IDLE" : "RUNNING"} position={[-.25,2.95,0]} />
+    <group position={position} userData={{ auxiliaryEquipment: true, equipmentKind: "horizontal-band-saw" }}>
+      <mesh position={[0, 0.34, 0]} castShadow receiveShadow><boxGeometry args={[3, 0.68, 1.85]} /><meshStandardMaterial color="#3b474b" metalness={0.56} roughness={0.42} /></mesh>
+      <mesh position={[0.25, 0.72, 0]} castShadow><boxGeometry args={[2.15, 0.13, 1.42]} /><meshStandardMaterial color="#77858a" metalness={0.8} roughness={0.24} /></mesh>
+      <mesh position={[0.25, 0.8, 0]}><boxGeometry args={[2, 0.05, 1.24]} /><meshStandardMaterial color="#20292d" metalness={0.54} roughness={0.44} /></mesh>
+      {[-0.7, -0.15, 0.4, 0.95].map((x) => (
+        <mesh key={x} position={[x, 0.86, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.055, 0.055, 1.2, 10]} />
+          <meshStandardMaterial color="#a5b0b4" metalness={0.86} roughness={0.18} />
+        </mesh>
+      ))}
+      {[-0.42, 0.42].map((z) => (
+        <group key={z} position={[0.05, 1.02, z]}>
+          <mesh castShadow><boxGeometry args={[0.58, 0.43, 0.14]} /><meshStandardMaterial color="#526066" metalness={0.74} roughness={0.3} /></mesh>
+          <mesh position={[0, 0, -Math.sign(z) * 0.09]}><boxGeometry args={[0.48, 0.22, 0.045]} /><meshStandardMaterial color="#b2bdc1" metalness={0.9} roughness={0.15} /></mesh>
+        </group>
+      ))}
+      <mesh position={[-0.78, 1.29, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><cylinderGeometry args={[0.16, 0.16, 1.55, 16]} /><meshStandardMaterial color="#4c595e" metalness={0.7} roughness={0.3} /></mesh>
+      {[-0.67, 0.67].map((z) => <mesh key={z} position={[-0.78, 1.27, z]} castShadow><boxGeometry args={[0.24, 1.05, 0.18]} /><meshStandardMaterial color="#556267" metalness={0.64} roughness={0.34} /></mesh>)}
+      <group ref={bow} position={[-0.04, 1.83, 0]}>
+        <mesh castShadow><boxGeometry args={[0.58, 0.58, 1.48]} /><meshStandardMaterial color="#248a87" metalness={0.4} roughness={0.34} /></mesh>
+        {[-0.8, 0.8].map((z) => (
+          <group key={z} position={[0, 0, z]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]} castShadow><cylinderGeometry args={[0.29, 0.29, 0.2, 20]} /><meshStandardMaterial color="#248a87" metalness={0.4} roughness={0.34} /></mesh>
+            <mesh position={[-0.305, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.205, 0.205, 0.025, 18]} /><meshStandardMaterial color="#182226" metalness={0.6} roughness={0.36} /></mesh>
+          </group>
+        ))}
+        <mesh position={[-0.3, 0, 0]}><boxGeometry args={[0.035, 0.33, 1.42]} /><meshStandardMaterial color="#192428" metalness={0.58} roughness={0.32} /></mesh>
+        <mesh ref={blade} position={[0, -0.36, 0]} castShadow><boxGeometry args={[0.035, 0.045, 1.58]} /><meshStandardMaterial color="#d7dfe1" metalness={0.95} roughness={0.08} /></mesh>
+        <mesh position={[0.31, 0.02, 0.46]}><boxGeometry args={[0.055, 0.25, 0.42]} /><meshBasicMaterial color="#76d1c4" transparent opacity={0.55} /></mesh>
+      </group>
+      <mesh ref={stock} position={[-1.18, 1.08, 0]} castShadow><boxGeometry args={[1.45, 0.42, 0.46]} /><meshStandardMaterial color="#9da8ac" metalness={0.86} roughness={0.22} /></mesh>
+      <mesh ref={cutSlug} position={[0.34, 1.08, 0]} castShadow><boxGeometry args={[0.52, 0.42, 0.46]} /><meshStandardMaterial color="#b8c2c5" metalness={0.88} roughness={0.18} /></mesh>
+      <group position={[-1.25, 1.13, 1.12]} rotation={[0, -0.2, 0]}>
+        <mesh castShadow><boxGeometry args={[0.58, 0.92, 0.42]} /><meshStandardMaterial color="#465358" metalness={0.55} roughness={0.4} /></mesh>
+        <mesh position={[0, 0.15, 0.225]}><planeGeometry args={[0.42, 0.27]} /><meshBasicMaterial color="#172a30" /></mesh>
+        <mesh position={[-0.14, -0.2, 0.24]}><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color="#45d68a" emissive="#45d68a" emissiveIntensity={1.3} /></mesh>
+        <mesh position={[0.04, -0.2, 0.24]}><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color="#e4b73d" emissive="#e4b73d" emissiveIntensity={0.8} /></mesh>
+        <mesh position={[0.22, -0.2, 0.24]}><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color="#ca4943" /></mesh>
+      </group>
+      <mesh position={[-1.18, 0.92, -0.86]}><sphereGeometry args={[0.11, 10, 8]} /><meshStandardMaterial color={paused ? "#f0c555" : "#42dc8b"} emissive={paused ? "#f0c555" : "#42dc8b"} emissiveIntensity={2.2} /></mesh>
+      <MachineLabel id={`${label} · BAND SAW`} status={paused ? "IDLE" : "RUNNING"} position={[0, 2.85, 0]} />
     </group>
   );
 }

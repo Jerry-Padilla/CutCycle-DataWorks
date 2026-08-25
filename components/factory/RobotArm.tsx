@@ -15,7 +15,7 @@ export function RobotArm() {
   const select = useFactoryStore((state) => state.selectMachine);
   const base = useRef<Group>(null); const shoulder = useRef<Group>(null); const elbow = useRef<Group>(null);
   useFrame(() => {
-    const t = machine.progress / 100;
+    const t = Math.max(0, (machine.progress / 100 - .58) / .42);
     const swing = t < .5 ? t * 2 : (1-t) * 2;
     if (base.current) base.current.rotation.y = -1.05 + swing * 2.05;
     if (shoulder.current) shoulder.current.rotation.z = -.3 - Math.sin(t*Math.PI)*.7;

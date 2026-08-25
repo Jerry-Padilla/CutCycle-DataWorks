@@ -31,6 +31,24 @@ describe("production engine", () => {
     expect(result.parts[0].progress).toBe(100);
   });
 
+  it("routes front-unloaded work through the robot before the rear conveyor and CMM", () => {
+    const machines = createInitialMachines();
+    const cncPart = { ...createPart(5, 0), currentStation: "CNC-02" as const, status: "MACHINING" as const, stationElapsed: 6.9, progress: 98 };
+    const robotStep = advanceProduction({ parts: [cncPart], machines, counters: counters(), deltaSeconds: 0.2, now: 200 });
+    expect(robotStep.parts[0].currentStation).toBe("ROBOT-01");
+    expect(robotStep.events[0].message).toContain("operator-unloaded from CNC front");
+
+    const robotPart = { ...robotStep.parts[0], stationElapsed: 2.9, progress: 98 };
+    const conveyorStep = advanceProduction({ parts: [robotPart], machines, counters: counters(), deltaSeconds: 0.2, now: 400 });
+    expect(conveyorStep.parts[0].currentStation).toBe("CONVEYOR");
+    expect(conveyorStep.events[0].message).toContain("placed part on rear outfeed");
+
+    const conveyorPart = { ...conveyorStep.parts[0], stationElapsed: 2.9, progress: 98 };
+    const cmmStep = advanceProduction({ parts: [conveyorPart], machines, counters: counters(), deltaSeconds: 0.2, now: 600 });
+    expect(cmmStep.parts[0].currentStation).toBe("CMM-01");
+    expect(cmmStep.events[0].message).toContain("rear conveyor delivered part");
+  });
+
   it("routes an out-of-tolerance inspection to the reject bin", () => {
     const part = { ...createPart(3, 0), currentStation: "CMM-01" as const, status: "INSPECTION" as const, stationElapsed: 4.9, progress: 98 };
     const values = [0, 0.5];

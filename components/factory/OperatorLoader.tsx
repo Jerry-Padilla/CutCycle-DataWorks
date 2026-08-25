@@ -7,6 +7,7 @@ import type { OperatorCellLayout } from "@/lib/factory/layout";
 import {
   operatorCyclePose,
   operatorPoseAtPhase,
+  operatorUnloadPoseAtProgress,
   type OperatorPath,
 } from "@/lib/simulation/operatorKinematics";
 import { useFactoryStore } from "@/store/useFactoryStore";
@@ -30,15 +31,17 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
 
   useFrame(() => {
     const state = useFactoryStore.getState();
-    const liveLoad = state.parts.find((part) => {
+    const liveHandling = state.parts.find((part) => {
       const machineIndex = cell.machines.findIndex((machine) => machine.instrumentedId === part.currentStation);
-      return machineIndex >= 0 && part.progress <= 30;
+      return machineIndex >= 0 && (part.progress <= 30 || part.progress >= 78);
     });
-    const liveMachineIndex = liveLoad
-      ? cell.machines.findIndex((machine) => machine.instrumentedId === liveLoad.currentStation)
+    const liveMachineIndex = liveHandling
+      ? cell.machines.findIndex((machine) => machine.instrumentedId === liveHandling.currentStation)
       : -1;
-    const pose = liveLoad && liveMachineIndex >= 0
-      ? operatorPoseAtPhase(path, liveMachineIndex, 0.16 + Math.min(1, liveLoad.progress / 30) * 0.68)
+    const pose = liveHandling && liveMachineIndex >= 0
+      ? liveHandling.progress <= 30
+        ? operatorPoseAtPhase(path, liveMachineIndex, 0.16 + Math.min(1, liveHandling.progress / 30) * 0.68)
+        : operatorUnloadPoseAtProgress(path, liveMachineIndex, (liveHandling.progress - 78) / 22)
       : operatorCyclePose(path, state.simulationNow / 1000, cell.phaseOffset);
 
     if (operator.current) {
@@ -51,7 +54,7 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
     if (rightLeg.current) rightLeg.current.rotation.x = -pose.legSwing;
     if (blank.current) {
       blank.current.position.set(...pose.partPosition);
-      blank.current.visible = !liveLoad && pose.partVisible;
+      blank.current.visible = !liveHandling && pose.partVisible;
     }
   });
 

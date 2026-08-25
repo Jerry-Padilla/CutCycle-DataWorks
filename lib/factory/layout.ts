@@ -35,6 +35,11 @@ export interface OperatorCellLayout {
   machines: CncLayout[];
 }
 
+export interface MaintenancePlacement {
+  position: FactoryVector;
+  rotationY: number;
+}
+
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
 
 function createMachines(
@@ -120,3 +125,10 @@ export const CMM_STATIONS: { label: string; position: FactoryVector; instrumente
   { label: "CMM-02", position: [14, 0, 0], instrumented: false },
   { label: "CMM-03", position: [14, 0, 6.1], instrumented: false },
 ];
+
+export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {
+  "CNC-01": { position: [-8.1, 0, -2.38], rotationY: Math.PI },
+  "CNC-02": { position: [-4.5, 0, -2.38], rotationY: Math.PI },
+  "ROBOT-01": { position: [13.05, 0, -2.25], rotationY: -2.3 },
+  "CMM-01": { position: [13.05, 0, -4.62], rotationY: Math.PI },
+};

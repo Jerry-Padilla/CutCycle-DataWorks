@@ -7,6 +7,7 @@ import { Conveyor } from "@/components/factory/Conveyor";
 import { ExploreController } from "@/components/factory/ExploreController";
 import { FactoryFloor } from "@/components/factory/FactoryFloor";
 import { InspectionStation } from "@/components/factory/InspectionStation";
+import { MaintenanceTechnicians } from "@/components/factory/MaintenanceTechnicians";
 import { OperatorLoader } from "@/components/factory/OperatorLoader";
 import { Part } from "@/components/factory/Part";
 import { RobotArm } from "@/components/factory/RobotArm";
@@ -45,9 +46,10 @@ function Cell() {
         {REAR_OUTFEED_CONVEYORS.map((conveyor, index) => (
           <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} productionLane={index === 0} />
         ))}
-        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} />)}
+        {FRONT_INFEED_CONVEYORS.map((conveyor) => <Conveyor key={conveyor.id} position={conveyor.position} length={conveyor.length} infeedLane />)}
         {SAW_STATIONS.map((saw) => <SawStation key={saw.label} label={saw.label} position={saw.position} />)}
         {OPERATOR_CELLS.map((cell, index) => <OperatorLoader key={cell.id} cell={cell} colorIndex={index} />)}
+        <MaintenanceTechnicians />
         <RobotArm />
         {CMM_STATIONS.map((cmm) => cmm.instrumented ? (
           <InspectionStation key={cmm.label} position={cmm.position} />

@@ -208,8 +208,8 @@ export const useFactoryStore = create<FactoryState>((set) => ({
             RAW: [0, "Staging a traceable raw blank", "CNC-01"],
             "CNC-01": [1, "CNC-01 is rough-machining the demo part", "CNC-01"],
             "CNC-02": [2, "CNC-02 is completing the finish operation", "CNC-02"],
-            CONVEYOR: [3, "The conveyor is transferring work in process", null],
-            "ROBOT-01": [4, "ROBOT-01 is loading automated inspection", "ROBOT-01"],
+            "ROBOT-01": [3, "The operator has front-unloaded the part for ROBOT-01 transfer", "ROBOT-01"],
+            CONVEYOR: [4, "The rear conveyor is delivering the part to inspection", null],
             "CMM-01": [5, "CMM-01 is validating critical dimensions", "CMM-01"],
             FINISHED: [6, "Inspection passed. KPI history updated from the event.", "CMM-01"],
           };

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { frontLoadPartPosition, operatorCyclePose, operatorPoseAtPhase, type OperatorPath } from "@/lib/simulation/operatorKinematics";
+import {
+  cncServicedPartPosition,
+  frontLoadPartPosition,
+  frontUnloadPartPosition,
+  operatorCyclePose,
+  operatorPoseAtPhase,
+  type OperatorPath,
+} from "@/lib/simulation/operatorKinematics";
 
 const southPath: OperatorPath = { machineXs: [-9, -5.4, -1.8], machineZ: -4.2, infeedZ: -1.5, rotationY: 0 };
 const northPath: OperatorPath = { machineXs: [-9, -5.4, -1.8], machineZ: 4.2, infeedZ: 1.5, rotationY: Math.PI };
@@ -30,6 +37,15 @@ describe("operator front-loading kinematics", () => {
     expect(pose.operatorPosition[2]).toBeLessThan(southPath.infeedZ);
     expect(pose.operatorPosition[2]).toBeGreaterThan(southPath.machineZ);
     expect(pose.reach).toBeGreaterThan(0.9);
+  });
+
+  it("returns the completed part through the same front door to the operator", () => {
+    const machined = frontUnloadPartPosition(southPath, 1, 0);
+    const held = frontUnloadPartPosition(southPath, 1, 1);
+
+    expect(held[2]).toBeGreaterThan(machined[2]);
+    expect(held[1]).toBeGreaterThan(machined[1]);
+    expect(cncServicedPartPosition(southPath, 1, 1)).toEqual(held);
   });
 
   it("rotates one operator through all three assigned CNCs", () => {
