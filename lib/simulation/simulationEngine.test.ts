@@ -27,7 +27,7 @@ describe("3D part routing", () => {
     const inspection = getPartPosition(partAt("CMM-01", 0));
     const finished = getPartPosition(partAt("FINISHED", 0));
 
-    expectPositionClose(cncUnload, [-5.85, 1.08, -0.9]);
+    expectPositionClose(cncUnload, [-5.85, 1.3, -0.9]);
     expect(conveyorStart[0]).toBeCloseTo(cncUnload[0]);
     expect(conveyorStart[2]).toBeCloseTo(cncUnload[2]);
     expectPositionClose(conveyorEnd, robotStart);

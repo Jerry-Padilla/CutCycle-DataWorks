@@ -3,7 +3,7 @@ import {
   cncServicedPartPosition,
   frontLoadPartPosition,
   frontUnloadPartPosition,
-  operatorCyclePose,
+  operatorIdlePose,
   operatorPoseAtPhase,
   type OperatorPath,
 } from "@/lib/simulation/operatorKinematics";
@@ -47,13 +47,15 @@ describe("operator front-loading kinematics", () => {
     expect(held[2]).toBeGreaterThan(machined[2]);
     expect(held[1]).toBeGreaterThan(machined[1]);
     expect(returned[0]).toBeCloseTo(-5.85);
-    expect(returned[1]).toBeCloseTo(1.08);
+    expect(returned[1]).toBeCloseTo(1.3);
     expect(returned[2]).toBeCloseTo(southPath.infeedZ);
     expect(cncServicedPartPosition(southPath, 1, 1)).toEqual(returned);
   });
 
-  it("rotates one operator through both assigned CNCs", () => {
-    const visited = [0, 9].map((seconds) => operatorCyclePose(southPath, seconds).machineIndex);
-    expect(visited).toEqual([0, 1]);
+  it("keeps an unassigned operator idle without a pretend workpiece", () => {
+    const pose = operatorIdlePose(southPath);
+    expect(pose.operatorPosition[0]).toBe(-7.2);
+    expect(pose.partVisible).toBe(false);
+    expect(pose.reach).toBe(0);
   });
 });

@@ -13,8 +13,19 @@ const counters = (): ProductionCounters => ({
 });
 
 describe("production engine", () => {
-  it("advances a raw part through CNC-01 after the nominal cycle", () => {
-    const result = advanceProduction({ parts: [createPart(1, 0)], machines: createInitialMachines(), counters: counters(), deltaSeconds: 8, now: 8_000, random: () => 0.5 });
+  it("stops one saw-cut blank at CNC-01 before the operator loads it", () => {
+    const almostThere = advanceProduction({ parts: [createPart(1, 0)], machines: createInitialMachines(), counters: counters(), deltaSeconds: 3.9, now: 3_900 });
+    expect(almostThere.parts[0].currentStation).toBe("RAW");
+    expect(almostThere.parts[0].progress).toBeCloseTo(97.5);
+
+    const arrived = advanceProduction({ parts: almostThere.parts, machines: almostThere.machines, counters: counters(), deltaSeconds: 0.1, now: 4_000 });
+    expect(arrived.parts[0].currentStation).toBe("CNC-01");
+    expect(arrived.events[0].message).toContain("saw-cut blank stopped at CNC-01 pickup");
+  });
+
+  it("advances a loaded part through CNC-01 after the nominal cycle", () => {
+    const part = { ...createPart(1, 0), currentStation: "CNC-01" as const, status: "MACHINING" as const };
+    const result = advanceProduction({ parts: [part], machines: createInitialMachines(), counters: counters(), deltaSeconds: 8, now: 8_000, random: () => 0.5 });
     expect(result.parts[0].currentStation).toBe("CNC-02");
     expect(result.parts[0].status).toBe("MACHINING");
     expect(result.machines["CNC-01"].partsProduced).toBe(323);

@@ -1,7 +1,5 @@
 import type { FactoryVector } from "@/lib/factory/layout";
 
-export const OPERATOR_LOAD_CYCLE_SECONDS = 9;
-
 export interface OperatorPath {
   machineXs: number[];
   machineZ: number;
@@ -37,6 +35,21 @@ function normalizedIndex(index: number, count: number) {
   return ((index % count) + count) % count;
 }
 
+export function operatorIdlePose(path: OperatorPath): OperatorLoadingPose {
+  const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
+  const operatorRestZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
+  const centerX = path.machineXs.reduce((sum, machineX) => sum + machineX, 0) / path.machineXs.length;
+  return {
+    machineIndex: 0,
+    operatorPosition: [centerX, 0, operatorRestZ],
+    operatorRotationY: directionToMachine > 0 ? 0 : Math.PI,
+    partPosition: [centerX, 1.3, path.infeedZ],
+    partVisible: false,
+    reach: 0,
+    legSwing: 0,
+  };
+}
+
 export function frontLoadPartPosition(path: OperatorPath, machineIndex: number, progress: number): FactoryVector {
   const index = normalizedIndex(machineIndex, path.machineXs.length);
   const machineX = path.machineXs[index];
@@ -44,8 +57,8 @@ export function frontLoadPartPosition(path: OperatorPath, machineIndex: number, 
   const directionToMachine = Math.sign(path.machineZ - path.infeedZ);
   const operatorZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const workpieceX = machineX - 0.45 * Math.cos(path.rotationY);
-  const staging: FactoryVector = [workpieceX, 1.08, path.infeedZ];
-  const hands: FactoryVector = [workpieceX, 1.28, operatorZ + directionToMachine * 0.2];
+  const staging: FactoryVector = [workpieceX, 1.3, path.infeedZ];
+  const hands: FactoryVector = [workpieceX, 1.45, operatorZ + directionToMachine * 0.2];
   const workholding: FactoryVector = [workpieceX, 0.98, path.machineZ + facingZ * 1.48];
   const t = clamp01(progress);
 
@@ -61,8 +74,8 @@ export function frontUnloadPartPosition(path: OperatorPath, machineIndex: number
   const operatorZ = path.infeedZ + directionToMachine * OPERATOR_STANDOFF_FROM_INFEED;
   const workpieceX = machineX - 0.45 * Math.cos(path.rotationY);
   const workholding: FactoryVector = [workpieceX, 0.98, path.machineZ + facingZ * 1.48];
-  const hands: FactoryVector = [workpieceX, 1.32, operatorZ + directionToMachine * 0.2];
-  const staging: FactoryVector = [workpieceX, 1.08, path.infeedZ];
+  const hands: FactoryVector = [workpieceX, 1.45, operatorZ + directionToMachine * 0.2];
+  const staging: FactoryVector = [workpieceX, 1.3, path.infeedZ];
   const t = clamp01(progress);
   if (t < 0.65) return mix(workholding, hands, smoothstep(t / 0.65));
   return mix(hands, staging, smoothstep((t - 0.65) / 0.35));
@@ -126,15 +139,4 @@ export function operatorUnloadPoseAtProgress(
     reach: 1 - smoothstep(t),
     legSwing: 0,
   };
-}
-
-export function operatorCyclePose(path: OperatorPath, elapsedSeconds: number, phaseOffset = 0): OperatorLoadingPose {
-  const cyclePosition = elapsedSeconds / OPERATOR_LOAD_CYCLE_SECONDS + phaseOffset;
-  const cycleIndex = Math.floor(cyclePosition);
-  const phase = cyclePosition - cycleIndex;
-  const machineIndex = normalizedIndex(cycleIndex, path.machineXs.length);
-  const previousMachineIndex = normalizedIndex(cycleIndex - 1, path.machineXs.length);
-  if (phase < 0.48) return operatorPoseAtPhase(path, machineIndex, phase / 0.48, previousMachineIndex);
-  if (phase < 0.62) return operatorPoseAtPhase(path, machineIndex, 1, machineIndex);
-  return operatorUnloadPoseAtProgress(path, machineIndex, (phase - 0.62) / 0.38);
 }

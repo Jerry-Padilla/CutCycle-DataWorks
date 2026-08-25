@@ -5,6 +5,7 @@ export const GITHUB_URL = "https://github.com/Jerry-Padilla/FactoryOS";
 export const MACHINE_IDS: MachineId[] = ["CNC-01", "CNC-02", "ROBOT-01", "CMM-01"];
 
 export const STATION_DURATIONS: Partial<Record<StationId, number>> = {
+  RAW: 4,
   "CNC-01": 8,
   "CNC-02": 7,
   CONVEYOR: 3,
@@ -13,6 +14,7 @@ export const STATION_DURATIONS: Partial<Record<StationId, number>> = {
 };
 
 export const STATION_CAPACITY: Partial<Record<StationId, number>> = {
+  RAW: 1,
   "CNC-01": 1,
   "CNC-02": 1,
   CONVEYOR: 2,

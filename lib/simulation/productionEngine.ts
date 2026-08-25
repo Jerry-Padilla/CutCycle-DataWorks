@@ -34,6 +34,7 @@ const STATION_MACHINE: Partial<Record<StationId, MachineId>> = {
 };
 
 const NEXT_STATION: Partial<Record<StationId, StationId>> = {
+  RAW: "CNC-01",
   "CNC-01": "CNC-02",
   "CNC-02": "CONVEYOR",
   CONVEYOR: "ROBOT-01",
@@ -116,15 +117,6 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     if (part.status !== "COMPLETE" && part.status !== "REJECTED") part.cycleTime += input.deltaSeconds;
   }
 
-  const rawPart = parts.find((part) => part.currentStation === "RAW");
-  if (rawPart && stationHasCapacity(parts, "CNC-01") && isMachineAvailable("CNC-01", machines)) {
-    rawPart.currentStation = "CNC-01";
-    rawPart.status = "MACHINING";
-    rawPart.stationElapsed = 0;
-    rawPart.progress = 0;
-    events.push(event(input.now, `Part ${rawPart.serialNumber} operator-loaded into CNC-01 from front`, "INFO", events.length, "CNC-01", rawPart.id));
-  }
-
   const activeParts = parts
     .filter((part) => STATION_DURATIONS[part.currentStation])
     .sort((a, b) => b.createdAt - a.createdAt);
@@ -181,7 +173,9 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     part.stationElapsed = 0;
     part.progress = 0;
     const nextMachine = STATION_MACHINE[next];
-    const transition = next.startsWith("CNC")
+    const transition = station === "RAW"
+      ? " · saw-cut blank stopped at CNC-01 pickup · operator-loaded from front"
+      : next.startsWith("CNC")
       ? ` · operator-loaded into ${next} from front`
       : next === "CONVEYOR"
         ? " · operator returned part to shared front conveyor"

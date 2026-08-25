@@ -43,6 +43,16 @@ describe("factory store clock and controls", () => {
     expect(useFactoryStore.getState().simulationNow).toBe(0);
   });
 
+  it("replaces the displayed finished part only when the next single blank starts", () => {
+    const finished = { ...createPart(1, 0), currentStation: "FINISHED" as const, status: "COMPLETE" as const };
+    useFactoryStore.setState({ parts: [finished], serialCounter: 1, spawnAccumulator: 1.9 });
+    useFactoryStore.getState().tick(1);
+    const parts = useFactoryStore.getState().parts;
+    expect(parts).toHaveLength(1);
+    expect(parts[0].currentStation).toBe("RAW");
+    expect(parts[0].serialNumber).toBe("SN-10002");
+  });
+
   it("restores speed and fault settings when a guided demo is cancelled", () => {
     useFactoryStore.setState({ speed: 2, faultMode: "HIGH" });
     useFactoryStore.getState().startDemo();

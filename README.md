@@ -15,11 +15,11 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 ## Features
 
 - Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, one combined dual-lane central conveyor, a transfer robot, three CMM stations, material racks, and reject handling
-- Six animated operators stage saw blanks, carry them across protected aisles, and load each CNC through its front door; one operator services each adjacent two-machine pair
+- Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Two instrumented CNCs with modeled vertical spindle cartridges, downward cutters, and rectangular/circular X–Z machining paths; auxiliary equipment is clearly labeled and excluded from KPIs
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
-- Traceable workpieces moving through a capacity-constrained production process
+- One traceable physical workpiece at a time, with no looping conveyor stock or operator-owned duplicate geometry
 - Live spindle, robot, and inspection telemetry with smooth signal changes
 - Machine selection, start/stop controls, status lights, and floating labels
 - Five evidence-based CNC and robot fault scenarios
@@ -63,23 +63,23 @@ React operator panels + Recharts dashboard
 
 All manufacturing behavior runs client-side. The presentation layer does not create independent telemetry or KPI values; both the factory view and dashboard consume the same simulation state.
 
-The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold completed work when downstream equipment is unavailable, allowing faults to create visible work-in-process and KPI consequences.
+The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences.
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. Six operators pick from that shared conveyor and each load and unload a pair of adjacent CNCs from the front. Completed work returns to the same front conveyor, travels right to ROBOT-01, and is placed directly onto CMM-01 for the final inspection. CNC-01, CNC-02, ROBOT-01, and CMM-01 form the live instrumented path; the remaining modeled stations are labeled auxiliary and do not inflate the operational KPIs.
+The full visual cell begins with two horizontal band saws placed together at the upstream end of one combined, dual-lane central conveyor. SAW-01 cuts the single live billet while SAW-02 remains available as modeled standby equipment. The cut billet appears only when released from the saw, travels only as far as CNC-01&apos;s pickup point, and stops for its assigned operator. That same physical workpiece is loaded and unloaded from the front, returns to the conveyor after CNC-02, travels right to ROBOT-01, and is placed directly onto CMM-01 for final inspection. The remaining modeled stations are labeled auxiliary and do not inflate operational KPIs.
 
 ```text
-Raw stock → 2 band saws → Shared central conveyor → Operator load → CNC-01 → CNC-02
-                                                                         ↓ front unload
-                                                        Shared central conveyor → ROBOT-01
-                                                                                     ↓ direct place
-                                                                                  CMM-01
-                                                                                     ├─ Pass → Complete
-                                                                                     └─ Fail → Reject bin
+Raw stock → SAW-01 cut/release → Conveyor stop at CNC-01 → Operator load → CNC-01 → CNC-02
+                                                                                         ↓ front unload
+                                                                        Shared conveyor → ROBOT-01
+                                                                                              ↓ direct place
+                                                                                           CMM-01
+                                                                                              ├─ Pass → Complete
+                                                                                              └─ Fail → Reject bin
 ```
 
-Nominal cycles are 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk.
+Nominal cycles are 4 seconds for saw cutting and delivery to the CNC pickup, 8 seconds for CNC-01, 7 seconds for CNC-02, 3 seconds for finished-part conveyor travel, 3 seconds for robot transfer, and 5 seconds for inspection. Normal output targets a 97–99% first-pass yield; abnormal machine temperatures and active faults increase quality risk.
 
 ## Local Development
 

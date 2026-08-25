@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group, Mesh } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
+import { RAW_CUT_RELEASE_PROGRESS } from "@/lib/simulation/stockFlow";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -17,17 +18,17 @@ export function SawStation({ label, position }: { label: string; position: [numb
   const bow = useRef<Group>(null);
   const blade = useRef<Mesh>(null);
   const stock = useRef<Mesh>(null);
-  const cutSlug = useRef<Mesh>(null);
-  const stationOffset = (Number(label.slice(-2)) - 1) * 0.17;
+  const rawSerialNumber = useFactoryStore((state) => state.parts.find((part) => part.currentStation === "RAW")?.serialNumber ?? null);
+  const active = label === "SAW-01" && rawSerialNumber !== null;
 
   useFrame(() => {
-    const simulationSeconds = useFactoryStore.getState().simulationNow / 1000;
-    const phase = (simulationSeconds / 10 + stationOffset) % 1;
-    const feed = smoothstep(phase / 0.3);
-    const descent = smoothstep((phase - 0.32) / 0.14);
-    const rise = smoothstep((phase - 0.72) / 0.14);
+    const rawPart = useFactoryStore.getState().parts.find((part) => part.currentStation === "RAW");
+    const phase = active && rawPart ? rawPart.progress / 100 : 0;
+    const feed = smoothstep(phase / 0.16);
+    const descent = smoothstep((phase - 0.1) / 0.09);
+    const rise = smoothstep((phase - 0.23) / 0.08);
     const lowered = descent * (1 - rise);
-    const cutting = phase >= 0.46 && phase < 0.72;
+    const cutting = active && phase >= 0.18 && phase < RAW_CUT_RELEASE_PROGRESS;
 
     if (bow.current) {
       bow.current.position.y = 1.83 - lowered * 0.42;
@@ -36,11 +37,7 @@ export function SawStation({ label, position }: { label: string; position: [numb
     if (blade.current) blade.current.position.x = cutting ? Math.sin(phase * Math.PI * 120) * 0.012 : 0;
     if (stock.current) {
       stock.current.position.x = -1.18 + feed * 1.22;
-      stock.current.visible = phase < 0.72;
-    }
-    if (cutSlug.current) {
-      cutSlug.current.visible = phase >= 0.62 && phase < 0.97;
-      cutSlug.current.position.x = 0.34 + smoothstep((phase - 0.74) / 0.22) * 1.18;
+      stock.current.visible = active && phase < RAW_CUT_RELEASE_PROGRESS;
     }
   });
 
@@ -76,7 +73,6 @@ export function SawStation({ label, position }: { label: string; position: [numb
         <mesh position={[0.31, 0.02, 0.46]}><boxGeometry args={[0.055, 0.25, 0.42]} /><meshBasicMaterial color="#76d1c4" transparent opacity={0.55} /></mesh>
       </group>
       <mesh ref={stock} position={[-1.18, 1.08, 0]} castShadow><boxGeometry args={[1.45, 0.42, 0.46]} /><meshStandardMaterial color="#9da8ac" metalness={0.86} roughness={0.22} /></mesh>
-      <mesh ref={cutSlug} position={[0.34, 1.08, 0]} castShadow><boxGeometry args={[0.52, 0.42, 0.46]} /><meshStandardMaterial color="#b8c2c5" metalness={0.88} roughness={0.18} /></mesh>
       <group position={[-1.25, 1.13, 1.12]} rotation={[0, -0.2, 0]}>
         <mesh castShadow><boxGeometry args={[0.58, 0.92, 0.42]} /><meshStandardMaterial color="#465358" metalness={0.55} roughness={0.4} /></mesh>
         <mesh position={[0, 0.15, 0.225]}><planeGeometry args={[0.42, 0.27]} /><meshBasicMaterial color="#172a30" /></mesh>
@@ -84,8 +80,8 @@ export function SawStation({ label, position }: { label: string; position: [numb
         <mesh position={[0.04, -0.2, 0.24]}><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color="#e4b73d" emissive="#e4b73d" emissiveIntensity={0.8} /></mesh>
         <mesh position={[0.22, -0.2, 0.24]}><sphereGeometry args={[0.065, 10, 8]} /><meshStandardMaterial color="#ca4943" /></mesh>
       </group>
-      <mesh position={[-1.18, 0.92, -0.86]}><sphereGeometry args={[0.11, 10, 8]} /><meshStandardMaterial color={paused ? "#f0c555" : "#42dc8b"} emissive={paused ? "#f0c555" : "#42dc8b"} emissiveIntensity={2.2} /></mesh>
-      <MachineLabel id={`${label} · BAND SAW`} status={paused ? "IDLE" : "RUNNING"} position={[0, 2.85, 0]} />
+      <mesh position={[-1.18, 0.92, -0.86]}><sphereGeometry args={[0.11, 10, 8]} /><meshStandardMaterial color={paused || !active ? "#f0c555" : "#42dc8b"} emissive={paused || !active ? "#f0c555" : "#42dc8b"} emissiveIntensity={2.2} /></mesh>
+      <MachineLabel id={`${label} · BAND SAW`} status={paused || !active ? "IDLE" : "RUNNING"} position={[0, 2.85, 0]} />
     </group>
   );
 }

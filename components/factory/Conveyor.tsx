@@ -11,14 +11,11 @@ interface ConveyorProps {
   length?: number;
   rotationY?: number;
   productionLane?: boolean;
-  infeedLane?: boolean;
-  infeedLanes?: number;
   width?: number;
 }
 
-export function Conveyor({ position, length = 8, width = 1.15, rotationY = 0, productionLane = false, infeedLane = false, infeedLanes = 1 }: ConveyorProps) {
+export function Conveyor({ position, length = 8, width = 1.15, rotationY = 0, productionLane = false }: ConveyorProps) {
   const rollers = useRef<Group>(null);
-  const infeedStock = useRef<Group>(null);
   const paused = useFactoryStore((state) => state.paused);
   const speed = useFactoryStore((state) => state.speed);
   const hasPartInTransfer = useFactoryStore((state) => state.parts.some((part) => part.currentStation === "CONVEYOR"));
@@ -27,28 +24,10 @@ export function Conveyor({ position, length = 8, width = 1.15, rotationY = 0, pr
     const spacing = (length - .7) / (count - 1);
     return Array.from({ length: count }, (_, index) => -length / 2 + .35 + spacing * index);
   }, [length]);
-  const stockPieces = useMemo(() => {
-    const laneCount = Math.max(1, infeedLanes);
-    const lanePositions = laneCount === 1
-      ? [0]
-      : Array.from({ length: laneCount }, (_, index) => -width * .28 + index * (width * .56 / (laneCount - 1)));
-    return lanePositions.flatMap((z, laneIndex) => [0, 1].map((sequence) => ({
-      id: `${laneIndex}-${sequence}`,
-      z,
-      phaseOffset: sequence * .47 + laneIndex * .09,
-    })));
-  }, [infeedLanes, width]);
   useFrame((_, delta) => {
     if (!paused && rollers.current && (!productionLane || hasPartInTransfer)) {
       const angleDelta = conveyorRollerAngleDelta(delta, speed);
       rollers.current.children.forEach((roller) => { roller.rotation.z += angleDelta; });
-    }
-    if (infeedLane && infeedStock.current) {
-      const simulationSeconds = useFactoryStore.getState().simulationNow / 1000;
-      infeedStock.current.children.forEach((piece, index) => {
-        const travel = (simulationSeconds / 7 + stockPieces[index].phaseOffset) % 1;
-        piece.position.x = -length / 2 + 0.65 + travel * (length - 1.3);
-      });
     }
   });
   return (
@@ -63,16 +42,7 @@ export function Conveyor({ position, length = 8, width = 1.15, rotationY = 0, pr
           </group>
         ))}
       </group>
-      {infeedLane && (
-        <group ref={infeedStock} position={[0, .52, 0]} userData={{ materialFlow: "saw-to-cnc-front" }}>
-          {stockPieces.map((piece) => (
-            <mesh key={piece.id} position={[0, 0, piece.z]} castShadow>
-              <boxGeometry args={[.62, .34, .44]} />
-              <meshStandardMaterial color="#aeb9bd" metalness={.86} roughness={.2} />
-            </mesh>
-          ))}
-        </group>
-      )}
+      {width > 2 && <mesh position={[0,.43,0]}><boxGeometry args={[length - .3,.08,.055]} /><meshStandardMaterial color="#d2b548" metalness={.55} roughness={.35} /></mesh>}
       {[-length / 2 + .3,length / 2 - .3].map((x) => [-width / 2 + .115,width / 2 - .115].map((z) => <mesh key={`${x}-${z}`} position={[x,-.65,z]}><boxGeometry args={[.12,1.25,.12]} /><meshStandardMaterial color="#606d73" metalness={.7} /></mesh>))}
     </group>
   );

@@ -117,7 +117,7 @@ function applyFault(
   };
 }
 
-const initialParts = [createPart(1301, initialNow - 4_000), createPart(1302, initialNow - 3_000), createPart(1303, initialNow - 2_000)];
+const initialParts = [createPart(1301, initialNow)];
 
 export const useFactoryStore = create<FactoryState>((set) => ({
   view: "FACTORY",
@@ -137,7 +137,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   exploreMode: false,
   introComplete: false,
   simulationNow: initialNow,
-  serialCounter: 1303,
+  serialCounter: 1301,
   spawnAccumulator: 0,
   telemetryAccumulator: 0,
   chartAccumulator: 0,
@@ -151,16 +151,17 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       const now = state.simulationNow + deltaSeconds * 1000;
       let parts = state.parts;
       let serialCounter = state.serialCounter;
-      let spawnAccumulator = state.spawnAccumulator + deltaSeconds;
+      let spawnAccumulator = state.spawnAccumulator;
       const freshEvents: ProductionEvent[] = [];
 
       const activeCount = parts.filter((part) => part.status !== "COMPLETE" && part.status !== "REJECTED").length;
-      if (spawnAccumulator >= 6 && activeCount < 8) {
+      spawnAccumulator = activeCount === 0 && !state.demo.active ? spawnAccumulator + deltaSeconds : 0;
+      if (spawnAccumulator >= 2 && activeCount === 0 && !state.demo.active) {
         serialCounter += 1;
         const part = createPart(serialCounter, now);
-        parts = [...parts, part];
+        parts = [part];
         spawnAccumulator = 0;
-        freshEvents.push(createEvent(`Raw material staged · ${part.serialNumber}`, "INFO", now));
+        freshEvents.push(createEvent(`SAW-01 stock loaded · ${part.serialNumber}`, "INFO", now));
       }
 
       const production = advanceProduction({
@@ -205,7 +206,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
         const demoPart = parts.find((part) => part.id === demo.partId);
         if (demoPart) {
           const stationStep: Partial<Record<typeof demoPart.currentStation, [number, string, MachineId | null]>> = {
-            RAW: [0, "Staging a traceable raw blank", "CNC-01"],
+            RAW: [0, "SAW-01 is cutting one traceable blank for CNC-01", "CNC-01"],
             "CNC-01": [1, "CNC-01 is rough-machining the demo part", "CNC-01"],
             "CNC-02": [2, "CNC-02 is completing the finish operation", "CNC-02"],
             CONVEYOR: [3, "The operator returned the part to the shared front conveyor", null],
@@ -366,12 +367,12 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       let serialCounter = state.serialCounter;
       let demoPart = parts.find((part) => !part.demo && part.status !== "COMPLETE" && part.status !== "REJECTED");
       if (demoPart) {
-        parts = parts.map((part) => (part.id === demoPart?.id ? { ...part, demo: true } : part));
-        demoPart = parts.find((part) => part.id === demoPart?.id);
+        demoPart = { ...demoPart, demo: true };
+        parts = [demoPart];
       } else {
         serialCounter += 1;
         demoPart = createPart(serialCounter, state.simulationNow, true);
-        parts = [...parts, demoPart];
+        parts = [demoPart];
       }
       const demoPartId = demoPart?.id;
       if (!demoPartId) return state;
@@ -388,7 +389,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
           active: true,
           step: 0,
           elapsed: 0,
-          message: "Staging a traceable raw blank",
+          message: "SAW-01 is cutting one traceable blank for CNC-01",
           previousSpeed: state.speed,
           previousFaultMode: state.faultMode,
           partId: demoPartId,

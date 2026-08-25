@@ -2,10 +2,10 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import type { Group, Mesh } from "three";
+import type { Group } from "three";
 import type { OperatorCellLayout } from "@/lib/factory/layout";
 import {
-  operatorCyclePose,
+  operatorIdlePose,
   operatorPoseAtPhase,
   operatorUnloadPoseAtProgress,
   type OperatorPath,
@@ -21,7 +21,6 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
   const rightArm = useRef<Group>(null);
   const leftLeg = useRef<Group>(null);
   const rightLeg = useRef<Group>(null);
-  const blank = useRef<Mesh>(null);
   const path = useMemo<OperatorPath>(() => ({
     machineXs: cell.machines.map((machine) => machine.position[0]),
     machineZ: cell.machineZ,
@@ -42,7 +41,7 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
       ? liveHandling.progress <= 30
         ? operatorPoseAtPhase(path, liveMachineIndex, 0.16 + Math.min(1, liveHandling.progress / 30) * 0.68)
         : operatorUnloadPoseAtProgress(path, liveMachineIndex, (liveHandling.progress - 78) / 22)
-      : operatorCyclePose(path, state.simulationNow / 1000, cell.phaseOffset);
+      : operatorIdlePose(path);
 
     if (operator.current) {
       operator.current.position.set(...pose.operatorPosition);
@@ -52,10 +51,6 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
     if (rightArm.current) rightArm.current.rotation.x = -pose.reach * 1.22;
     if (leftLeg.current) leftLeg.current.rotation.x = pose.legSwing;
     if (rightLeg.current) rightLeg.current.rotation.x = -pose.legSwing;
-    if (blank.current) {
-      blank.current.position.set(...pose.partPosition);
-      blank.current.visible = !liveHandling && pose.partVisible;
-    }
   });
 
   const vest = vestColors[colorIndex % vestColors.length];
@@ -94,10 +89,6 @@ export function OperatorLoader({ cell, colorIndex }: { cell: OperatorCellLayout;
         <mesh position={[0, 1.77, 0]} castShadow><cylinderGeometry args={[0.2, 0.23, 0.13, 16]} /><meshStandardMaterial color="#e4b83d" roughness={0.42} /></mesh>
         <mesh position={[0, 1.72, 0.13]} castShadow><boxGeometry args={[0.48, 0.055, 0.2]} /><meshStandardMaterial color="#e4b83d" roughness={0.42} /></mesh>
       </group>
-      <mesh ref={blank} castShadow userData={{ handledBy: cell.id }}>
-        <cylinderGeometry args={[0.22, 0.22, 0.22, 16]} />
-        <meshStandardMaterial color="#b9c4c8" metalness={0.8} roughness={0.2} />
-      </mesh>
     </group>
   );
 }
