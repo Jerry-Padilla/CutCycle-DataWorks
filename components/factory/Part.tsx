@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import { Vector3 } from "three";
 import { getPartPosition } from "@/lib/simulation/simulationEngine";
+import { hasFinishedMachining } from "@/lib/simulation/workpieceState";
 import type { Part as PartType, ProductType } from "@/types/factory";
 
 function Metal({ color }: { color: string }) {
@@ -59,7 +60,7 @@ export function Part({ part, stackIndex }: { part: PartType; stackIndex: number 
     if (!group.current) return;
     group.current.position.lerp(target, Math.min(1, delta * 7));
   });
-  const isCutBlank = part.currentStation === "RAW" || (part.currentStation === "CNC-01" && part.progress < 55);
+  const isCutBlank = !hasFinishedMachining(part);
   const releasedFromSaw = part.currentStation !== "RAW" || part.progress >= 28;
   const color = part.status === "REJECTED" ? "#a84642" : part.status === "COMPLETE" ? "#5bb98a" : "#b9c4c8";
   return (
