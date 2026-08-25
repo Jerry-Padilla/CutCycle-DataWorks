@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   CMM_STATIONS,
   CNC_LINES,
+  FACTORY_SIGNAGE,
   FRONT_INFEED_CONVEYORS,
   MAINTENANCE_PLACEMENTS,
   OPERATOR_CELLS,
   ROBOT_STATIONS,
   SAW_STATIONS,
+  SHIPPING_DEPOT_POSITION,
 } from "@/lib/factory/layout";
 
 describe("factory line layout", () => {
@@ -64,5 +66,16 @@ describe("factory line layout", () => {
     expect(Object.keys(MAINTENANCE_PLACEMENTS).sort()).toEqual(["CMM-01", "CNC-01", "CNC-02", "ROBOT-01"]);
     expect(MAINTENANCE_PLACEMENTS["CNC-01"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
     expect(MAINTENANCE_PLACEMENTS["CNC-02"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
+  });
+
+  it("defines the named shop departments and an outbound shipping depot", () => {
+    expect(FACTORY_SIGNAGE.map((sign) => sign.label)).toEqual([
+      "JERRY'S AUTOMATED MACHINE SHOP",
+      "SAW DEPARTMENT",
+      "CNC DEPARTMENT",
+      "MILLING DEPARTMENT",
+      "SHIPPING DEPOT",
+    ]);
+    expect(SHIPPING_DEPOT_POSITION[0]).toBeGreaterThan(CMM_STATIONS[0].position[0]);
   });
 });

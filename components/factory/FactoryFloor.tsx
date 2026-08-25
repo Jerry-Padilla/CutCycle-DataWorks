@@ -16,20 +16,18 @@ export function FactoryFloor() {
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[34, 22]} />
+        <planeGeometry args={[48, 26]} />
         <meshStandardMaterial color="#20282d" roughness={0.8} metalness={0.08} />
       </mesh>
-      <gridHelper args={[34, 34, "#52616a", "#303b42"]} position={[0, 0.012, 0]} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, .02, -10.2]}>
-        <planeGeometry args={[31, .07]} /><meshBasicMaterial color="#e2bd52" />
+      <gridHelper args={[48, 48, "#52616a", "#303b42"]} position={[0, 0.012, 0]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, .02, -12.2]}>
+        <planeGeometry args={[45, .07]} /><meshBasicMaterial color="#e2bd52" />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, .02, 10.2]}>
-        <planeGeometry args={[31, .07]} /><meshBasicMaterial color="#e2bd52" />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, .02, 12.2]}>
+        <planeGeometry args={[45, .07]} /><meshBasicMaterial color="#e2bd52" />
       </mesh>
       <Rack position={[-14.8, 0, -8.8]} />
       <Rack position={[-14.8, 0, 8.8]} />
-      <Rack position={[15.2, 0, -8.8]} finished />
-      <Rack position={[15.2, 0, 8.8]} finished />
       <group position={[12, 0, -8.2]}>
         <mesh position={[0,.45,0]} castShadow><boxGeometry args={[1.45,.9,1.25]} /><meshStandardMaterial color="#7c2e2e" roughness={.65} /></mesh>
         <mesh position={[0,.94,0]}><boxGeometry args={[1.52,.08,1.32]} /><meshStandardMaterial color="#b54d48" /></mesh>

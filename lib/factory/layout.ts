@@ -57,6 +57,16 @@ export interface CmmLayout {
   bankIndex: 0 | 1 | 2;
 }
 
+export interface FactorySignLayout {
+  id: string;
+  label: string;
+  position: FactoryVector;
+  width: number;
+  accent: string;
+  primary?: boolean;
+  rotationY?: number;
+}
+
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
 
 function createMachines(
@@ -146,6 +156,16 @@ function createCmmBank(robot: RobotLayout, firstNumber: number): CmmLayout[] {
 export const CMM_STATIONS: CmmLayout[] = [
   ...createCmmBank(ROBOT_STATIONS[0], 1),
   ...createCmmBank(ROBOT_STATIONS[1], 4),
+];
+
+export const SHIPPING_DEPOT_POSITION: FactoryVector = [20, 0, 0];
+
+export const FACTORY_SIGNAGE: FactorySignLayout[] = [
+  { id: "shop", label: "JERRY'S AUTOMATED MACHINE SHOP", position: [-2, 6.1, -9.8], width: 10.5, accent: "#5eb7e8", primary: true },
+  { id: "saw", label: "SAW DEPARTMENT", position: [-13.2, 3.65, 0], width: 4.2, accent: "#38c6b4" },
+  { id: "cnc", label: "CNC DEPARTMENT", position: [0, 4.3, -5.75], width: 4.6, accent: "#5eb7e8" },
+  { id: "milling", label: "MILLING DEPARTMENT", position: [0, 4.3, 5.75], width: 5.2, accent: "#d6ad45" },
+  { id: "shipping", label: "SHIPPING DEPOT", position: [22.78, 4.25, 0], width: 5.4, accent: "#55d995", rotationY: Math.PI / 2 },
 ];
 
 export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {

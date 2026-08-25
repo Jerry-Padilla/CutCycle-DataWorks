@@ -221,6 +221,11 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .machine-label strong { display:block; color:#e5f1f5; font:700 10px/1 ui-monospace,monospace; letter-spacing:.08em; }
 .machine-label-status { display:flex; align-items:center; gap:5px; margin-top:5px; font:700 7px/1 ui-monospace,monospace; letter-spacing:.1em; }
 .machine-label-status i { width:5px; height:5px; border-radius:50%; background:currentColor; box-shadow:0 0 7px currentColor; }
+.factory-sign-copy { width:250px; padding:11px 14px; border:1px solid rgba(177,205,220,.38); border-top:4px solid var(--blue); border-radius:4px; background:rgba(8,14,18,.94); box-shadow:0 8px 22px rgba(0,0,0,.4); text-align:center; white-space:nowrap; }
+.factory-sign-copy strong { color:#edf7fa; font:800 15px/1 ui-monospace,monospace; letter-spacing:.09em; }
+.factory-sign-copy.primary { width:520px; padding:17px 22px; }
+.factory-sign-copy.primary strong { font-size:22px; letter-spacing:.11em; }
+.factory-sign-copy span { display:block; margin-top:9px; color:#8ca6b3; font:650 9px/1 ui-monospace,monospace; letter-spacing:.16em; }
 
 @media (max-width: 1050px) {
   .brand { min-width:180px; }.brand-copy span{display:none}.nav-button{padding:0 10px}.system-live{display:none}

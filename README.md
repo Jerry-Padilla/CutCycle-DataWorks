@@ -15,6 +15,8 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 ## Features
 
 - Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, two parallel directional conveyors, two articulated transfer robots, six CMM stations in straight three-machine banks, material racks, and reject handling
+- Branded 3D wayfinding for Jerry&apos;s Automated Machine Shop, Saw, CNC, Milling, and Shipping departments
+- Modeled outbound shipping depot with three roll-up dock doors, marked staging lanes, palletized crates, and a forklift
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
 - Twelve production-routed CNCs with modeled vertical spindle cartridges, downward cutters, and alternating rectangular/circular X–Z machining paths; four instrumented assets feed the detailed telemetry and KPI model
