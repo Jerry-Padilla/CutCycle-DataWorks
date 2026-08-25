@@ -52,6 +52,7 @@ describe("factory line layout", () => {
 
     for (const robot of ROBOT_STATIONS) {
       const bank = CMM_STATIONS.filter((cmm) => cmm.robotLabel === robot.label);
+      expect([...bank].sort((a, b) => a.position[2] - b.position[2]).map((cmm) => cmm.label)).toEqual(bank.map((cmm) => cmm.label));
       expect(bank).toHaveLength(3);
       expect(new Set(bank.map((cmm) => cmm.position[0])).size).toBe(1);
       expect(bank.map((cmm) => cmm.position[2]).sort((a, b) => a - b)).toEqual([

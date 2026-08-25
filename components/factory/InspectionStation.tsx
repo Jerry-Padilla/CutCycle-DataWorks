@@ -5,27 +5,28 @@ import { useRef } from "react";
 import type { Mesh } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
 import { useFactoryStore } from "@/store/useFactoryStore";
-import type { MachineStatus } from "@/types/factory";
+import type { CmmStationId, MachineStatus } from "@/types/factory";
 
 const colors: Record<MachineStatus,string> = { RUNNING:"#42dc8b",IDLE:"#f0c555",FAULT:"#ff514b",MAINTENANCE:"#4baee7" };
 
 interface InspectionStationProps {
   position?: [number, number, number];
   rotationY?: number;
-  auxiliaryLabel?: string;
+  auxiliaryLabel?: CmmStationId;
 }
 
 export function InspectionStation({ position = [15.3,0,-3.45], rotationY = 0, auxiliaryLabel }: InspectionStationProps) {
   const machine = useFactoryStore((state) => state.machines["CMM-01"]);
-  const selected = useFactoryStore((state) => !auxiliaryLabel && state.selectedMachineId === "CMM-01");
+  const label = auxiliaryLabel ?? "CMM-01";
+  const selected = useFactoryStore((state) => state.selectedMachineId === label);
   const select = useFactoryStore((state) => state.selectMachine);
   const probe = useRef<Mesh>(null);
   const auxiliaryProgress = useFactoryStore((state) => auxiliaryLabel ? state.parts.find((part) => part.currentStation === auxiliaryLabel)?.progress ?? 0 : 0);
   const status: MachineStatus = auxiliaryLabel ? auxiliaryProgress > 0 ? "RUNNING" : "IDLE" : machine.status;
   useFrame(() => { if (probe.current) probe.current.position.y = 2.25 - Math.sin((auxiliaryLabel ? auxiliaryProgress : machine.progress)/100*Math.PI)*.65; });
-  const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select("CMM-01"); };
+  const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(label); };
   return (
-    <group position={position} rotation={[0,rotationY,0]} onClick={auxiliaryLabel ? undefined : click} userData={auxiliaryLabel ? { auxiliaryEquipment:true } : { machineId:"CMM-01" }}>
+    <group position={position} rotation={[0,rotationY,0]} onClick={click} userData={{ machineId: label }}>
       <mesh position={[0,.35,0]} castShadow><boxGeometry args={[2.6,.7,2.4]} /><meshStandardMaterial color="#333f45" metalness={.64} roughness={.34} /></mesh>
       {[-1.05,1.05].map((x) => <mesh key={x} position={[x,1.75,0]} castShadow><boxGeometry args={[.26,2.8,.3]} /><meshStandardMaterial color="#91a1a8" metalness={.72} roughness={.28} /></mesh>)}
       <mesh position={[0,3.04,0]} castShadow><boxGeometry args={[2.35,.28,.36]} /><meshStandardMaterial color="#899aa2" metalness={.72} roughness={.28} /></mesh>

@@ -7,7 +7,7 @@ import type { Group } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
 import { cncToolpathOffset, spindleDisplayAngularVelocity, type CncToolpath } from "@/lib/simulation/kinematics";
 import { useFactoryStore } from "@/store/useFactoryStore";
-import type { MachineId, MachineStatus } from "@/types/factory";
+import type { CncStationId, EquipmentId, MachineId, MachineStatus } from "@/types/factory";
 
 const statusColor: Record<MachineStatus, string> = { RUNNING: "#42dc8b", IDLE: "#f0c555", FAULT: "#ff514b", MAINTENANCE: "#4baee7" };
 const rectanglePath: [number, number, number][] = [
@@ -28,7 +28,7 @@ interface CncShellProps {
   spindleCarriage: RefObject<Group | null>;
   toolpath: CncToolpath | null;
   onClick?: (event: ThreeEvent<MouseEvent>) => void;
-  machineId?: MachineId;
+  machineId?: EquipmentId;
 }
 
 function CncShell({ label, status, position, rotationY = 0, selected = false, spindle, spindleCarriage, toolpath, onClick, machineId }: CncShellProps) {
@@ -88,12 +88,14 @@ export function CNC({ id, position, rotationY = 0 }: { id: Extract<MachineId, "C
   return <CncShell label={id} status={machine.status} position={position} rotationY={rotationY} selected={selected} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={toolpath} onClick={click} machineId={id} />;
 }
 
-export function AuxiliaryCNC({ label, position, rotationY = 0 }: { label: string; position: [number, number, number]; rotationY?: number }) {
+export function AuxiliaryCNC({ label, position, rotationY = 0 }: { label: CncStationId; position: [number, number, number]; rotationY?: number }) {
   const spindle = useRef<Group>(null);
   const spindleCarriage = useRef<Group>(null);
   const active = useFactoryStore((state) => state.parts.some((part) => part.currentStation === label));
   const paused = useFactoryStore((state) => state.paused);
   const speed = useFactoryStore((state) => state.speed);
+  const selected = useFactoryStore((state) => state.selectedMachineId === label);
+  const select = useFactoryStore((state) => state.selectMachine);
   const toolpath: CncToolpath = Number(label.slice(-2)) % 2 === 0 ? "circle" : "rectangle";
   useFrame((_, delta) => {
     const part = useFactoryStore.getState().parts.find((candidate) => candidate.currentStation === label);
@@ -103,5 +105,6 @@ export function AuxiliaryCNC({ label, position, rotationY = 0 }: { label: string
     }
     if (spindle.current && active && !paused) spindle.current.rotation.y -= delta * 18 * speed;
   });
-  return <CncShell label={label} status={active && !paused ? "RUNNING" : "IDLE"} position={position} rotationY={rotationY} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={toolpath} />;
+  const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(label); };
+  return <CncShell label={label} status={active && !paused ? "RUNNING" : "IDLE"} position={position} rotationY={rotationY} selected={selected} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={toolpath} onClick={click} machineId={label} />;
 }

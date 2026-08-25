@@ -1,9 +1,14 @@
 "use client";
 
 import { AlertTriangle, Play, Square, Wrench, X, Zap } from "lucide-react";
+import { MACHINE_IDS } from "@/lib/constants";
 import { faultsForKind, getFaultDefinition } from "@/lib/simulation/faultEngine";
 import { useFactoryStore } from "@/store/useFactoryStore";
-import type { MachineRuntime } from "@/types/factory";
+import type { EquipmentId, MachineId, MachineRuntime } from "@/types/factory";
+
+function instrumentedId(id: EquipmentId | null): MachineId | null {
+  return id && MACHINE_IDS.includes(id as MachineId) ? id as MachineId : null;
+}
 
 function telemetryCards(machine: MachineRuntime): { label: string; value: string }[] {
   const telemetry = machine.telemetry;
@@ -31,14 +36,35 @@ function telemetryCards(machine: MachineRuntime): { label: string; value: string
 
 export function MachinePanel() {
   const machineId = useFactoryStore((state) => state.selectedMachineId);
-  const machine = useFactoryStore((state) => machineId ? state.machines[machineId] : null);
-  const activeFault = useFactoryStore((state) => machineId ? state.activeFaults[machineId] : undefined);
+  const runtimeId = instrumentedId(machineId);
+  const machine = useFactoryStore((state) => runtimeId ? state.machines[runtimeId] : null);
+  const activeFault = useFactoryStore((state) => runtimeId ? state.activeFaults[runtimeId] : undefined);
+  const currentPart = useFactoryStore((state) => machineId ? state.parts.find((part) => part.currentStation === machineId) : undefined);
+  const paused = useFactoryStore((state) => state.paused);
   const selectMachine = useFactoryStore((state) => state.selectMachine);
   const startMachine = useFactoryStore((state) => state.startMachine);
   const stopMachine = useFactoryStore((state) => state.stopMachine);
   const triggerFault = useFactoryStore((state) => state.triggerFault);
   const openDiagnosis = useFactoryStore((state) => state.openDiagnosis);
-  if (!machine || !machineId) return null;
+  if (!machineId) return null;
+  if (!machine || !runtimeId) {
+    const kind = machineId.startsWith("CNC-") ? "CNC machining center" : machineId.startsWith("CMM-") ? "coordinate measuring machine" : "material-handling robot";
+    const status = currentPart && !paused ? "RUNNING" : "IDLE";
+    return (
+      <aside className="machine-panel glass-panel" aria-label={`${machineId} details`}>
+        <div className="panel-head">
+          <div><p className="eyebrow">Equipment inspection</p><h2 className="panel-title">{machineId}</h2><p className="section-subtitle" style={{ fontSize: 10, marginTop: 3 }}>{kind} · production-routed asset</p></div>
+          <button className="icon-button" onClick={() => selectMachine(null)} aria-label="Close machine panel"><X size={15} /></button>
+        </div>
+        <div className={`status-pill status-${status}`}><span className="live-dot" />{status}</div>
+        <div className="telemetry-grid">
+          <div className="telemetry-card"><div className="metric-label">Current part</div><div className="metric-value">{currentPart?.serialNumber ?? "NONE"}</div></div>
+          <div className="telemetry-card"><div className="metric-label">Cycle progress</div><div className="metric-value">{(currentPart?.progress ?? 0).toFixed(0)}%</div></div>
+        </div>
+        <div className="telemetry-card" style={{ marginTop: 8 }}><div className="metric-label">Telemetry level</div><div className="metric-value" style={{ fontSize: 13 }}>PRODUCTION STATUS</div><p className="section-subtitle" style={{ fontSize: 10, marginTop: 4 }}>Detailed controls, fault injection, and runtime telemetry are available on instrumented assets.</p></div>
+      </aside>
+    );
+  }
   const fault = getFaultDefinition(activeFault?.code ?? null);
   const availableFaults = faultsForKind(machine.kind);
   return (
@@ -61,13 +87,13 @@ export function MachinePanel() {
           <div className="fault-code"><AlertTriangle size={13} style={{ display: "inline", marginRight: 6 }} />{fault.code}</div>
           <h3 className="fault-title">{fault.title}</h3>
           <ul className="symptoms">{fault.symptoms.map((symptom) => <li key={symptom}>{symptom}</li>)}</ul>
-          <button className="button button-danger button-fill" style={{ marginTop: 10 }} onClick={() => openDiagnosis(machineId)}><Wrench size={12} /> Diagnose</button>
+          <button className="button button-danger button-fill" style={{ marginTop: 10 }} onClick={() => openDiagnosis(runtimeId)}><Wrench size={12} /> Diagnose</button>
         </div>
       )}
       <div className="button-row">
-        {machine.status === "RUNNING" && <button className="button button-fill" onClick={() => stopMachine(machineId)}><Square size={11} /> Stop machine</button>}
-        {machine.status === "IDLE" && <button className="button button-success button-fill" onClick={() => startMachine(machineId)}><Play size={11} /> Start machine</button>}
-        {!activeFault && availableFaults.length > 0 && <button className="button button-danger" onClick={() => triggerFault(machineId)}><Zap size={12} /> Fault</button>}
+        {machine.status === "RUNNING" && <button className="button button-fill" onClick={() => stopMachine(runtimeId)}><Square size={11} /> Stop machine</button>}
+        {machine.status === "IDLE" && <button className="button button-success button-fill" onClick={() => startMachine(runtimeId)}><Play size={11} /> Start machine</button>}
+        {!activeFault && availableFaults.length > 0 && <button className="button button-danger" onClick={() => triggerFault(runtimeId)}><Zap size={12} /> Fault</button>}
       </div>
     </aside>
   );

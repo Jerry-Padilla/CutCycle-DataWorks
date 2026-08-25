@@ -14,7 +14,7 @@ const colors: Record<MachineStatus,string> = { RUNNING:"#42dc8b",IDLE:"#f0c555",
 export function RobotArm({ label, position, instrumented, phaseOffsetSeconds }: RobotLayout) {
   const machine = useFactoryStore((state) => state.machines["ROBOT-01"]);
   const paused = useFactoryStore((state) => state.paused);
-  const selected = useFactoryStore((state) => instrumented && state.selectedMachineId === "ROBOT-01");
+  const selected = useFactoryStore((state) => state.selectedMachineId === label);
   const select = useFactoryStore((state) => state.selectMachine);
   const base = useRef<Group>(null); const shoulder = useRef<Group>(null); const elbow = useRef<Group>(null);
   const leftFinger = useRef<Mesh>(null); const rightFinger = useRef<Mesh>(null);
@@ -37,9 +37,9 @@ export function RobotArm({ label, position, instrumented, phaseOffsetSeconds }: 
     if (leftFinger.current) leftFinger.current.position.x += (-fingerOffset - leftFinger.current.position.x) * damping;
     if (rightFinger.current) rightFinger.current.position.x += (fingerOffset - rightFinger.current.position.x) * damping;
   });
-  const click = instrumented ? (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select("ROBOT-01"); } : undefined;
+  const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(label); };
   return (
-    <group position={position} onClick={click} userData={instrumented ? { machineId:"ROBOT-01" } : { auxiliaryEquipment:true, equipmentKind:"robot" }}>
+    <group position={position} onClick={click} userData={{ machineId: label }}>
       <mesh position={[0,.25,0]} castShadow><cylinderGeometry args={[.72,.88,.5,20]} /><meshStandardMaterial color="#313d44" metalness={.65} roughness={.34} /></mesh>
       <group ref={base} position={[0,.48,0]}>
         <mesh position={[0,.55,0]} castShadow><cylinderGeometry args={[.42,.52,1.1,16]} /><meshStandardMaterial color="#d2a934" metalness={.45} roughness={.36} /></mesh>

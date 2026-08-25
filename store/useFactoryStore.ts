@@ -14,6 +14,7 @@ import type {
   AppView,
   ChartSample,
   DemoState,
+  EquipmentId,
   FaultMode,
   KpiSnapshot,
   MachineId,
@@ -44,7 +45,7 @@ interface FactoryState {
   counters: ProductionCounters;
   kpis: KpiSnapshot;
   chartData: ChartSample[];
-  selectedMachineId: MachineId | null;
+  selectedMachineId: EquipmentId | null;
   activeFaults: Partial<Record<MachineId, ActiveFault>>;
   diagnosingMachineId: MachineId | null;
   speed: SimulationSpeed;
@@ -62,7 +63,7 @@ interface FactoryState {
   demo: DemoState;
   tick: (realDeltaSeconds: number) => void;
   setView: (view: AppView) => void;
-  selectMachine: (machineId: MachineId | null) => void;
+  selectMachine: (machineId: EquipmentId | null) => void;
   startMachine: (machineId: MachineId) => void;
   stopMachine: (machineId: MachineId) => void;
   triggerFault: (machineId?: MachineId, code?: string) => void;

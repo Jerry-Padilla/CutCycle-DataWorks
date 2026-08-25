@@ -20,6 +20,14 @@ describe("machine interaction panels", () => {
     expect(useFactoryStore.getState().machines["CNC-01"].status).toBe("RUNNING");
   });
 
+  it("shows production status for a selected auxiliary CNC", () => {
+    useFactoryStore.setState({ selectedMachineId: "CNC-08" });
+    render(<MachinePanel />);
+    expect(screen.getByRole("complementary", { name: /cnc-08 details/i })).toBeInTheDocument();
+    expect(screen.getByText("CNC-08")).toBeInTheDocument();
+    expect(screen.getByText("PRODUCTION STATUS")).toBeInTheDocument();
+  });
+
   it("requires a correct diagnosis before repair", () => {
     act(() => useFactoryStore.getState().triggerFault("CNC-01", "MTR-104"));
     render(<><MachinePanel /><DiagnosisPanel /></>);

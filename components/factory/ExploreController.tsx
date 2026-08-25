@@ -6,12 +6,12 @@ import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Euler, Raycaster, Vector2, Vector3, type Object3D } from "three";
 import { useFactoryStore } from "@/store/useFactoryStore";
-import type { MachineId } from "@/types/factory";
+import type { EquipmentId } from "@/types/factory";
 
-function findMachine(object: Object3D | null): MachineId | null {
+function findMachine(object: Object3D | null): EquipmentId | null {
   let current = object;
   while (current) {
-    if (current.userData.machineId) return current.userData.machineId as MachineId;
+    if (current.userData.machineId) return current.userData.machineId as EquipmentId;
     current = current.parent;
   }
   return null;

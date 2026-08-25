@@ -1,9 +1,9 @@
-import type { MachineId } from "@/types/factory";
+import type { CmmStationId, CncStationId, MachineId } from "@/types/factory";
 
 export type FactoryVector = [number, number, number];
 
 export interface CncLayout {
-  label: string;
+  label: CncStationId;
   position: FactoryVector;
   rotationY: number;
   instrumentedId?: Extract<MachineId, "CNC-01" | "CNC-02">;
@@ -49,7 +49,7 @@ export interface RobotLayout {
 }
 
 export interface CmmLayout {
-  label: string;
+  label: CmmStationId;
   position: FactoryVector;
   rotationY: number;
   instrumented: boolean;
@@ -70,7 +70,7 @@ export interface FactorySignLayout {
 const CNC_X_POSITIONS = [-9, -5.4, -1.8, 1.8, 5.4, 9];
 
 function createMachines(
-  labels: string[],
+  labels: CncStationId[],
   z: number,
   rotationY: number,
   instrumentedIds: Partial<Record<string, CncLayout["instrumentedId"]>> = {},
@@ -140,11 +140,11 @@ export const ROBOT_STATIONS: RobotLayout[] = [
 ];
 
 const CMM_BANK_X = 15.3;
-const CMM_BANK_OFFSETS = [0, -2.9, 2.9] as const;
+const CMM_BANK_OFFSETS = [-2.9, 0, 2.9] as const;
 
 function createCmmBank(robot: RobotLayout, firstNumber: number): CmmLayout[] {
   return CMM_BANK_OFFSETS.map((offset, index) => ({
-    label: `CMM-${String(firstNumber + index).padStart(2, "0")}`,
+    label: `CMM-${String(firstNumber + index).padStart(2, "0")}` as CmmStationId,
     position: [CMM_BANK_X, 0, robot.position[2] + offset],
     rotationY: 0,
     instrumented: robot.instrumented && index === 0,
