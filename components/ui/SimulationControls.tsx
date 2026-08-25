@@ -1,6 +1,6 @@
 "use client";
 
-import { Bug, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Bug, Pause, Play, Volume2, VolumeX, Wrench } from "lucide-react";
 import { useFactoryStore } from "@/store/useFactoryStore";
 import type { FaultMode, SimulationSpeed } from "@/types/factory";
 
@@ -16,6 +16,8 @@ export function SimulationControls() {
   const sound = useFactoryStore((state) => state.soundEnabled);
   const toggleSound = useFactoryStore((state) => state.toggleSound);
   const triggerFault = useFactoryStore((state) => state.triggerFault);
+  const autoTechnician = useFactoryStore((state) => state.autoTechnicianEnabled);
+  const toggleAutoTechnician = useFactoryStore((state) => state.toggleAutoTechnician);
   return (
     <aside className="sim-controls glass-panel" aria-label="Simulation controls">
       <p className="eyebrow">Simulation</p>
@@ -25,7 +27,11 @@ export function SimulationControls() {
           {speeds.map((value) => <button key={value} className={`segment ${speed === value ? "active" : ""}`} onClick={() => setSpeed(value)}>{value}x</button>)}
         </div>
       </div>
-      <div className="control-row">
+      <div className="control-row technician-row">
+        <span className="metric-label"><Wrench size={12} /> Auto technician</span>
+        <button className={`toggle-switch${autoTechnician ? " active" : ""}`} role="switch" aria-checked={autoTechnician} onClick={toggleAutoTechnician}><span />{autoTechnician ? "ON" : "OFF"}</button>
+      </div>
+      <div className="control-row fault-mode-row">
         <label className="metric-label" htmlFor="fault-mode">Fault mode</label>
         <select id="fault-mode" className="select-control" value={faultMode} onChange={(event) => setFaultMode(event.target.value as FaultMode)}>
           <option>OFF</option><option>LOW</option><option>NORMAL</option><option>HIGH</option>

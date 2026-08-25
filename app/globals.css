@@ -94,6 +94,10 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .segment:last-child { border-right:0; }
 .segment.active { color:#d9f3ff; background:var(--blue-soft); }
 .select-control { min-height:34px; padding:0 9px; border:1px solid var(--line); border-radius:6px; background:#111a22; color:#c8d4db; font:600 11px/1 ui-monospace,monospace; }
+.technician-row .metric-label { display:flex; align-items:center; gap:6px; }
+.toggle-switch { min-width:62px; height:30px; display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:0 8px 0 5px; border:1px solid var(--line-strong); border-radius:99px; background:#111a22; color:#91a3ae; font:700 10px/1 ui-monospace,monospace; cursor:pointer; }
+.toggle-switch span { width:15px; height:15px; border-radius:50%; background:#72848e; transition:.18s ease; }
+.toggle-switch.active { justify-content:flex-start; border-color:rgba(85,217,149,.5); background:rgba(85,217,149,.1); color:var(--green); }.toggle-switch.active span { background:var(--green); box-shadow:0 0 8px rgba(85,217,149,.65); }
 .button-row { display:flex; gap:8px; margin-top:12px; }
 .button {
   min-height:36px; display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:0 12px;
@@ -252,7 +256,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   :root { --header-h:56px; }
   .top-nav{padding:0 10px}.brand{min-width:auto}.brand-copy{display:none}.nav-links{min-width:0;margin-left:6px;flex:1;justify-content:center}.nav-spacer{display:none}.nav-button{padding:0 8px;font-size:10px}.nav-button.external{display:none}.top-nav>.button{padding:0 9px}.top-nav>.button span{display:none}
   .hud{top:10px;left:10px;width:166px;padding:11px}.hud-grid{margin-top:12px;gap:9px}.metric-value{font-size:14px}
-  .sim-controls{top:10px;right:10px;width:138px;padding:9px}.sim-controls .eyebrow,.sim-controls .control-row:not(:first-of-type),.sim-controls .control-row .metric-label{display:none}.sim-controls .control-row{margin:0}.sim-controls .segmented{width:100%}.sim-controls .segment{min-width:0;flex:1;padding:7px 4px}.sim-controls .button-row{margin-top:7px}.sim-controls .button{min-height:32px;padding:0 7px}.sim-controls .button span{display:none}
+  .sim-controls{top:10px;right:10px;width:150px;padding:9px}.sim-controls .eyebrow,.sim-controls .fault-mode-row,.sim-controls .control-row .metric-label{display:none}.sim-controls .control-row{margin:0}.sim-controls .technician-row{display:flex;margin-top:7px}.sim-controls .technician-row .metric-label{display:flex;font-size:8px}.sim-controls .toggle-switch{min-width:49px;height:26px;padding:0 6px;font-size:8px}.sim-controls .segmented{width:100%}.sim-controls .segment{min-width:0;flex:1;padding:7px 4px}.sim-controls .button-row{margin-top:7px}.sim-controls .button{min-height:32px;padding:0 7px}.sim-controls .button span{display:none}
   .machine-panel{position:absolute;top:auto;right:8px;left:8px;bottom:8px;width:auto;max-height:48%;border-radius:13px;padding:14px}.telemetry-grid{grid-template-columns:repeat(3,1fr)}.telemetry-card{min-height:60px;padding:8px}.telemetry-card .metric-value{font-size:13px}
   .scene-footer{left:10px;bottom:10px}.control-help{display:none}
   .demo-callout{bottom:10px}

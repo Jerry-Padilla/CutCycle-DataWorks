@@ -53,6 +53,7 @@ interface FactoryState {
   faultMode: FaultMode;
   paused: boolean;
   soundEnabled: boolean;
+  autoTechnicianEnabled: boolean;
   exploreMode: boolean;
   introComplete: boolean;
   helpOpen: boolean;
@@ -77,6 +78,7 @@ interface FactoryState {
   setFaultMode: (mode: FaultMode) => void;
   togglePause: () => void;
   toggleSound: () => void;
+  toggleAutoTechnician: () => void;
   setExploreMode: (enabled: boolean) => void;
   completeIntro: () => void;
   setHelpOpen: (open: boolean) => void;
@@ -142,6 +144,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   faultMode: "OFF",
   paused: false,
   soundEnabled: false,
+  autoTechnicianEnabled: true,
   exploreMode: false,
   introComplete: false,
   helpOpen: true,
@@ -196,6 +199,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       });
       let machines = production.machines;
       let activeFaults = state.activeFaults;
+      let technicianClosedDiagnosis = false;
       let faultCountdown = state.faultCountdown - deltaSeconds * 1000;
 
       if (faultCountdown <= 0 && state.faultMode !== "OFF" && !state.demo.active) {
@@ -210,6 +214,22 @@ export const useFactoryStore = create<FactoryState>((set) => ({
         faultCountdown = getNextFaultDelay(state.faultMode);
       }
 
+      if (state.autoTechnicianEnabled && !state.demo.active) {
+        const repairedFaults = { ...activeFaults };
+        for (const fault of Object.values(activeFaults)) {
+          if (!fault || now - fault.occurredAt < 12_000) continue;
+          const machine = machines[fault.machineId];
+          machines = {
+            ...machines,
+            [fault.machineId]: { ...machine, status: "RUNNING", activeFaultCode: null },
+          };
+          delete repairedFaults[fault.machineId];
+          if (state.diagnosingMachineId === fault.machineId) technicianClosedDiagnosis = true;
+          freshEvents.push(createEvent(`${fault.machineId} auto-repaired by technician · machine restarted`, "SUCCESS", now, fault.machineId));
+        }
+        activeFaults = repairedFaults;
+      }
+
       let telemetryAccumulator = state.telemetryAccumulator + deltaSeconds;
       if (telemetryAccumulator >= 0.5) {
         machines = updateTelemetry(machines);
@@ -218,7 +238,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
 
       const demo = { ...state.demo };
       let selectedMachineId = state.selectedMachineId;
-      let diagnosingMachineId = state.diagnosingMachineId;
+      let diagnosingMachineId = technicianClosedDiagnosis ? null : state.diagnosingMachineId;
       if (demo.active && demo.partId) {
         demo.elapsed += deltaSeconds;
         const demoPart = parts.find((part) => part.id === demo.partId);
@@ -377,6 +397,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   setFaultMode: (faultMode) => set({ faultMode, faultCountdown: getNextFaultDelay(faultMode) }),
   togglePause: () => set((state) => ({ paused: !state.paused })),
   toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
+  toggleAutoTechnician: () => set((state) => ({ autoTechnicianEnabled: !state.autoTechnicianEnabled })),
   setExploreMode: (exploreMode) => set({ exploreMode }),
   completeIntro: () => set({ introComplete: true }),
   setHelpOpen: (helpOpen) => set({ helpOpen }),

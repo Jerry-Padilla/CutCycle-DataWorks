@@ -19,6 +19,7 @@ FactoryOS is a portfolio-grade manufacturing cell simulator that connects an int
 - Modeled outbound shipping depot with three roll-up dock doors, marked staging lanes, palletized crates, and a forklift
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
 - Fault-driven repair technicians appear with tools at affected CNC and robotic equipment, then leave when the diagnosed repair is completed
+- Front-page Auto Technician toggle can diagnose, repair, and restart faulted equipment after a short simulated response delay for unattended operation
 - Twelve production-routed CNCs with modeled vertical spindle cartridges, downward cutters, and alternating rectangular/circular X–Z machining paths; four instrumented assets feed the detailed telemetry and KPI model
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a straight, evenly spaced bank of three CMMs

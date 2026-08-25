@@ -21,6 +21,7 @@ describe("factory store clock and controls", () => {
       introComplete: true,
       paused: false,
       faultMode: "OFF",
+      autoTechnicianEnabled: true,
       faultCountdown: Number.POSITIVE_INFINITY,
       simulationNow: 0,
       serialCounter: 1,
@@ -78,5 +79,15 @@ describe("factory store clock and controls", () => {
     useFactoryStore.getState().cancelDemo();
     expect(useFactoryStore.getState().speed).toBe(2);
     expect(useFactoryStore.getState().faultMode).toBe("HIGH");
+  });
+
+  it("auto-repairs and restarts a faulted machine when the technician toggle is enabled", () => {
+    useFactoryStore.getState().triggerFault("CNC-01", "MTR-104");
+    expect(useFactoryStore.getState().machines["CNC-01"].status).toBe("FAULT");
+    for (let index = 0; index < 49; index += 1) useFactoryStore.getState().tick(0.25);
+    const state = useFactoryStore.getState();
+    expect(state.activeFaults["CNC-01"]).toBeUndefined();
+    expect(state.machines["CNC-01"].status).toBe("RUNNING");
+    expect(state.events.some((event) => event.message.includes("auto-repaired by technician"))).toBe(true);
   });
 });
