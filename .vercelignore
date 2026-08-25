@@ -1,0 +1,6 @@
+.tools
+.next
+node_modules
+.vercel
+coverage
+*.log
