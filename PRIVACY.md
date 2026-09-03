@@ -1,6 +1,6 @@
 # Privacy
 
-FactoryOS does not require an account, database, analytics service, advertising service, or application-level tracking.
+CutCycle DataWorks does not require an account, database, analytics service, advertising service, or application-level tracking.
 
 ## Data processed by the application
 
@@ -11,7 +11,7 @@ FactoryOS does not require an account, database, analytics service, advertising 
 
 ## Hosting
 
-When FactoryOS is deployed, the hosting provider and network infrastructure may process standard request metadata such as IP address, user agent, timestamps, and requested URLs under their own policies. Repository hosting on GitHub and deployment on Vercel are governed by those providers’ respective privacy terms.
+When CutCycle DataWorks is deployed, the hosting provider and network infrastructure may process standard request metadata such as IP address, user agent, timestamps, and requested URLs under their own policies. Repository hosting on GitHub and deployment on Vercel are governed by those providers’ respective privacy terms.
 
 If the application later adds analytics, authentication, persistence, or external services, this notice must be updated before those features are enabled.
 

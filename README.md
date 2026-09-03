@@ -1,16 +1,16 @@
-# FactoryOS
+# CutCycle DataWorks
 
-**Interactive 3D Manufacturing Digital Twin**
+**Automated Machining Intelligence**
 
-FactoryOS is a portfolio-grade manufacturing cell simulator that connects an interactive 3D factory to live equipment telemetry, production events, quality inspection, fault diagnostics, and event-derived KPIs. It is designed to demonstrate practical experience across manufacturing engineering, automation, troubleshooting, data systems, and modern web development.
+CutCycle DataWorks is a portfolio-grade manufacturing simulation and analytics experience that connects an interactive 3D factory to live equipment telemetry, production events, quality inspection, fault diagnostics, and event-derived KPIs. It demonstrates practical experience across manufacturing engineering, automation, troubleshooting, data systems, and modern web development.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-5eb7e8.svg)](LICENSE)
-[![CI](https://github.com/Jerry-Padilla/FactoryOS/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerry-Padilla/FactoryOS/actions/workflows/ci.yml)
-[![Live on Vercel](https://img.shields.io/badge/Live_on_Vercel-FactoryOS-ffffff?logo=vercel&labelColor=000000)](https://factoryos-three.vercel.app)
+[![CI](https://github.com/Jerry-Padilla/CutCycle-DataWorks/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerry-Padilla/CutCycle-DataWorks/actions/workflows/ci.yml)
+[![Live on Vercel](https://img.shields.io/badge/Live_on_Vercel-CutCycle_DataWorks-ffffff?logo=vercel&labelColor=000000)](https://cutcycle-dataworks.vercel.app)
 
-[Launch the live FactoryOS simulator](https://factoryos-three.vercel.app)
+[Launch CutCycle DataWorks](https://cutcycle-dataworks.vercel.app)
 
-![FactoryOS live 3D manufacturing cell](public/screenshots/factory-overview.png)
+![CutCycle DataWorks live 3D manufacturing cell](public/screenshots/factory-overview.png)
 
 ## Features
 
@@ -132,7 +132,7 @@ Audio is off by default and starts only after the operator enables it.
 
 No database, backend, environment variables, paid APIs, or external model assets are required.
 
-The production deployment is available at [factoryos-three.vercel.app](https://factoryos-three.vercel.app).
+The production deployment is available at [cutcycle-dataworks.vercel.app](https://cutcycle-dataworks.vercel.app).
 
 1. Push the project to a Git repository.
 2. Import the repository in Vercel.
@@ -165,7 +165,7 @@ Contributions are welcome under the guidelines in [CONTRIBUTING.md](CONTRIBUTING
 
 Do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md) and use GitHub private vulnerability reporting.
 
-FactoryOS processes only synthetic in-browser simulation data. See [PRIVACY.md](PRIVACY.md) for details and [NOTICE.md](NOTICE.md) for the industrial-use and safety disclaimer.
+CutCycle DataWorks processes only synthetic in-browser simulation data. See [PRIVACY.md](PRIVACY.md) for details and [NOTICE.md](NOTICE.md) for the industrial-use and safety disclaimer.
 
 Automatic fault windows:
 
@@ -187,4 +187,4 @@ Automatic faults default to **Off** so ordinary production does not stop unexpec
 
 ## License
 
-FactoryOS is available under the [MIT License](LICENSE). Third-party packages remain subject to their respective licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+CutCycle DataWorks is available under the [MIT License](LICENSE). Third-party packages remain subject to their respective licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

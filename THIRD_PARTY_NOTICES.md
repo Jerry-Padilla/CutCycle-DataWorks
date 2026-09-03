@@ -1,6 +1,6 @@
 # Third-Party Software Notices
 
-FactoryOS uses open-source software. Each dependency remains subject to its own license and copyright notices.
+CutCycle DataWorks uses open-source software. Each dependency remains subject to its own license and copyright notices.
 
 ## Direct runtime dependencies
 
@@ -18,4 +18,4 @@ FactoryOS uses open-source software. Each dependency remains subject to its own 
 
 This summary covers direct runtime dependencies and is not a substitute for the license files distributed with installed packages. Transitive and development dependencies are recorded in `package-lock.json`; their authoritative notices are included in their respective packages.
 
-No third-party 3D models, textures, photographs, audio recordings, or paid API content are bundled with FactoryOS.
+No third-party 3D models, textures, photographs, audio recordings, or paid API content are bundled with CutCycle DataWorks.

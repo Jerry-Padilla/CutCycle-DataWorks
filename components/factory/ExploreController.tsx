@@ -51,12 +51,12 @@ export function ExploreController() {
     const touchEnd = () => { dragging.current=null; };
     const move = (event: Event) => { mobileMove.current=(event as CustomEvent<{x:number;y:number}>).detail; };
     window.addEventListener("keydown",keyDown); window.addEventListener("keyup",keyUp); window.addEventListener("mousemove",mouseMove);
-    window.addEventListener("factoryos-move",move); window.addEventListener("factoryos-interact",interact);
+    window.addEventListener("cutcycle-move",move); window.addEventListener("cutcycle-interact",interact);
     canvas.addEventListener("click",lock); canvas.addEventListener("pointerdown",touchStart); canvas.addEventListener("pointermove",touchMove); canvas.addEventListener("pointerup",touchEnd);
     return () => {
       if (document.pointerLockElement===canvas) document.exitPointerLock();
       window.removeEventListener("keydown",keyDown); window.removeEventListener("keyup",keyUp); window.removeEventListener("mousemove",mouseMove);
-      window.removeEventListener("factoryos-move",move); window.removeEventListener("factoryos-interact",interact);
+      window.removeEventListener("cutcycle-move",move); window.removeEventListener("cutcycle-interact",interact);
       canvas.removeEventListener("click",lock); canvas.removeEventListener("pointerdown",touchStart); canvas.removeEventListener("pointermove",touchMove); canvas.removeEventListener("pointerup",touchEnd);
     };
   }, [camera,gl,scene,selectMachine,setExplore]);

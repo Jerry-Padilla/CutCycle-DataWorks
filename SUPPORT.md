@@ -1,6 +1,6 @@
 # Support
 
-FactoryOS is maintained as a public portfolio project without a service-level agreement or guaranteed support response.
+CutCycle DataWorks is maintained as a public portfolio project without a service-level agreement or guaranteed support response.
 
 - Use the bug-report template for reproducible defects.
 - Use the feature-request template for proposed improvements.

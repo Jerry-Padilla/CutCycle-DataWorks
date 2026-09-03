@@ -1,6 +1,6 @@
-# Contributing to FactoryOS
+# Contributing to CutCycle DataWorks
 
-Thank you for considering a contribution. FactoryOS welcomes focused bug fixes, accessibility improvements, performance work, tests, documentation, and well-scoped manufacturing scenarios.
+Thank you for considering a contribution. CutCycle DataWorks welcomes focused bug fixes, accessibility improvements, performance work, tests, documentation, and well-scoped manufacturing scenarios.
 
 ## Before opening a change
 

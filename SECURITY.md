@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-FactoryOS is a portfolio and demonstration project. Security fixes are applied to the latest version on the default branch.
+CutCycle DataWorks is a portfolio and demonstration project. Security fixes are applied to the latest version on the default branch.
 
 | Version | Supported |
 | --- | --- |
@@ -26,4 +26,4 @@ You should receive an acknowledgement within seven days. Confirmed issues will b
 
 Useful reports include cross-site scripting, unsafe dependency behavior, unintended data transmission, deployment misconfiguration, or a security boundary that contradicts the documentation.
 
-Synthetic simulation behavior, unrealistic machine values, or the absence of industrial safety certification are not security vulnerabilities. FactoryOS must never be used as a real industrial control or safety system; see [NOTICE.md](NOTICE.md).
+Synthetic simulation behavior, unrealistic machine values, or the absence of industrial safety certification are not security vulnerabilities. CutCycle DataWorks must never be used as a real industrial control or safety system; see [NOTICE.md](NOTICE.md).

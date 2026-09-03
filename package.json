@@ -1,23 +1,23 @@
 {
-  "name": "factoryos-digital-twin",
+  "name": "cutcycle-dataworks",
   "version": "1.0.0",
-  "description": "Interactive 3D manufacturing digital twin with production simulation, telemetry, fault diagnostics, quality, and live KPIs.",
+  "description": "Interactive 3D manufacturing simulation with production telemetry, fault diagnostics, quality, and live KPIs.",
   "license": "MIT",
   "author": "Gerardo R Padilla Jr",
   "keywords": [
-    "digital-twin",
+    "manufacturing-analytics",
     "manufacturing",
     "react-three-fiber",
     "simulation",
     "oee"
   ],
-  "homepage": "https://factoryos-three.vercel.app",
+  "homepage": "https://cutcycle-dataworks.vercel.app",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jerry-Padilla/FactoryOS.git"
+    "url": "git+https://github.com/Jerry-Padilla/CutCycle-DataWorks.git"
   },
   "bugs": {
-    "url": "https://github.com/Jerry-Padilla/FactoryOS/issues"
+    "url": "https://github.com/Jerry-Padilla/CutCycle-DataWorks/issues"
   },
   "private": true,
   "type": "module",

@@ -15,7 +15,7 @@ export function SystemsArchitecture() {
   const [active, setActive] = useState(0);
   return (
     <section className="content-view" aria-labelledby="systems-title">
-      <header className="content-header"><div><p className="eyebrow">System architecture</p><h1 className="section-heading" id="systems-title">One simulation. Multiple operational views.</h1><p className="section-subtitle">FactoryOS separates manufacturing rules from presentation. Select a layer to inspect how information travels from the simulated cell to operator decisions.</p></div></header>
+      <header className="content-header"><div><p className="eyebrow">System architecture</p><h1 className="section-heading" id="systems-title">One simulation. Multiple operational views.</h1><p className="section-subtitle">CutCycle DataWorks separates manufacturing rules from presentation. Select a layer to inspect how information travels from the simulated cell to operator decisions.</p></div></header>
       <div className="content-grid architecture">
         {nodes.map((node,index) => <button key={node.title} className={`architecture-node glass-panel ${active===index?"active":""}`} onClick={() => setActive(index)}><div className="node-number">0{index+1}</div><h2 className="node-title">{node.title}</h2><div className="node-tech">{node.tech}</div></button>)}
       </div>

@@ -26,11 +26,11 @@ export function IntroOverlay() {
   if (complete) return null;
   const visibleChecks = Math.min(checks.length, Math.floor(progress / 17));
   return (
-    <div className="intro-overlay" role="dialog" aria-label="Initializing FactoryOS">
+    <div className="intro-overlay" role="dialog" aria-label="Initializing CutCycle DataWorks">
       <div className="intro-card glass-panel">
         <div className="intro-brand">
-          <span className="brand-mark brand-mark--large">F</span>
-          <div><h1 className="intro-title">FactoryOS</h1><p className="intro-subtitle">Initializing digital twin</p></div>
+          <span className="brand-mark brand-mark--large">C</span>
+          <div><h1 className="intro-title">CutCycle DataWorks</h1><p className="intro-subtitle">Initializing machining intelligence</p></div>
         </div>
         <div className="intro-progress" aria-label={`Loading ${Math.round(progress)} percent`}><div style={{ width: `${progress}%` }} /></div>
         <div className="system-checks">

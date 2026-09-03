@@ -1,7 +1,7 @@
 import type { MachineId, StationId } from "@/types/factory";
 import { CNC_STATIONS } from "@/lib/simulation/productionRouting";
 
-export const GITHUB_URL = "https://github.com/Jerry-Padilla/FactoryOS";
+export const GITHUB_URL = "https://github.com/Jerry-Padilla/CutCycle-DataWorks";
 
 export const MACHINE_IDS: MachineId[] = ["CNC-01", "CNC-02", "ROBOT-01", "CMM-01"];
 

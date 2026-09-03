@@ -11,7 +11,7 @@ export function GameGuide() {
   if (!open) return null;
 
   return (
-    <aside className="game-guide glass-panel" role="dialog" aria-label="How to play FactoryOS">
+    <aside className="game-guide glass-panel" role="dialog" aria-label="How to use CutCycle DataWorks">
       <div className="panel-head"><div><p className="eyebrow">Quick start</p><h2 className="panel-title">How to run the factory</h2></div><button className="icon-button" onClick={() => setOpen(false)} aria-label="Close game guide"><X size={15} /></button></div>
       <div className="guide-steps">
         <div><Factory size={16} /><p><strong>Keep production moving</strong><span>Saws feed independent CNC mills. Finished parts travel to a robot and assigned CMM.</span></p></div>

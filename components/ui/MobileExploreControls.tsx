@@ -5,7 +5,7 @@ import { ScanLine } from "lucide-react";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
 function dispatchMove(x: number, y: number) {
-  window.dispatchEvent(new CustomEvent("factoryos-move", { detail: { x, y } }));
+  window.dispatchEvent(new CustomEvent("cutcycle-move", { detail: { x, y } }));
 }
 
 export function MobileExploreControls() {
@@ -30,7 +30,7 @@ export function MobileExploreControls() {
         >
           <span className="joystick-knob" style={{ transform: `translate(${knob.x}px,${knob.y}px)` }} />
         </div>
-        <button className="button button-primary mobile-interact" onClick={() => window.dispatchEvent(new Event("factoryos-interact"))}><ScanLine size={20} /> E</button>
+        <button className="button button-primary mobile-interact" onClick={() => window.dispatchEvent(new Event("cutcycle-interact"))}><ScanLine size={20} /> E</button>
       </div>
     </div>
   );
