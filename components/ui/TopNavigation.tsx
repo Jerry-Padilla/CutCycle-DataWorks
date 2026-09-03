@@ -20,7 +20,7 @@ export function TopNavigation() {
     <header className="top-nav">
       <button className="brand button-ghost" onClick={() => setView("FACTORY")} aria-label="Open Factory view">
         <span className="brand-mark">C</span>
-        <span className="brand-copy"><strong>CutCycle <span aria-hidden="true">|</span> DataWorks</strong><span>Automated Machining Intelligence</span></span>
+        <span className="brand-copy"><strong>CutCycle <span className="brand-divider" aria-hidden="true">|</span> DataWorks</strong><span className="brand-subtitle">Automated Machining Intelligence</span></span>
       </button>
       <nav className="nav-links" aria-label="Primary navigation">
         {views.map((item) => (

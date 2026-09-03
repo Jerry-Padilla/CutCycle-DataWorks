@@ -46,15 +46,17 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   padding: 0 22px; border-bottom: 1px solid var(--line); background: rgba(8, 13, 18, 0.93);
   backdrop-filter: blur(18px); box-shadow: 0 12px 35px rgba(0,0,0,.2);
 }
-.brand { display: flex; align-items: center; gap: 11px; min-width: 236px; }
+.brand { display: flex; align-items: center; gap: 11px; min-width: 300px; flex:none; }
 .brand-mark {
   width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid rgba(94,183,232,.6);
   border-radius: 7px; background: linear-gradient(145deg, rgba(94,183,232,.24), rgba(94,183,232,.04));
   color: #bce9ff; font: 700 15px/1 ui-monospace, SFMono-Regular, Consolas, monospace; box-shadow: inset 0 0 18px rgba(94,183,232,.08);
 }
 .brand-mark--large { width: 56px; height: 56px; font-size: 24px; }
-.brand-copy strong { display: block; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
-.brand-copy span { display: block; margin-top: 2px; color: var(--muted); font: 500 11px/1.1 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.brand-copy { min-width:0; white-space:nowrap; text-align:left; }
+.brand-copy strong { display: block; font-size: 14px; line-height:1.05; letter-spacing: .08em; text-transform: uppercase; }
+.brand-copy .brand-divider { display:inline; margin:0 .28em; color:var(--blue); font:inherit; letter-spacing:0; }
+.brand-copy .brand-subtitle { display:block; margin-top:4px; color:var(--muted); font:500 10px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; }
 .nav-links { display: flex; height: 100%; align-items: center; gap: 4px; }
 .nav-button {
   position: relative; height: 100%; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding: 0 15px; border: 0; background: transparent; color: #8497a4;
@@ -248,7 +250,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .machine-label-status i { width:5px; height:5px; border-radius:50%; background:currentColor; box-shadow:0 0 7px currentColor; }
 
 @media (max-width: 1050px) {
-  .brand { min-width:180px; }.brand-copy span{display:none}.nav-button{padding:0 10px}.system-live{display:none}
+  .brand { min-width:220px; }.brand-copy .brand-subtitle{display:none}.nav-button{padding:0 10px}.system-live{display:none}
   .kpi-grid{grid-template-columns:repeat(3,1fr)}.architecture{grid-template-columns:repeat(3,1fr)}
   .architecture-node:nth-child(3)::after{display:none}
 }
