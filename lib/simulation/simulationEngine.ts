@@ -13,6 +13,15 @@ const mix = (from: FactoryPosition, to: FactoryPosition, progress: number): Fact
   lerp(from[2], to[2], progress),
 ];
 
+const MERGE_X = 10.8;
+const SHARED_ROBOT_PICKUP: FactoryPosition = [12.05, 1.3, 0];
+
+function mergedConveyorPosition(from: FactoryPosition, progress: number): FactoryPosition {
+  if (progress < 0.72) return mix(from, [MERGE_X, 1.3, from[2]], progress / 0.72);
+  if (progress < 0.9) return mix([MERGE_X, 1.3, from[2]], [MERGE_X, 1.3, 0], (progress - 0.72) / 0.18);
+  return mix([MERGE_X, 1.3, 0], SHARED_ROBOT_PICKUP, (progress - 0.9) / 0.1);
+}
+
 function cncPlacement(cncId: CncStationId) {
   const line = CNC_LINES.find((candidate) => candidate.machines.some((machine) => machine.label === cncId)) ?? CNC_LINES[0];
   const cell = OPERATOR_CELLS.find((candidate) => candidate.machines.some((machine) => machine.label === cncId)) ?? OPERATOR_CELLS[0];
@@ -44,12 +53,12 @@ export function getPartPosition(part: Part, stackIndex = 0): FactoryPosition {
   if (part.currentStation.startsWith("CNC-")) return cncServicedPartPosition(cnc.path, cnc.machineIndex, t);
   if (part.currentStation === "CONVEYOR") {
     const conveyorStart = cncServicedPartPosition(cnc.path, cnc.machineIndex, 1);
-    return mix(conveyorStart, [10.6, 1.3, cnc.laneZ], t);
+    return mergedConveyorPosition(conveyorStart, t);
   }
   if (part.currentStation.startsWith("ROBOT-")) {
     const robot = ROBOT_STATIONS.find((station) => station.label === part.assignedRobot) ?? ROBOT_STATIONS[0];
     const target = cmmPosition(part);
-    const pickup: FactoryPosition = [10.6, 1.3, cnc.laneZ];
+    const pickup = SHARED_ROBOT_PICKUP;
     const pose = liveTransferRobotPose(t, robotBaseRotationToward(robot.position, pickup), robotBaseRotationToward(robot.position, target));
     return robotEndEffectorPosition(robot.position, pose);
   }

@@ -86,39 +86,41 @@ function createMachines(
 export const CNC_LINES: CncLineLayout[] = [
   {
     id: "south",
-    machineZ: -4.2,
-    frontZ: -0.9,
-    rotationY: 0,
+    machineZ: -2.15,
+    frontZ: -5.15,
+    rotationY: Math.PI,
     machines: createMachines(
       ["CNC-01", "CNC-02", "CNC-03", "CNC-04", "CNC-05", "CNC-06"],
-      -4.2,
-      0,
+      -2.15,
+      Math.PI,
       { "CNC-01": "CNC-01", "CNC-02": "CNC-02" },
     ),
   },
   {
     id: "north",
-    machineZ: 4.2,
-    frontZ: 0.9,
-    rotationY: Math.PI,
+    machineZ: 2.15,
+    frontZ: 5.15,
+    rotationY: 0,
     machines: createMachines(
       ["CNC-07", "CNC-08", "CNC-09", "CNC-10", "CNC-11", "CNC-12"],
-      4.2,
-      Math.PI,
+      2.15,
+      0,
     ),
   },
 ];
 
 export const FRONT_INFEED_CONVEYORS: ConveyorLayout[] = [
-  { id: "south-front-infeed", lineId: "south", position: [0, 0.78, -0.8], length: 24, width: 1.15, infeedLanes: 1 },
-  { id: "north-front-infeed", lineId: "north", position: [0, 0.78, 0.8], length: 24, width: 1.15, infeedLanes: 1 },
+  { id: "south-front-infeed", lineId: "south", position: [-1.2, 0.78, -5.15], length: 25.2, width: 1.15, infeedLanes: 1 },
+  { id: "north-front-infeed", lineId: "north", position: [-1.2, 0.78, 5.15], length: 25.2, width: 1.15, infeedLanes: 1 },
+  { id: "inspection-merge", lineId: "central", position: [10.8, 0.78, 0], length: 10.3, width: 1.35, infeedLanes: 2 },
+  { id: "inspection-trunk", lineId: "central", position: [12.15, 0.78, 0], length: 3.2, width: 1.35, infeedLanes: 2 },
 ];
 
 export const SAW_STATIONS: { label: string; lineId: CncLineLayout["id"]; position: FactoryVector }[] = CNC_LINES.map(
   (line, index) => ({
     label: `SAW-${String(index + 1).padStart(2, "0")}`,
     lineId: line.id,
-    position: [-13.5, 0, line.id === "south" ? -1 : 1],
+    position: [-14.25, 0, line.frontZ],
   }),
 );
 
@@ -135,12 +137,12 @@ export const OPERATOR_CELLS: OperatorCellLayout[] = CNC_LINES.flatMap((line, lin
 );
 
 export const ROBOT_STATIONS: RobotLayout[] = [
-  { label: "ROBOT-01", position: [12, 0, -4.5], instrumented: true, phaseOffsetSeconds: 0 },
-  { label: "ROBOT-02", position: [12, 0, 4.5], instrumented: false, phaseOffsetSeconds: 6 },
+  { label: "ROBOT-01", position: [13.1, 0, -3.25], instrumented: true, phaseOffsetSeconds: 0 },
+  { label: "ROBOT-02", position: [13.1, 0, 3.25], instrumented: false, phaseOffsetSeconds: 6 },
 ];
 
-const CMM_BANK_X = 15.3;
-const CMM_BANK_OFFSETS = [-2.9, 0, 2.9] as const;
+const CMM_BANK_X = 16.35;
+const CMM_BANK_OFFSETS = [-2.05, 0, 2.05] as const;
 
 function createCmmBank(robot: RobotLayout, firstNumber: number): CmmLayout[] {
   return CMM_BANK_OFFSETS.map((offset, index) => ({
@@ -169,8 +171,8 @@ export const FACTORY_SIGNAGE: FactorySignLayout[] = [
 ];
 
 export const MAINTENANCE_PLACEMENTS: Record<MachineId, MaintenancePlacement> = {
-  "CNC-01": { position: [-8.1, 0, -2.38], rotationY: Math.PI },
-  "CNC-02": { position: [-4.5, 0, -2.38], rotationY: Math.PI },
-  "ROBOT-01": { position: [10.95, 0, -4.55], rotationY: -0.8 },
-  "CMM-01": { position: [14.35, 0, -4.7], rotationY: 0 },
+  "CNC-01": { position: [-8.1, 0, -3.95], rotationY: 0 },
+  "CNC-02": { position: [-4.5, 0, -3.95], rotationY: 0 },
+  "ROBOT-01": { position: [11.95, 0, -3.25], rotationY: -0.8 },
+  "CMM-01": { position: [15.35, 0, -5.3], rotationY: 0 },
 };

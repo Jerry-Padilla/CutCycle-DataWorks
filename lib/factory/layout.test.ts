@@ -12,15 +12,17 @@ import {
 } from "@/lib/factory/layout";
 
 describe("factory line layout", () => {
-  it("places six CNCs on each side of the parallel front conveyors", () => {
+  it("places six CNCs in each back-to-back row", () => {
     expect(CNC_LINES).toHaveLength(2);
     expect(CNC_LINES.map((line) => line.machines.length)).toEqual([6, 6]);
+    expect(Math.sign(Math.cos(CNC_LINES[0].rotationY))).toBe(-1);
+    expect(Math.sign(Math.cos(CNC_LINES[1].rotationY))).toBe(1);
   });
 
-  it("uses two saws and two distinct parallel infeed conveyors", () => {
-    expect(FRONT_INFEED_CONVEYORS).toHaveLength(2);
-    expect(FRONT_INFEED_CONVEYORS.map((conveyor) => conveyor.lineId)).toEqual(["south", "north"]);
-    expect(FRONT_INFEED_CONVEYORS.every((conveyor) => conveyor.length === 24 && conveyor.width === 1.15)).toBe(true);
+  it("uses two saw-fed line conveyors that join a shared inspection conveyor", () => {
+    expect(FRONT_INFEED_CONVEYORS).toHaveLength(4);
+    expect(FRONT_INFEED_CONVEYORS.map((conveyor) => conveyor.lineId)).toEqual(["south", "north", "central", "central"]);
+    expect(FRONT_INFEED_CONVEYORS.filter((conveyor) => conveyor.lineId !== "central").every((conveyor) => conveyor.length === 25.2 && conveyor.width === 1.15)).toBe(true);
     expect(SAW_STATIONS).toHaveLength(2);
     expect(SAW_STATIONS.every((saw) => saw.position[0] < -12)).toBe(true);
     expect(new Set(SAW_STATIONS.map((saw) => saw.lineId))).toEqual(new Set(["south", "north"]));
@@ -56,17 +58,17 @@ describe("factory line layout", () => {
       expect(bank).toHaveLength(3);
       expect(new Set(bank.map((cmm) => cmm.position[0])).size).toBe(1);
       expect(bank.map((cmm) => cmm.position[2]).sort((a, b) => a - b)).toEqual([
-        robot.position[2] - 2.9,
+        robot.position[2] - 2.05,
         robot.position[2],
-        robot.position[2] + 2.9,
+        robot.position[2] + 2.05,
       ]);
     }
   });
 
   it("provides service positions at every instrumented machine", () => {
     expect(Object.keys(MAINTENANCE_PLACEMENTS).sort()).toEqual(["CMM-01", "CNC-01", "CNC-02", "ROBOT-01"]);
-    expect(MAINTENANCE_PLACEMENTS["CNC-01"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
-    expect(MAINTENANCE_PLACEMENTS["CNC-02"].position[2]).toBeGreaterThan(CNC_LINES[0].machineZ);
+    expect(MAINTENANCE_PLACEMENTS["CNC-01"].position[2]).toBeLessThan(CNC_LINES[0].machineZ);
+    expect(MAINTENANCE_PLACEMENTS["CNC-02"].position[2]).toBeLessThan(CNC_LINES[0].machineZ);
   });
 
   it("defines the named shop departments and an outbound shipping depot", () => {

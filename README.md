@@ -14,7 +14,7 @@ CutCycle DataWorks is a portfolio-grade manufacturing simulation and analytics e
 
 ## Features
 
-- Procedural low-poly factory with two six-machine CNC lines, two enclosed horizontal band saws cutting thick rectangular stock, two parallel directional conveyors, two articulated transfer robots, six CMM stations in straight three-machine banks, material racks, and reject handling
+- Procedural low-poly factory with two back-to-back six-machine CNC rows, two enclosed horizontal band saws cutting thick rectangular stock, two outward-facing line conveyors merging into a shared inspection feed, two articulated transfer robots, six CMM stations in straight three-machine banks, material racks, and reject handling
 - Branded 3D wayfinding for Jerry&apos;s Automated Machine Shop, Saw, CNC, Milling, and Shipping departments
 - Modeled outbound shipping depot with three roll-up dock doors, marked staging lanes, palletized crates, and a forklift
 - Six modeled operators cover one adjacent CNC pair each; only the operator assigned to the live traceable workpiece moves, while idle operators no longer create decorative blanks
@@ -75,11 +75,12 @@ The simulation uses a single bounded clock. It supports pause and accelerated ti
 
 ## Production Flow
 
-The full visual cell begins with two horizontal band saws at the upstream end of two parallel central conveyors. SAW-01 feeds the six-machine south row and SAW-02 feeds the six-machine north row. The dispatcher alternates lines and rotates assignments across CNC-01 through CNC-12. Each cut billet appears only when released from its saw, travels only as far as its assigned machine&apos;s front pickup, and waits there if that machine is occupied. Up to 20 serialized workpieces can occupy the capacity-controlled pipeline, allowing the farther machines and both rows to work concurrently without overlapping parts or invented stock. During machining, each billet becomes its scheduled plate, impeller, or rocket nozzle; that same physical workpiece returns to its conveyor lane, reaches the matching robot, and is placed on one of three square CMMs arranged in a straight bank behind that robot.
+The full visual cell begins with two horizontal band saws at the upstream end of the two outer conveyor lanes. SAW-01 feeds the south row and SAW-02 feeds the north row. The two six-machine CNC rows sit back-to-back and face outward toward their respective conveyors. The dispatcher alternates lines and rotates assignments across CNC-01 through CNC-12. Each cut billet appears only when released from its saw, travels only as far as its assigned machine&apos;s front pickup, and waits there if that machine is occupied. Up to 20 serialized workpieces can occupy the capacity-controlled pipeline, allowing the farther machines and both rows to work concurrently without overlapping parts or invented stock. During machining, each billet becomes its scheduled plate, impeller, or rocket nozzle; that same physical workpiece returns to its line conveyor, follows the cross-conveyor into a shared inspection feed, reaches its assigned robot, and is placed on one of three square CMMs arranged in a straight bank behind that robot.
 
 ```text
-South stock → SAW-01 → assigned CNC-01…06 → south lane → ROBOT-01 → CMM-01…03
-North stock → SAW-02 → assigned CNC-07…12 → north lane → ROBOT-02 → CMM-04…06
+South stock → SAW-01 → assigned CNC-01…06 → south lane ┐
+                                                            ├→ shared inspection feed → ROBOT-01 → CMM-01…03
+North stock → SAW-02 → assigned CNC-07…12 → north lane ┘                          └→ ROBOT-02 → CMM-04…06
                                                                   ├─ Pass → Complete
                                                                   └─ Fail → Reject bin
 ```

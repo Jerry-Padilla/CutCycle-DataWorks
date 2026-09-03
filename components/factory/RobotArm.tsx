@@ -25,12 +25,12 @@ export function RobotArm({ label, position, instrumented, phaseOffsetSeconds }: 
     const activeTransfer = activePart !== undefined;
     const shouldService = instrumented ? machine.status === "RUNNING" : !state.paused;
     const destination = activePart ? CMM_STATIONS.find((cmm) => cmm.label === activePart.assignedCmm)?.position : undefined;
-    const pickup: [number, number, number] = [10.6, 1.3, activePart?.lineId === "north" ? 0.9 : -0.9];
+    const pickup: [number, number, number] = [12.05, 1.3, 0];
     const pose = activeTransfer
       ? liveTransferRobotPose(
           activePart.progress / 100,
           robotBaseRotationToward(position, pickup),
-          robotBaseRotationToward(position, destination ?? [15.3, 1.1, position[2]]),
+          robotBaseRotationToward(position, destination ?? [16.35, 1.1, position[2]]),
         )
       : shouldService
         ? serviceRobotPose(state.simulationNow / 1000, phaseOffsetSeconds)
