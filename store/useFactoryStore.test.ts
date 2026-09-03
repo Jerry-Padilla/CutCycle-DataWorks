@@ -30,6 +30,7 @@ describe("factory store clock and controls", () => {
       chartAccumulator: 0,
       chartData: [],
       demo: { active: false, step: 0, elapsed: 0, message: "", previousSpeed: null, previousFaultMode: null, partId: null },
+      productTargets: { MOUNTING_PLATE: 50, IMPELLER: 30, ROCKET_NOZZLE: 20 },
     });
   });
 
@@ -79,6 +80,13 @@ describe("factory store clock and controls", () => {
     useFactoryStore.getState().cancelDemo();
     expect(useFactoryStore.getState().speed).toBe(2);
     expect(useFactoryStore.getState().faultMode).toBe("HIGH");
+  });
+
+  it("updates the live product schedule while preserving a 100 percent mix", () => {
+    useFactoryStore.getState().setProductTarget("ROCKET_NOZZLE", 60);
+    const targets = useFactoryStore.getState().productTargets;
+    expect(targets.ROCKET_NOZZLE).toBe(60);
+    expect(Object.values(targets).reduce((sum, value) => sum + value, 0)).toBe(100);
   });
 
   it("auto-repairs and restarts a faulted machine when the technician toggle is enabled", () => {

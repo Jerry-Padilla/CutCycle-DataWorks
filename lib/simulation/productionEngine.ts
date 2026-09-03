@@ -1,5 +1,5 @@
 import { MAX_EVENT_HISTORY, STATION_CAPACITY, STATION_DURATIONS } from "@/lib/constants";
-import { productLabel } from "@/lib/simulation/productMix";
+import { productDefinition, productLabel } from "@/lib/simulation/productMix";
 import type { ProductionRoute } from "@/lib/simulation/productionRouting";
 import type {
   EventSeverity,
@@ -39,6 +39,11 @@ const STATION_MACHINE: Partial<Record<StationId, MachineId>> = {
 function isCncStation(station: StationId) { return station.startsWith("CNC-"); }
 function isRobotStation(station: StationId) { return station.startsWith("ROBOT-"); }
 function isCmmStation(station: StationId) { return station.startsWith("CMM-"); }
+
+function stationDuration(part: Part): number | undefined {
+  if (isCncStation(part.currentStation)) return productDefinition(part.productType).cncCycleSeconds;
+  return STATION_DURATIONS[part.currentStation];
+}
 
 function nextStation(part: Part): StationId | undefined {
   if (part.currentStation === "RAW") return part.assignedCnc;
@@ -128,12 +133,12 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
   }
 
   const activeParts = parts
-    .filter((part) => STATION_DURATIONS[part.currentStation])
+    .filter((part) => stationDuration(part))
     .sort((a, b) => b.createdAt - a.createdAt);
 
   for (const part of activeParts) {
     const station = part.currentStation;
-    const duration = STATION_DURATIONS[station];
+    const duration = stationDuration(part);
     if (!duration || !isMachineAvailable(station, machines)) continue;
 
     part.stationElapsed += input.deltaSeconds;

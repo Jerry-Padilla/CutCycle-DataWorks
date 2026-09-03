@@ -6,7 +6,7 @@ import { FAULT_DEFINITIONS, faultsForKind, getNextFaultDelay } from "@/lib/simul
 import { calculateKpis } from "@/lib/simulation/kpiEngine";
 import { selectNextDispatch } from "@/lib/simulation/dispatchEngine";
 import { createInitialMachines } from "@/lib/simulation/machineTypes";
-import { productLabel, selectNextProductType } from "@/lib/simulation/productMix";
+import { DEFAULT_PRODUCT_TARGETS, productLabel, rebalanceProductTargets, selectNextProductType, type ProductTargets } from "@/lib/simulation/productMix";
 import { createProductionRoute } from "@/lib/simulation/productionRouting";
 import { advanceProduction, createPart } from "@/lib/simulation/productionEngine";
 import { updateTelemetry } from "@/lib/simulation/telemetryEngine";
@@ -23,6 +23,7 @@ import type {
   Part,
   ProductionCounters,
   ProductionEvent,
+  ProductType,
   SimulationSpeed,
 } from "@/types/factory";
 
@@ -64,6 +65,7 @@ interface FactoryState {
   chartAccumulator: number;
   faultCountdown: number;
   demo: DemoState;
+  productTargets: ProductTargets;
   tick: (realDeltaSeconds: number) => void;
   setView: (view: AppView) => void;
   selectMachine: (machineId: EquipmentId | null) => void;
@@ -84,6 +86,7 @@ interface FactoryState {
   setHelpOpen: (open: boolean) => void;
   startDemo: () => void;
   cancelDemo: () => void;
+  setProductTarget: (productType: ProductType, percent: number) => void;
 }
 
 function createEvent(message: string, severity: ProductionEvent["severity"], now: number, machineId?: MachineId): ProductionEvent {
@@ -126,7 +129,7 @@ function applyFault(
   };
 }
 
-const initialProduct = selectNextProductType(initialCounters.productCounts);
+const initialProduct = selectNextProductType(initialCounters.productCounts, DEFAULT_PRODUCT_TARGETS);
 const initialParts = [createPart(1301, initialNow, false, initialProduct, createProductionRoute(1301))];
 
 export const useFactoryStore = create<FactoryState>((set) => ({
@@ -155,6 +158,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
   chartAccumulator: 0,
   faultCountdown: getNextFaultDelay("OFF"),
   demo: { active: false, step: 0, elapsed: 0, message: "", previousSpeed: null, previousFaultMode: null, partId: null },
+  productTargets: { ...DEFAULT_PRODUCT_TARGETS },
 
   tick: (realDeltaSeconds) =>
     set((state) => {
@@ -176,7 +180,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
         for (const queuedPart of parts) {
           if (queuedPart.status !== "COMPLETE" && queuedPart.status !== "REJECTED") scheduledCounts[queuedPart.productType] += 1;
         }
-        const productType = selectNextProductType(scheduledCounts);
+        const productType = selectNextProductType(scheduledCounts, state.productTargets);
         const part = createPart(serialCounter, now, false, productType, dispatch.route);
         parts = [...parts, part];
         counters = { ...counters, totalStarted: counters.totalStarted + 1 };
@@ -434,4 +438,7 @@ export const useFactoryStore = create<FactoryState>((set) => ({
       faultMode: state.demo.previousFaultMode ?? state.faultMode,
       demo: { active: false, step: 0, elapsed: 0, message: "", previousSpeed: null, previousFaultMode: null, partId: null },
     })),
+  setProductTarget: (productType, percent) => set((state) => ({
+    productTargets: rebalanceProductTargets(state.productTargets, productType, percent),
+  })),
 }));

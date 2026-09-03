@@ -205,6 +205,21 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .condition-FAULT { background:var(--red); box-shadow:0 0 7px rgba(255,107,102,.7); }.condition-BLOCKED { background:var(--yellow); }.condition-STOPPED { background:#f08d5d; }.condition-PAUSED { background:var(--blue); }
 .equipment-reason { color:#aebcc3; }.equipment-part { color:#8197a3; font-family:ui-monospace,monospace; }
 .equipment-inspect { width:28px; height:28px; }.equipment-inspect:disabled { visibility:hidden; }
+.production-planner { padding:18px; overflow:hidden; }
+.planner-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+.planner-head .chart-title { margin-bottom:0; }
+.planner-summary { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+.planner-summary span { display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid var(--line); border-radius:7px; color:#8fa2ae; font:600 10px/1 ui-monospace,monospace; }
+.planner-summary strong { color:#dce9ed; }
+.planner-note { margin:12px 0; color:#8fa1ad; font-size:11px; line-height:1.5; }
+.planner-table { overflow-x:auto; border:1px solid var(--line); border-radius:7px; }
+.planner-row { min-width:850px; display:grid; grid-template-columns:120px minmax(210px,1.4fr) repeat(5,minmax(78px,.65fr)); align-items:center; gap:12px; min-height:54px; padding:8px 12px; border-bottom:1px solid rgba(153,177,194,.09); color:#c4d0d5; font:600 11px/1.25 ui-monospace,monospace; }
+.planner-row:last-child { border-bottom:0; }
+.planner-labels { min-height:34px; background:#111a22; color:#7f949f; font-size:9px; letter-spacing:.08em; text-transform:uppercase; }
+.planner-row small { display:block; margin-top:4px; color:var(--green); font-size:8px; text-transform:uppercase; }
+.mix-control { display:grid; grid-template-columns:38px 1fr; align-items:center; gap:8px; }
+.mix-control span { color:#edf4f6; font-weight:750; }
+.mix-control input { width:100%; min-height:28px; cursor:pointer; }
 
 .architecture { grid-template-columns:repeat(6,1fr); gap:10px; align-items:stretch; }
 .architecture-node { position:relative; min-height:150px; padding:16px; cursor:pointer; transition:.2s ease; }
@@ -260,6 +275,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   .hud{top:10px;left:10px;width:166px;padding:11px}.hud-grid{margin-top:12px;gap:9px}.metric-value{font-size:14px}
   .sim-controls{top:10px;right:10px;width:150px;padding:9px}.sim-controls .eyebrow,.sim-controls .fault-mode-row,.sim-controls .control-row .metric-label{display:none}.sim-controls .control-row{margin:0}.sim-controls .technician-row{display:flex;margin-top:7px}.sim-controls .technician-row .metric-label{display:flex;font-size:8px}.sim-controls .toggle-switch{min-width:49px;height:26px;padding:0 6px;font-size:8px}.sim-controls .segmented{width:100%}.sim-controls .segment{min-width:0;flex:1;padding:7px 4px}.sim-controls .button-row{margin-top:7px}.sim-controls .button{min-height:32px;padding:0 7px}.sim-controls .button span{display:none}
   .machine-panel{position:absolute;top:auto;right:8px;left:8px;bottom:8px;width:auto;max-height:48%;border-radius:13px;padding:14px}.telemetry-grid{grid-template-columns:repeat(3,1fr)}.telemetry-card{min-height:60px;padding:8px}.telemetry-card .metric-value{font-size:13px}
+  .planner-head{display:block}.planner-summary{justify-content:flex-start;margin-top:10px}.planner-summary span{flex:1 1 140px}.production-planner{padding:14px}
   .scene-footer{left:10px;bottom:10px}.control-help{display:none}
   .demo-callout{bottom:10px}
   .game-guide{padding:16px}.guide-steps{grid-template-columns:1fr}.guide-steps>div{min-height:0}.game-guide .button-row{flex-wrap:wrap}.game-guide .button{flex:1 1 42%}

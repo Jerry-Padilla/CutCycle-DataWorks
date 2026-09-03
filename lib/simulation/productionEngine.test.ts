@@ -26,7 +26,7 @@ describe("production engine", () => {
 
   it("returns a completed CNC-01 part to its front conveyor", () => {
     const part = { ...createPart(1, 0), currentStation: "CNC-01" as const, status: "MACHINING" as const };
-    const result = advanceProduction({ parts: [part], machines: createInitialMachines(), counters: counters(), deltaSeconds: 8, now: 8_000, random: () => 0.5 });
+    const result = advanceProduction({ parts: [part], machines: createInitialMachines(), counters: counters(), deltaSeconds: 18, now: 18_000, random: () => 0.5 });
     expect(result.parts[0].currentStation).toBe("CONVEYOR");
     expect(result.parts[0].status).toBe("MOVING");
     expect(result.machines["CNC-01"].partsProduced).toBe(323);
@@ -45,7 +45,7 @@ describe("production engine", () => {
 
   it("returns front-unloaded work to the shared conveyor before robot-to-CMM placement", () => {
     const machines = createInitialMachines();
-    const cncPart = { ...createPart(5, 0), currentStation: "CNC-02" as const, status: "MACHINING" as const, stationElapsed: 6.9, progress: 98 };
+    const cncPart = { ...createPart(5, 0), currentStation: "CNC-02" as const, status: "MACHINING" as const, stationElapsed: 17.9, progress: 99 };
     const conveyorStep = advanceProduction({ parts: [cncPart], machines, counters: counters(), deltaSeconds: 0.2, now: 200 });
     expect(conveyorStep.parts[0].currentStation).toBe("CONVEYOR");
     expect(conveyorStep.events[0].message).toContain("returned part to shared front conveyor");

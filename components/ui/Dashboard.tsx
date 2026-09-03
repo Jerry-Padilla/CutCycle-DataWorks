@@ -4,6 +4,7 @@ import { Activity, Box, Clock3, Gauge, Network, ShieldCheck } from "lucide-react
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EventLog } from "@/components/ui/EventLog";
 import { EquipmentStatusPanel } from "@/components/ui/EquipmentStatusPanel";
+import { ProductionPlanner } from "@/components/ui/ProductionPlanner";
 import { PRODUCT_DEFINITIONS } from "@/lib/simulation/productMix";
 import { useFactoryStore } from "@/store/useFactoryStore";
 
@@ -13,12 +14,13 @@ export function Dashboard() {
   const kpis = useFactoryStore((state) => state.kpis);
   const chartData = useFactoryStore((state) => state.chartData);
   const productCounts = useFactoryStore((state) => state.counters.productCounts);
+  const productTargets = useFactoryStore((state) => state.productTargets);
   const data = chartData.length ? chartData : [{ label: "Now", throughput: kpis.throughput, oee: Number(kpis.oee.toFixed(1)) }];
   const machineUptime = Object.entries(kpis.uptimeByMachine).map(([machine, uptime]) => ({ machine, uptime: Number(uptime.toFixed(1)) }));
   const typeLabels = { CNC: "CNC", ROBOT: "Robot", CMM: "CMM" } as const;
   const typeUptime = Object.entries(kpis.uptimeByType).map(([type, uptime]) => ({ type: typeLabels[type as keyof typeof typeLabels], uptime: Number(uptime.toFixed(1)) }));
   const cellEquipmentOnline = 18 + kpis.machinesOnline;
-  const productMix = PRODUCT_DEFINITIONS.map((product) => ({ product: product.shortLabel, completed: productCounts[product.id], target: Math.round(product.targetShare * kpis.partsProduced) }));
+  const productMix = PRODUCT_DEFINITIONS.map((product) => ({ product: product.shortLabel, completed: productCounts[product.id], target: Math.round(productTargets[product.id] / 100 * kpis.partsProduced) }));
   const cards = [
     { label: "OEE", value: `${kpis.oee.toFixed(1)}%`, note: "Composite effectiveness", icon: Gauge },
     { label: "Throughput", value: `${Math.round(kpis.throughput)}/hr`, note: "Rolling 60 seconds", icon: Activity },
@@ -34,6 +36,7 @@ export function Dashboard() {
       <div className="content-grid kpi-grid">
         {cards.map(({ label, value, note, icon: Icon }) => <article className="kpi-card glass-panel" key={label}><div className="panel-head"><span className="metric-label">{label}</span><Icon size={15} color="var(--blue)" /></div><div className="metric-value">{value}</div><div className="delta">{note}</div></article>)}
       </div>
+      <div className="content-grid" style={{ marginTop: 14 }}><ProductionPlanner /></div>
       <div className="content-grid" style={{ marginTop: 14 }}><EquipmentStatusPanel /></div>
       <div className="content-grid analytics-grid" style={{ marginTop: 14 }}>
         <article className="chart-card glass-panel"><p className="eyebrow">Output trend</p><h2 className="chart-title">Throughput · parts per hour</h2><ResponsiveContainer width="100%" height={225}><LineChart data={data}><CartesianGrid stroke="rgba(153,177,194,.08)" vertical={false} /><XAxis dataKey="label" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} width={35} /><Tooltip contentStyle={tooltipStyle} /><Line type="monotone" dataKey="throughput" stroke="#5eb7e8" strokeWidth={2} dot={false} isAnimationActive={false} /></LineChart></ResponsiveContainer></article>
@@ -44,7 +47,7 @@ export function Dashboard() {
         <article className="chart-card glass-panel"><p className="eyebrow">Weighted runtime · running / scheduled</p><h2 className="chart-title">Uptime by machine type</h2><ResponsiveContainer width="100%" height={230}><BarChart data={typeUptime} layout="vertical" margin={{ left: 4 }}><CartesianGrid stroke="rgba(153,177,194,.08)" horizontal={false} /><XAxis type="number" domain={[0,100]} unit="%" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="type" width={58} tick={{ fill: "#9cabb3", fontSize: 9 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${Number(value ?? 0).toFixed(1)}%`, "Uptime"]} /><Bar dataKey="uptime" fill="#55d995" radius={[0,4,4,0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></article>
       </div>
       <div className="content-grid analytics-grid" style={{ marginTop: 14 }}>
-        <article className="chart-card glass-panel"><p className="eyebrow">Order-driven scheduler</p><h2 className="chart-title">Accepted product mix · 50 / 30 / 20 target</h2><ResponsiveContainer width="100%" height={230}><BarChart data={productMix} layout="vertical" margin={{ left: 4 }}><CartesianGrid stroke="rgba(153,177,194,.08)" horizontal={false} /><XAxis type="number" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="product" width={58} tick={{ fill: "#9cabb3", fontSize: 9 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="target" fill="#344854" radius={[0,4,4,0]} isAnimationActive={false} /><Bar dataKey="completed" fill="#55d995" radius={[0,4,4,0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></article>
+        <article className="chart-card glass-panel"><p className="eyebrow">Order-driven scheduler</p><h2 className="chart-title">Accepted output vs adjustable target mix</h2><ResponsiveContainer width="100%" height={230}><BarChart data={productMix} layout="vertical" margin={{ left: 4 }}><CartesianGrid stroke="rgba(153,177,194,.08)" horizontal={false} /><XAxis type="number" tick={{ fill: "#6f828e", fontSize: 9 }} tickLine={false} axisLine={false} /><YAxis type="category" dataKey="product" width={58} tick={{ fill: "#9cabb3", fontSize: 9 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="target" fill="#344854" radius={[0,4,4,0]} isAnimationActive={false} /><Bar dataKey="completed" fill="#55d995" radius={[0,4,4,0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></article>
         <article className="event-card glass-panel"><p className="eyebrow">MES event stream</p><h2 className="chart-title">Production event log</h2><EventLog /></article>
       </div>
     </section>

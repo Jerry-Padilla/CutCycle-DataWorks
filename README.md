@@ -24,7 +24,8 @@ CutCycle DataWorks is a portfolio-grade manufacturing simulation and analytics e
 - Z-axis conveyor rollers with visible witness marks and playback-speed-synchronized motion
 - Two lowered-pose robot arms with damped shoulder, elbow, base, and gripper motion; each services a straight, evenly spaced bank of three CMMs
 - A capacity-controlled 20-part WIP pipeline with uniquely serialized billets, no looping conveyor stock, and no operator-owned duplicate geometry
-- Order-driven product mix: every rectangular billet is visibly machined into a mounting plate, six-vane impeller, or rocket-engine nozzle; accepted output is scheduled toward a 50/30/20 mix
+- Order-driven product mix: every rectangular billet is visibly machined into a mounting plate, six-vane impeller, or rocket-engine nozzle; accepted output follows the adjustable schedule
+- Interactive product-mix sliders rebalance the live schedule to 100%, with illustrative price, cost, product-specific CNC cycle time, realized revenue, gross profit, and profit-per-hour calculations
 - Live spindle, robot, and inspection telemetry with smooth signal changes
 - Machine selection, start/stop controls, status lights, and floating labels
 - Five evidence-based CNC and robot fault scenarios
@@ -69,7 +70,7 @@ Event-derived KPI engine
 React operator panels + Recharts dashboard
 ```
 
-All manufacturing behavior runs client-side. The presentation layer does not create independent telemetry or KPI values; both the factory view and dashboard consume the same simulation state.
+All manufacturing behavior runs client-side. The presentation layer does not create independent telemetry or KPI values; both the factory view and dashboard consume the same simulation state. Dashboard economics are illustrative planning values rather than accounting data.
 
 The simulation uses a single bounded clock. It supports pause and accelerated time without stacking browser timers. Station capacity checks hold the live workpiece when downstream equipment is unavailable, allowing faults to create visible production and KPI consequences. The dispatcher skips stopped or occupied CNCs and reserves half the WIP capacity for each line, so one unavailable mill cannot halt unrelated equipment or starve the parallel line. A deficit-based scheduler compares accepted counts with the target product mix before releasing each billet, so the visible output converges on the configured order profile rather than being selected randomly.
 
