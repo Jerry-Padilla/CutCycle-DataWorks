@@ -192,9 +192,9 @@ export function advanceProduction(input: ProductionStepInput): ProductionStepRes
     const transition = station === "RAW"
       ? ` · saw-cut blank stopped at ${next} pickup · operator-loaded from front`
       : next === "CONVEYOR"
-        ? " · operator returned part to shared front conveyor"
+        ? " · operator returned part to its outbound conveyor"
         : isRobotStation(next)
-          ? ` · shared front conveyor delivered part to ${next}`
+          ? ` · merged inspection conveyor delivered part to ${next}`
           : isCmmStation(next)
             ? ` · ${station} placed part directly on ${next}`
             : ` · entered ${next}`;

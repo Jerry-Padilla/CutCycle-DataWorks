@@ -19,4 +19,19 @@ describe("independent line dispatch", () => {
     const selection = selectNextDispatch(20, southParts, machines);
     expect(selection?.route.lineId).toBe("north");
   });
+
+  it("allows one billet to wait at a busy CNC conveyor pickup", () => {
+    const machines = createInitialMachines();
+    const machining = { ...createPart(1, 0, false, "MOUNTING_PLATE", createProductionRoute(1)), currentStation: "CNC-01" as const, status: "MACHINING" as const };
+    const selection = selectNextDispatch(12, [machining], machines);
+    expect(selection?.route.assignedCnc).toBe("CNC-01");
+  });
+
+  it("does not stack more than one waiting billet at a CNC pickup", () => {
+    const machines = createInitialMachines();
+    const route = createProductionRoute(1);
+    const machining = { ...createPart(1, 0, false, "MOUNTING_PLATE", route), currentStation: "CNC-01" as const, status: "MACHINING" as const };
+    const waiting = { ...createPart(13, 1, false, "IMPELLER", route), progress: 100 };
+    expect(selectNextDispatch(24, [machining, waiting], machines)?.route.assignedCnc).not.toBe("CNC-01");
+  });
 });

@@ -31,7 +31,7 @@ describe("production engine", () => {
     expect(result.parts[0].status).toBe("MOVING");
     expect(result.machines["CNC-01"].partsProduced).toBe(323);
     expect(result.events.some((item) => item.message.includes("completed CNC-01"))).toBe(true);
-    expect(result.events.some((item) => item.message.includes("returned part to shared front conveyor"))).toBe(true);
+    expect(result.events.some((item) => item.message.includes("returned part to its outbound conveyor"))).toBe(true);
   });
 
   it("holds work when its assigned machine is unavailable", () => {
@@ -48,12 +48,12 @@ describe("production engine", () => {
     const cncPart = { ...createPart(5, 0), currentStation: "CNC-02" as const, status: "MACHINING" as const, stationElapsed: 17.9, progress: 99 };
     const conveyorStep = advanceProduction({ parts: [cncPart], machines, counters: counters(), deltaSeconds: 0.2, now: 200 });
     expect(conveyorStep.parts[0].currentStation).toBe("CONVEYOR");
-    expect(conveyorStep.events[0].message).toContain("returned part to shared front conveyor");
+    expect(conveyorStep.events[0].message).toContain("returned part to its outbound conveyor");
 
     const conveyorPart = { ...conveyorStep.parts[0], stationElapsed: 2.9, progress: 98 };
     const robotStep = advanceProduction({ parts: [conveyorPart], machines, counters: counters(), deltaSeconds: 0.2, now: 400 });
     expect(robotStep.parts[0].currentStation).toBe("ROBOT-01");
-    expect(robotStep.events[0].message).toContain("shared front conveyor delivered part");
+    expect(robotStep.events[0].message).toContain("merged inspection conveyor delivered part");
 
     const robotPart = { ...robotStep.parts[0], stationElapsed: 2.9, progress: 98 };
     const cmmStep = advanceProduction({ parts: [robotPart], machines, counters: counters(), deltaSeconds: 0.2, now: 600 });

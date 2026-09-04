@@ -8,6 +8,7 @@
 factoryos-*.png
 /.browser-*
 /FactoryOS/
+/CutCycle-DataWorks/
 .DS_Store
 .env*
 !.env.example

@@ -7,6 +7,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.{ts,tsx}"],
-    exclude: ["FactoryOS/**", "node_modules/**", ".next/**"],
+    exclude: ["FactoryOS/**", "CutCycle-DataWorks/**", "node_modules/**", ".next/**"],
   },
 });
