@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cncToolpathOffset,
+  cncSpindleLift,
   CNC_SPINDLE_AXIS,
   CONVEYOR_PATH_AXIS,
   CONVEYOR_ROLLER_AXIS,
@@ -50,5 +51,13 @@ describe("factory kinematics", () => {
     expect(spindleDisplayAngularVelocity(0)).toBe(2);
     expect(spindleDisplayAngularVelocity(8_000)).toBeCloseTo(12.3077, 4);
     expect(spindleDisplayAngularVelocity(20_000)).toBe(18);
+  });
+
+  it("retracts the spindle during loading and unloading", () => {
+    expect(cncSpindleLift(0)).toBeCloseTo(0.62);
+    expect(cncSpindleLift(34)).toBeCloseTo(0.31);
+    expect(cncSpindleLift(50)).toBe(0);
+    expect(cncSpindleLift(74)).toBeCloseTo(0.31);
+    expect(cncSpindleLift(90)).toBeCloseTo(0.62);
   });
 });

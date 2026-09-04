@@ -5,17 +5,17 @@ import { useRef, type RefObject } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { Group } from "three";
 import { MachineLabel } from "@/components/factory/MachineLabel";
-import { cncToolpathOffset, spindleDisplayAngularVelocity, type CncToolpath } from "@/lib/simulation/kinematics";
+import { cncSpindleLift, cncToolpathOffset, spindleDisplayAngularVelocity, type CncToolpath } from "@/lib/simulation/kinematics";
 import { useFactoryStore } from "@/store/useFactoryStore";
 import type { CncStationId, EquipmentId, MachineId, MachineStatus } from "@/types/factory";
 
 const statusColor: Record<MachineStatus, string> = { RUNNING: "#42dc8b", IDLE: "#f0c555", FAULT: "#ff514b", MAINTENANCE: "#4baee7" };
 const rectanglePath: [number, number, number][] = [
-  [-.77,.91,1.3],[-.13,.91,1.3],[-.13,.91,1.66],[-.77,.91,1.66],[-.77,.91,1.3],
+  [-.77,1.205,1.3],[-.13,1.205,1.3],[-.13,1.205,1.66],[-.77,1.205,1.66],[-.77,1.205,1.3],
 ];
 const circlePath: [number, number, number][] = Array.from({ length: 33 }, (_, index) => {
   const angle = (index / 32) * Math.PI * 2;
-  return [-.45 + Math.cos(angle) * .32, .91, 1.48 + Math.sin(angle) * .18];
+  return [-.45 + Math.cos(angle) * .32, 1.205, 1.48 + Math.sin(angle) * .18];
 });
 
 interface CncShellProps {
@@ -43,7 +43,7 @@ function CncShell({ label, status, position, rotationY = 0, selected = false, sp
       <mesh position={[-.45,.9,1.48]}><boxGeometry args={[.72,.05,.48]} /><meshStandardMaterial color="#aab7bc" metalness={.82} roughness={.2} /></mesh>
       <mesh position={[.92,1.55,1.43]} castShadow><boxGeometry args={[.63,1.16,.18]} /><meshStandardMaterial color="#161f24" /></mesh>
       <mesh position={[.92,1.78,1.54]}><planeGeometry args={[.42,.34]} /><meshBasicMaterial color={status === "FAULT" ? "#a82e2b" : "#1b6a83"} /></mesh>
-      <group position={[-.45,1.68,1.48]}>
+      <group position={[-.45,1.86,1.48]}>
         <group ref={spindleCarriage}>
           <mesh position={[0,.25,0]} castShadow><boxGeometry args={[.56,.54,.52]} /><meshStandardMaterial color="#46555c" metalness={.68} roughness={.26} /></mesh>
           <group ref={spindle} userData={{ rotationAxis: "Y", assembly: "vertical-cnc-spindle" }}>
@@ -77,9 +77,9 @@ export function CNC({ id, position, rotationY = 0 }: { id: Extract<MachineId, "C
   useFrame((_, delta) => {
     if (spindleCarriage.current) {
       const [x,z] = cncToolpathOffset(toolpath, machine.progress);
-      spindleCarriage.current.position.set(x,0,z);
+      spindleCarriage.current.position.set(x,cncSpindleLift(machine.progress),z);
     }
-    if (!spindle.current || paused || machine.status !== "RUNNING" || machine.telemetry.kind !== "CNC") return;
+    if (!spindle.current || paused || machine.status !== "RUNNING" || machine.telemetry.kind !== "CNC" || !machine.currentPartId || machine.progress < 30 || machine.progress >= 78) return;
     const displayAngularVelocity = spindleDisplayAngularVelocity(machine.telemetry.spindleRpm);
     spindle.current.rotation.y -= delta * displayAngularVelocity * speed;
   });
@@ -99,11 +99,12 @@ export function AuxiliaryCNC({ label, position, rotationY = 0 }: { label: CncSta
   const toolpath: CncToolpath = Number(label.slice(-2)) % 2 === 0 ? "circle" : "rectangle";
   useFrame((_, delta) => {
     const part = useFactoryStore.getState().parts.find((candidate) => candidate.currentStation === label);
-    if (spindleCarriage.current && part) {
-      const [x, z] = cncToolpathOffset(toolpath, part.progress);
-      spindleCarriage.current.position.set(x, 0, z);
+    if (spindleCarriage.current) {
+      const progress = part?.progress ?? 0;
+      const [x, z] = cncToolpathOffset(toolpath, progress);
+      spindleCarriage.current.position.set(x, cncSpindleLift(progress), z);
     }
-    if (spindle.current && active && !paused) spindle.current.rotation.y -= delta * 18 * speed;
+    if (spindle.current && active && part && part.progress >= 30 && part.progress < 78 && !paused) spindle.current.rotation.y -= delta * 18 * speed;
   });
   const click = (event: ThreeEvent<MouseEvent>) => { event.stopPropagation(); select(label); };
   return <CncShell label={label} status={active && !paused ? "RUNNING" : "IDLE"} position={position} rotationY={rotationY} selected={selected} spindle={spindle} spindleCarriage={spindleCarriage} toolpath={toolpath} onClick={click} machineId={label} />;

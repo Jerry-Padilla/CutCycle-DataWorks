@@ -21,3 +21,12 @@ export function cncToolpathOffset(toolpath: CncToolpath, progress: number): [num
   if (segment < 3) return [.32 - (segment - 2) * .64, .25];
   return [-.32, .25 - (segment - 3) * .5];
 }
+
+/** Retracts the spindle for loading/unloading and feeds it down only while cutting. */
+export function cncSpindleLift(progress: number): number {
+  const clamped = Math.min(100, Math.max(0, progress));
+  if (clamped < 30 || clamped >= 78) return 0.62;
+  if (clamped < 38) return 0.62 * (1 - (clamped - 30) / 8);
+  if (clamped < 70) return 0;
+  return 0.62 * ((clamped - 70) / 8);
+}
